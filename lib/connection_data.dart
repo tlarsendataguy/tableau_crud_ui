@@ -103,6 +103,42 @@ class DeleteFunction extends FunctionData {
   }
 }
 
+class UpdateFunction extends FunctionData {
+  UpdateFunction({this.whereClauses,this.updates});
+  final List<Where> whereClauses;
+  final Map<String,dynamic> updates;
+
+  String function() => 'Update';
+  Map<String, dynamic> parameters() {
+    List<Map<String,dynamic>> whereMap = whereClauses.map((v)=>v.toMap()).toList();
+    return {
+      "where": whereMap,
+      "updates": updates,
+    };
+  }
+}
+
+class ReadFunction extends FunctionData {
+  ReadFunction({this.fields, this.whereClauses, this.orderBy, this.pageSize, this.page});
+  final List<String> fields;
+  final List<Where> whereClauses;
+  final List<String> orderBy;
+  final int pageSize;
+  final int page;
+
+  String function() => 'Read';
+  Map<String, dynamic> parameters() {
+    List<Map<String,dynamic>> whereMap = whereClauses.map((v)=>v.toMap()).toList();
+    return {
+      "fields": fields,
+      "where": whereMap,
+      "orderBy": orderBy,
+      "pageSize": pageSize,
+      "page": page,
+    };
+  }
+}
+
 class RequestData<T> {
   RequestData({this.connectionData, this.functionData}) : assert(connectionData != null && functionData != null);
   final ConnectionData connectionData;
