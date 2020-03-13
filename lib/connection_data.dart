@@ -1,5 +1,26 @@
 import 'dart:convert';
 
+class RequestData {
+  RequestData({this.connectionData, this.functionData}) : assert(connectionData != null && functionData != null);
+  final ConnectionData connectionData;
+  final FunctionData functionData;
+
+  String toJson(){
+    var request = {
+      "Server": connectionData.server,
+      "Port": connectionData.port,
+      "Username": connectionData.username,
+      "Password": connectionData.password,
+      "Database": connectionData.database,
+      "Schema": connectionData.schema,
+      "Table": connectionData.table,
+      "Function": functionData.function(),
+      "Parameters": functionData.parameters(),
+    };
+    return jsonEncode(request);
+  }
+}
+
 class ConnectionData {
   ConnectionData({this.server, this.port, this.username, this.password, this.database, this.schema, this.table});
   final String server;
@@ -10,8 +31,8 @@ class ConnectionData {
   final String schema;
   final String table;
 
-  RequestData<T> generateRequest<T>(FunctionData functionData){
-    return RequestData<T>(connectionData: this, functionData: functionData);
+  RequestData generateRequest(FunctionData functionData){
+    return RequestData(connectionData: this, functionData: functionData);
   }
 }
 
@@ -138,25 +159,3 @@ class ReadFunction extends FunctionData {
     };
   }
 }
-
-class RequestData<T> {
-  RequestData({this.connectionData, this.functionData}) : assert(connectionData != null && functionData != null);
-  final ConnectionData connectionData;
-  final FunctionData functionData;
-
-  String toJson(){
-    var request = {
-      "Server": connectionData.server,
-      "Port": connectionData.port,
-      "Username": connectionData.username,
-      "Password": connectionData.password,
-      "Database": connectionData.database,
-      "Schema": connectionData.schema,
-      "Table": connectionData.table,
-      "Function": functionData.function(),
-      "Parameters": functionData.parameters(),
-    };
-    return jsonEncode(request);
-  }
-}
-
