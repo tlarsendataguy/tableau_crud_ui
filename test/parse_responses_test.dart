@@ -14,15 +14,37 @@ main(){
     print(results.data.data.toString());
   });
 
+  var multiRowResponse = '{"Success":true,"Data":{"ColumnNames":["id","category","amount","date"],"RowCount":2,"Data":[[1,13],["blah","something"],[123.2,64.02],["2020-01-13T00:00:00Z","2020-02-03T00:00:00Z"]]}}';
   test("Parse read success", (){
-    var response = '{"Success":true,"Data":{"ColumnNames":["id","category","amount","date"],"RowCount":2,"Data":[[1,13],["blah","something"],[123.2,64.02],["2020-01-13T00:00:00Z","2020-02-03T00:00:00Z"]]}}';
-    var results = parseQuery(response);
+    var results = parseQuery(multiRowResponse);
     expect(results.hasError, isFalse);
     expect(results.data.columnCount(), equals(4));
     expect(results.data.rowCount(), equals(2));
 
     print(results.data.columnNames.toString());
     print(results.data.data.toString());
+  });
+
+  test("Retrieve row in data",(){
+    var results = parseQuery(multiRowResponse);
+    var value = results.data.getFieldValueFromRow('category', 1);
+    expect(value, equals("something"));
+  });
+
+  test("Retrieve field value that does not exist",(){
+    var results = parseQuery(multiRowResponse);
+    expect(() => results.data.getFieldValueFromRow('invalid', 1), throwsException);
+  });
+
+  test("Retrieve row past end of data",(){
+    var results = parseQuery(multiRowResponse);
+    expect(() => results.data.getFieldValueFromRow('category', 10), throwsException);
+  });
+
+  test("Retrieve multiple field values in row in data",(){
+    var results = parseQuery(multiRowResponse);
+    var value = results.data.getMultiFieldValuesFromRow(['category','id'], 1);
+    expect(value, equals(["something",13]));
   });
 
   test("Parse read failure", (){

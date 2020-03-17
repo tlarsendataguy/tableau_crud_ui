@@ -1,8 +1,9 @@
 import 'package:tableau_crud_ui/connection_data.dart';
 import 'dart:html' as html;
 import 'package:http/http.dart' as http;
+import 'package:tableau_crud_ui/settings.dart';
 
-abstract class Io {
+abstract class DbIo {
   Future<String> testConnection(RequestData request);
   Future<String> insert(RequestData request);
   Future<String> update(RequestData request);
@@ -10,7 +11,25 @@ abstract class Io {
   Future<String> read(RequestData request);
 }
 
-class MockSuccessIo extends Io {
+abstract class TableauIo {
+  Future initialize();
+  Future saveSettings(String settingsJson);
+  Future<Settings> getSettings();
+  Future<List<String>> getWorksheets();
+  Future<List<TableauFilter>> getFilters(String worksheet);
+}
+
+class TableauFilter{
+  TableauFilter({this.fieldId,this.fieldName,this.filterType,this.exclude,this.values});
+
+  final String fieldId;
+  final String fieldName;
+  final String filterType;
+  final bool   exclude;
+  final List<dynamic> values;
+}
+
+class DbMockSuccessIo extends DbIo {
   Future<String> testConnection(RequestData request) async =>
       '{"Success":true,"Data":{"ColumnNames":["id","category","amount","date"],"RowCount":0,"Data":[[],[],[]]}}';
   Future<String> insert(RequestData request) async =>
@@ -23,7 +42,7 @@ class MockSuccessIo extends Io {
       '{"Success":true,"Data":{"ColumnNames":["id","category","amount","date"],"RowCount":2,"Data":[[1,13],["blah","something"],[123.2,64.02],["2020-01-13T00:00:00Z","2020-02-03T00:00:00Z"]]}}';
 }
 
-class MockFailIo extends Io {
+class DbMockFailIo extends DbIo {
   Future<String> testConnection(RequestData request) async =>
       '{"Success":false,"Data";"test connection failed"}';
   Future<String> insert(RequestData request) async =>
@@ -36,7 +55,7 @@ class MockFailIo extends Io {
       '{"Success":false,"Data";"read failed"}';
 }
 
-class WebIo extends Io {
+class DbWebIo extends DbIo {
   var _address = html.window.location.href;
 
   Future<String> testConnection(RequestData request) =>_request(request.toJson());
