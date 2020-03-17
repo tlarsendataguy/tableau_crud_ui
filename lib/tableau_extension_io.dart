@@ -13,9 +13,8 @@ class TableauExtensionIo extends TableauIo {
   }
 
   Future<Settings> getSettings() async {
-    var all = await promiseToFuture<Map<String, String>>(api.getAll());
-    var settingsJson = all['settings'];
-    return Settings.fromJson(settingsJson);
+    var setting = api.getAllSettings();
+    return Settings.fromJson(setting.settings);
   }
 
   Future<List<String>> getWorksheets() async {
@@ -27,8 +26,8 @@ class TableauExtensionIo extends TableauIo {
   }
 
   Future saveSettings(String settingsJson) async {
-    api.set('settings', settingsJson);
-    await promiseToFuture(api.saveAsync());
+    api.setSetting('settings', settingsJson);
+    await promiseToFuture(api.saveSettingsAsync());
   }
 }
 

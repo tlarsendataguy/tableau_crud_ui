@@ -3,11 +3,12 @@ import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/io.dart';
 import 'package:tableau_crud_ui/settings.dart';
-import 'tableau_extension_io.dart';
+import 'package:tableau_crud_ui/tableau_extension_io.dart';
 
 TableauIo io;
 
 void main() async {
+  //io = TableauMockIo();
   io = TableauExtensionIo();
   await io.initialize();
   runApp(MyApp());
@@ -20,12 +21,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: Home(),
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class Home extends StatelessWidget {
+  @override
   Widget build(BuildContext context) {
     return Material(
       child: Column(

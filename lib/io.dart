@@ -74,3 +74,27 @@ class DbWebIo extends DbIo {
   }
 }
 
+class TableauMockIo extends TableauIo {
+  Settings _settings;
+
+  Future<List<TableauFilter>> getFilters(String worksheet) async {
+    return List<TableauFilter>();
+  }
+
+  Future<Settings> getSettings() async {
+    return _settings;
+  }
+
+  Future<List<String>> getWorksheets() async {
+    return ['sheet1','sheet2'];
+  }
+
+  Future initialize() async{
+    return;
+  }
+
+  Future saveSettings(String settingsJson) async {
+    _settings = Settings.fromJson(settingsJson);
+  }
+}
+

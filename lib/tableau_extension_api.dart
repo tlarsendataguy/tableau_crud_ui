@@ -1,18 +1,23 @@
-@JS()
+@JS('tableau')
 library Tableau.js;
 
 import 'package:js/js.dart';
 
-@JS('tableau.extensions')
+
+@JS('extensions.initializeAsync')
 external dynamic initializeAsync();
 
-@JS('tableau.extensions.dashboardContent.dashboard')
+@JS('extensions.dashboardContent.dashboard.worksheets')
 external List<Worksheet> get worksheets;
 
-@JS('tableau.extensions.settings')
-external dynamic saveAsync();
-external void set(String key, String value);
-external dynamic getAll();
+@JS('extensions.settings.saveAsync')
+external dynamic saveSettingsAsync();
+
+@JS('extensions.settings.set')
+external void setSetting(String key, String value);
+
+@JS('extensions.settings.getAll')
+external Settings getAllSettings();
 
 @JS()
 class Worksheet {
@@ -34,4 +39,9 @@ class Filter {
 @JS()
 class DataValue {
   external dynamic get value;
+}
+
+@JS()
+class Settings {
+  external String get settings;
 }

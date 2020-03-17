@@ -31,6 +31,12 @@ class Settings {
   final List<String> primaryKey;
   final List<Filter> filters;
 
+  bool isEmpty(){
+    return server == '' && port == '' && username == '' && password == '' &&
+    database == '' && schema == '' && table == '' && selectFields == [] &&
+    orderByFields == [] && primaryKey == [] && filters == [];
+  }
+
   String toJson(){
     var mapped = <String,dynamic>{
       _server: server,
