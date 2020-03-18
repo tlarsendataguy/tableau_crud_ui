@@ -3,6 +3,8 @@ library Tableau.js;
 
 import 'package:js/js.dart';
 
+@JS('extensions.environment.context')
+external String get context;
 
 @JS('extensions.initializeAsync')
 external dynamic initializeAsync();
@@ -19,6 +21,12 @@ external void setSetting(String key, String value);
 @JS('extensions.settings.getAll')
 external Settings getAllSettings();
 
+@JS('isDate')
+external bool isDate(dynamic object);
+
+@JS('dateToString')
+external String dateToString(dynamic object);
+
 @JS()
 class Worksheet {
   external String get name;
@@ -31,6 +39,8 @@ class Filter {
   external String get fieldName;
   external String get filterType;
   external bool get isExcludeMode;
+  external bool get isAllSelected;
+  external bool get includeNullValues;
   external List<DataValue> get appliedValues;
   external DataValue get minValue;
   external DataValue get maxValue;
@@ -39,6 +49,8 @@ class Filter {
 @JS()
 class DataValue {
   external dynamic get value;
+  external String get formattedValue;
+  external bool get instanceof;
 }
 
 @JS()

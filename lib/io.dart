@@ -13,18 +13,21 @@ abstract class DbIo {
 
 abstract class TableauIo {
   Future initialize();
-  Future saveSettings(String settingsJson);
+  Future<String> getContext();
   Future<Settings> getSettings();
+  Future saveSettings(String settingsJson);
   Future<List<String>> getWorksheets();
   Future<List<TableauFilter>> getFilters(String worksheet);
 }
 
 class TableauFilter{
-  TableauFilter({this.fieldId,this.fieldName,this.filterType,this.exclude,this.values});
+  TableauFilter({this.fieldId,this.fieldName,this.filterType,this.isAllSelected,this.includeNullValues,this.exclude,this.values});
 
   final String fieldId;
   final String fieldName;
   final String filterType;
+  final bool   isAllSelected;
+  final bool   includeNullValues;
   final bool   exclude;
   final List<dynamic> values;
 }
@@ -77,24 +80,23 @@ class DbWebIo extends DbIo {
 class TableauMockIo extends TableauIo {
   Settings _settings;
 
-  Future<List<TableauFilter>> getFilters(String worksheet) async {
-    return List<TableauFilter>();
-  }
+  Future initialize() async {}
+  Future<String> getContext() async => 'desktop';
 
   Future<Settings> getSettings() async {
     return _settings;
+  }
+
+  Future saveSettings(String settingsJson) async {
+    _settings = Settings.fromJson(settingsJson);
   }
 
   Future<List<String>> getWorksheets() async {
     return ['sheet1','sheet2'];
   }
 
-  Future initialize() async{
-    return;
-  }
-
-  Future saveSettings(String settingsJson) async {
-    _settings = Settings.fromJson(settingsJson);
+  Future<List<TableauFilter>> getFilters(String worksheet) async {
+    return List<TableauFilter>();
   }
 }
 

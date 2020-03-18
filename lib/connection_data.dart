@@ -54,8 +54,10 @@ class InsertFunction extends FunctionData {
 }
 
 abstract class Where {
-  String get field;
-  String get operator;
+  String get        field;
+  String get        operator;
+  bool get          exclude;
+  bool get          includeNulls;
   List<dynamic> get values;
 
   Map<String, dynamic> toMap(){
@@ -63,6 +65,8 @@ abstract class Where {
       "field": field,
       "operator": operator,
       "values": values,
+      "includeNulls": includeNulls,
+      "exclude": exclude,
     };
   }
 }
@@ -78,36 +82,46 @@ class WhereEqual extends Where {
 
   String get field => _field;
   String get operator => 'equals';
+  bool   get exclude => false;
+  bool   get includeNulls => false;
   List<dynamic> get values => [_value];
 }
 
 class WhereIn extends Where {
-  WhereIn(String field, List<dynamic> values){
+  WhereIn(String field, bool exclude, List<dynamic> values){
     _field = field;
     _values = values;
+    _exclude = exclude;
   }
 
   String _field;
+  bool   _exclude;
   List<dynamic> _values;
 
   String get field => _field;
   String get operator => 'in';
+  bool   get exclude => _exclude;
+  bool   get includeNulls => false;
   List<dynamic> get values => _values;
 }
 
 class WhereRange extends Where {
-  WhereRange(String field, dynamic min, dynamic max){
+  WhereRange(String field, dynamic min, dynamic max, bool includeNulls){
     _field = field;
     _min = min;
     _max = max;
+    _includeNulls = includeNulls;
   }
 
   String _field;
   dynamic _min;
   dynamic _max;
+  bool    _includeNulls;
 
   String get field => _field;
   String get operator => 'range';
+  bool   get includeNulls => _includeNulls;
+  bool   get exclude => false;
   List<dynamic> get values => [_min, _max];
 }
 

@@ -28,6 +28,14 @@
     }
   </script>
     -->
+  <script>
+    window.tableau.isDate = (object) => {
+      return object instanceof Date;
+    }
+    window.tableau.dateToString = (object) => {
+      return object.toISOString();
+    }
+  </script>
   <script src="main.dart.js" type="application/javascript"></script>
 </body>
 </html>
