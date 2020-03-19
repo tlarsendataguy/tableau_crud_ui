@@ -1,6 +1,4 @@
 import 'package:tableau_crud_ui/connection_data.dart';
-import 'dart:html' as html;
-import 'package:http/http.dart' as http;
 import 'package:tableau_crud_ui/settings.dart';
 
 abstract class DbIo {
@@ -58,27 +56,20 @@ class DbMockFailIo extends DbIo {
       '{"Success":false,"Data";"read failed"}';
 }
 
-class DbWebIo extends DbIo {
-  var _address = html.window.location.href;
-
-  Future<String> testConnection(RequestData request) =>_request(request.toJson());
-  Future<String> insert(RequestData request) =>_request(request.toJson());
-  Future<String> update(RequestData request) =>_request(request.toJson());
-  Future<String> delete(RequestData request) =>_request(request.toJson());
-  Future<String> read(RequestData request) =>_request(request.toJson());
-
-  Future<String> _request(String jsonRequest) async {
-    try{
-      var response = await http.post(_address, headers: {"Content-type":"application/json"}, body: jsonRequest);
-      return response.body;
-    } catch (ex){
-      return '{"Success":false,"Data":"Error connecting to web service"}';
-    }
-  }
-}
-
 class TableauMockIo extends TableauIo {
-  Settings _settings;
+  var _settings = Settings(
+    server: '',
+    port: '',
+    username: '',
+    password: '',
+    database: '',
+    schema: '',
+    table: '',
+    selectFields: [],
+    orderByFields: [],
+    primaryKey: [],
+    filters: [],
+  );
 
   Future initialize() async {}
   Future<String> getContext() async => 'desktop';
@@ -96,7 +87,17 @@ class TableauMockIo extends TableauIo {
   }
 
   Future<List<TableauFilter>> getFilters(String worksheet) async {
-    return List<TableauFilter>();
+    return <TableauFilter>[
+      TableauFilter(
+        fieldId: '1',
+        fieldName: 'Some field',
+        filterType: 'categorical',
+        isAllSelected: false,
+        includeNullValues: false,
+        exclude: false,
+        values: ['A','B'],
+      ),
+    ];
   }
 }
 

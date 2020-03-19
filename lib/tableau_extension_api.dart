@@ -19,7 +19,7 @@ external dynamic saveSettingsAsync();
 external void setSetting(String key, String value);
 
 @JS('extensions.settings.getAll')
-external Settings getAllSettings();
+external TableauSettings getAllSettings();
 
 @JS('isDate')
 external bool isDate(dynamic object);
@@ -54,6 +54,6 @@ class DataValue {
 }
 
 @JS()
-class Settings {
+class TableauSettings {
   external String get settings;
 }

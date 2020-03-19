@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:tableau_crud_ui/settings.dart';
+
 class RequestData {
   RequestData({this.connectionData, this.functionData}) : assert(connectionData != null && functionData != null);
   final ConnectionData connectionData;
@@ -33,6 +35,18 @@ class ConnectionData {
 
   RequestData generateRequest(FunctionData functionData){
     return RequestData(connectionData: this, functionData: functionData);
+  }
+
+  static ConnectionData fromSettings(Settings settings){
+    return ConnectionData(
+      server: settings.server,
+      port: settings.port,
+      username: settings.username,
+      password: settings.password,
+      database: settings.database,
+      schema: settings.schema,
+      table: settings.table,
+    );
   }
 }
 

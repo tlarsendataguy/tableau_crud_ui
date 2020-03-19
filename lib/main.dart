@@ -3,7 +3,7 @@ import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/app_state.dart';
 import 'package:tableau_crud_ui/bloc_provider.dart';
-import 'package:tableau_crud_ui/io.dart';
+import 'package:tableau_crud_ui/db_web_io.dart';
 import 'package:tableau_crud_ui/settings.dart';
 import 'package:tableau_crud_ui/tableau_extension_io.dart';
 
@@ -11,13 +11,12 @@ void main() async {
   //var tio = TableauMockIo();
   var tIo = TableauExtensionIo();
   await tIo.initialize();
+  var state = AppState(tIo: tIo, dbIo: DbWebIo());
+  await state.initialize();
   runApp(
     BlocProvider<AppState>(
       child: MyApp(),
-      bloc: AppState(
-        tIo: tIo,
-        dbIo: DbWebIo(),
-      ),
+      bloc: state,
     ),
   );
 }
