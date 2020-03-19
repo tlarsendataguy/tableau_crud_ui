@@ -14,6 +14,8 @@ class AppState extends BlocState {
 
   int page = 1;
   int pageSize;
+  String _tableauContext;
+  int _reads = 0;
 
   var _settings = BehaviorSubject<Settings>.seeded(null);
   Stream<Settings> get settings => _settings.stream;
@@ -24,11 +26,20 @@ class AppState extends BlocState {
   var _data = BehaviorSubject<QueryResults>.seeded(null);
   Stream<QueryResults> get data => _data.stream;
 
+  var _readLoaders = BehaviorSubject<int>.seeded(0);
+  Stream<int> get readLoaders => _readLoaders.stream;
+
   Future initialize() async {
     var settings = await tIo.getSettings();
+    _tableauContext = await tIo.getContext();
     pageSize = settings.defaultPageSize;
     _settings.add(settings);
+    if (!settings.isEmpty()){
+      readTable();
+    }
   }
+
+  String get tableauContext =>_tableauContext;
 
   Future setSettings(Settings settings) async {
     await tIo.saveSettings(settings.toJson());
@@ -52,6 +63,7 @@ class AppState extends BlocState {
   }
 
   Future<String> readTable() async {
+    _readLoaders.add(++_reads);
     var settings = _settings.value;
     var function = ReadFunction(
       fields: settings.selectFields,
@@ -66,6 +78,7 @@ class AppState extends BlocState {
     if (!queryResult.hasError){
       _data.add(queryResult.data);
     }
+    _readLoaders.add(--_reads);
     return queryResult.error;
   }
 
@@ -139,6 +152,7 @@ class AppState extends BlocState {
     _settings.close();
     _tableColumns.close();
     _data.close();
+    _readLoaders.close();
   }
 
   Future<List<Where>> _generateWheres() async {

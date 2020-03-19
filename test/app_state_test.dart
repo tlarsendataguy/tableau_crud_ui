@@ -60,7 +60,8 @@ main() async {
   test("Read table", () async {
     var tIo = await generateTIo();
     var state = AppState(tIo: tIo, dbIo: dbIo);
-    expect(state.data, emitsInOrder([isNull, isNotNull]));
+    expect(state.data, emitsInOrder([isNull, isNotNull,isNotNull]));
+    expect(state.readLoaders, emitsInOrder([0,1,2,1,0]));
 
     await state.initialize();
     await state.setSettings(testSettings);
