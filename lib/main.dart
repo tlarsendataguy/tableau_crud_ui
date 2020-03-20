@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/app_state.dart';
 import 'package:tableau_crud_ui/bloc_provider.dart';
 import 'package:tableau_crud_ui/configuration_page.dart';
+import 'package:tableau_crud_ui/configuration_state.dart';
 import 'package:tableau_crud_ui/db_web_io.dart';
 import 'package:tableau_crud_ui/home_page.dart';
 import 'package:tableau_crud_ui/io.dart';
@@ -16,12 +17,17 @@ void main() async {
   await tIo.initialize();
   var dbIo = DbMockSuccessIo();
   //var dbIo = DbWebIo();
-  var state = AppState(tIo: tIo, dbIo: dbIo);
-  await state.initialize();
+  var appState = AppState(tIo: tIo, dbIo: dbIo);
+  await appState.initialize();
+  var configurationState = ConfigurationState(tIo: tIo, dbIo: dbIo);
+  await configurationState.initialize();
   runApp(
     BlocProvider<AppState>(
-      child: MyApp(),
-      bloc: state,
+      child: BlocProvider<ConfigurationState>(
+        child: MyApp(),
+        bloc: configurationState,
+      ),
+      bloc: appState,
     ),
   );
 }

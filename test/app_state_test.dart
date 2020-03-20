@@ -26,16 +26,6 @@ Future<TableauIo> generateTIo() async {
 main() async {
   var dbIo = DbMockSuccessIo();
 
-  test("Set settings",() async {
-    var tIo = await generateTIo();
-    var startupSettings = await tIo.getSettings();
-    var state = AppState(tIo: tIo, dbIo: dbIo);
-    expect(state.settings, emitsInOrder([isNull, equals(startupSettings), equals(testSettings)]));
-
-    await state.initialize();
-    await state.setSettings(testSettings);
-  });
-
   test("Get worksheets",() async {
     var tIo = await generateTIo();
     var state = AppState(tIo: tIo, dbIo: dbIo);
@@ -45,59 +35,47 @@ main() async {
     expect(worksheets[1], equals('sheet2'));
   });
 
-  test("Test table connection", () async {
-    var tIo = await generateTIo();
-    var startupSettings = await tIo.getSettings();
-    var state = AppState(tIo: tIo, dbIo: dbIo);
-    expect(state.tableColumns, emitsInOrder([equals([]), equals(["id","category","amount","date"])]));
-    expect(state.settings, emitsInOrder([isNull, equals(startupSettings), equals(testSettings)]));
-
-    await state.initialize();
-    var error = await state.testConnection(testSettings);
-    expect(error, equals(""));
-  });
-
   test("Read table", () async {
     var tIo = await generateTIo();
+    await tIo.saveSettings(testSettings.toJson());
     var state = AppState(tIo: tIo, dbIo: dbIo);
     expect(state.data, emitsInOrder([isNull, isNotNull,isNotNull]));
     expect(state.readLoaders, emitsInOrder([0,1,2,1,0]));
 
     await state.initialize();
-    await state.setSettings(testSettings);
     var error = await state.readTable();
     expect(error, equals(""));
   });
 
   test("create new record", () async {
     var tIo = await generateTIo();
+    await tIo.saveSettings(testSettings.toJson());
     var state = AppState(tIo: tIo, dbIo: dbIo);
     expect(state.data, emitsInOrder([isNull, isNotNull]));
 
     await state.initialize();
-    await state.setSettings(testSettings);
     var error = await state.insert(['abc', 123]);
     expect(error, equals(""));
   });
 
   test("update record", () async {
     var tIo = await generateTIo();
+    await tIo.saveSettings(testSettings.toJson());
     var state = AppState(tIo: tIo, dbIo: dbIo);
     expect(state.data, emitsInOrder([isNull, isNotNull]));
 
     await state.initialize();
-    await state.setSettings(testSettings);
     var error = await state.update(values: {"field 1": 'xyz', "field 2": 987}, where: {"pk": 1});
     expect(error, equals(""));
   });
 
   test("delete record", () async {
     var tIo = await generateTIo();
+    await tIo.saveSettings(testSettings.toJson());
     var state = AppState(tIo: tIo, dbIo: dbIo);
     expect(state.data, emitsInOrder([isNull, isNotNull]));
 
     await state.initialize();
-    await state.setSettings(testSettings);
     var error = await state.delete(where: {"pk": 1});
     expect(error, equals(""));
   });

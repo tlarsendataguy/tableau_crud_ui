@@ -16,9 +16,7 @@ class AppState extends BlocState {
   int pageSize;
   String _tableauContext;
   int _reads = 0;
-
-  var _settings = BehaviorSubject<Settings>.seeded(null);
-  Stream<Settings> get settings => _settings.stream;
+  Settings _settings;
 
   var _tableColumns = BehaviorSubject<List<String>>.seeded([]);
   Stream<List<String>> get tableColumns => _tableColumns.stream;
@@ -30,49 +28,37 @@ class AppState extends BlocState {
   Stream<int> get readLoaders => _readLoaders.stream;
 
   Future initialize() async {
-    var settings = await tIo.getSettings();
+    _settings = await tIo.getSettings();
     _tableauContext = await tIo.getContext();
-    pageSize = settings.defaultPageSize;
-    _settings.add(settings);
-    if (!settings.isEmpty()){
+    pageSize = _settings.defaultPageSize;
+    if (!_settings.isEmpty()){
       readTable();
     }
   }
 
   String get tableauContext =>_tableauContext;
 
-  Future setSettings(Settings settings) async {
-    await tIo.saveSettings(settings.toJson());
-    _settings.add(settings);
+  Future updateSettings(Settings settings) async {
+    _settings = await tIo.getSettings();
+    if (!_settings.isEmpty()){
+      readTable();
+    }
   }
 
   Future<List<String>> getWorksheets() async {
     return await tIo.getWorksheets();
   }
 
-  Future<String> testConnection(Settings settings) async {
-    var function = TestConnectionFunction();
-    var request = ConnectionData.fromSettings(settings).generateRequest(function);
-    var response = await dbIo.testConnection(request);
-    var queryResult = parseQuery(response);
-    if (!queryResult.hasError){
-      await setSettings(settings);
-      _tableColumns.add(queryResult.data.columnNames);
-    }
-    return queryResult.error;
-  }
-
   Future<String> readTable() async {
     _readLoaders.add(++_reads);
-    var settings = _settings.value;
     var function = ReadFunction(
-      fields: settings.selectFields,
-      orderBy: settings.orderByFields,
+      fields: _settings.selectFields,
+      orderBy: _settings.orderByFields,
       pageSize: pageSize,
       page: page,
       whereClauses: await _generateWheres(),
     );
-    var request = ConnectionData.fromSettings(settings).generateRequest(function);
+    var request = ConnectionData.fromSettings(_settings).generateRequest(function);
     var response = await dbIo.read(request);
     var queryResult = parseQuery(response);
     if (!queryResult.hasError){
@@ -83,17 +69,16 @@ class AppState extends BlocState {
   }
 
   Future<String> insert(List<dynamic> values) async {
-    var settings = _settings.value;
-    if (values.length != settings.selectFields.length){
-      return "${values.length} fields were provided but ${settings.selectFields.length} fields were required";
+    if (values.length != _settings.selectFields.length){
+      return "${values.length} fields were provided but ${_settings.selectFields.length} fields were required";
     }
 
     var insertValues = Map<String,dynamic>();
     for (var index = 0; index < values.length; index++){
-      insertValues[settings.selectFields[index]] = values[index];
+      insertValues[_settings.selectFields[index]] = values[index];
     }
     var function = InsertFunction(insertValues);
-    var request = ConnectionData.fromSettings(settings).generateRequest(function);
+    var request = ConnectionData.fromSettings(_settings).generateRequest(function);
     var response = await dbIo.insert(request);
     var result = parseExec(response);
     if (result.hasError) {
@@ -103,20 +88,19 @@ class AppState extends BlocState {
   }
 
   Future<String> update({Map<String,dynamic> values, Map<String,dynamic> where}) async {
-    var settings = _settings.value;
-    if (where.length != settings.primaryKey.length){
-      return "${where.length} where clauses were provided but there are ${settings.primaryKey.length} primary key fields";
+    if (where.length != _settings.primaryKey.length){
+      return "${where.length} where clauses were provided but there are ${_settings.primaryKey.length} primary key fields";
     }
 
     var wheres = List<Where>();
     for (var key in where.keys){
-      if (!settings.primaryKey.contains(key)){
+      if (!_settings.primaryKey.contains(key)){
         return "$key is not a primary key field";
       }
       wheres.add(WhereEqual(key, where[key]));
     }
     var function = UpdateFunction(whereClauses: wheres, updates: values);
-    var request = ConnectionData.fromSettings(settings).generateRequest(function);
+    var request = ConnectionData.fromSettings(_settings).generateRequest(function);
     var response = await dbIo.update(request);
     var result = parseExec(response);
     if (result.hasError) {
@@ -126,20 +110,19 @@ class AppState extends BlocState {
   }
 
   Future<String> delete({Map<String,dynamic> where}) async {
-    var settings = _settings.value;
-    if (where.length != settings.primaryKey.length){
-      return "${where.length} where clauses were provided but there are ${settings.primaryKey.length} primary key fields";
+    if (where.length != _settings.primaryKey.length){
+      return "${where.length} where clauses were provided but there are ${_settings.primaryKey.length} primary key fields";
     }
 
     var wheres = List<Where>();
     for (var key in where.keys){
-      if (!settings.primaryKey.contains(key)){
+      if (!_settings.primaryKey.contains(key)){
         return "$key is not a primary key field";
       }
       wheres.add(WhereEqual(key, where[key]));
     }
     var function = DeleteFunction(whereClauses: wheres);
-    var request = ConnectionData.fromSettings(settings).generateRequest(function);
+    var request = ConnectionData.fromSettings(_settings).generateRequest(function);
     var response = await dbIo.delete(request);
     var result = parseExec(response);
     if (result.hasError) {
@@ -149,7 +132,6 @@ class AppState extends BlocState {
   }
 
   void dispose() {
-    _settings.close();
     _tableColumns.close();
     _data.close();
     _readLoaders.close();
@@ -157,8 +139,7 @@ class AppState extends BlocState {
 
   Future<List<Where>> _generateWheres() async {
     var wheres = List<Where>();
-    var settings = _settings.value;
-    for (var filter in settings.filters){
+    for (var filter in _settings.filters){
       var tFilters = await tIo.getFilters(filter.worksheet);
       for (var tFilter in tFilters){
         if (tFilter.fieldName == filter.fieldName) {
