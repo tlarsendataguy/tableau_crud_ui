@@ -10,10 +10,11 @@ class ResponseObject<T> {
 }
 
 class QueryResults {
-  QueryResults({this.columnNames, this.data})
-      : assert(columnNames != null && data != null);
+  QueryResults({this.columnNames, this.data, this.totalRowCount})
+      : assert(columnNames != null && data != null && totalRowCount != null);
   final List<String> columnNames;
   final List<List<dynamic>> data;
+  final int totalRowCount;
 
   int rowCount(){
     if (data.length > 0) {

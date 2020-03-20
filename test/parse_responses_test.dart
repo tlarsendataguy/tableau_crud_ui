@@ -3,7 +3,7 @@ import 'package:tableau_crud_ui/parse_responses.dart';
 
 main(){
   test("Parse test connection success", (){
-    var response = '{"Success":true,"Data":{"ColumnNames":["id","category","amount","date"],"RowCount":0,"Data":[null,null,null,null]}}';
+    var response = '{"Success":true,"Data":{"ColumnNames":["id","category","amount","date"],"RowCount":0,"Data":[null,null,null,null],"TotalRowCount":0}}';
     var results = parseQuery(response);
     expect(results.hasError, isFalse);
     expect(results.data.columnCount(), equals(4));
@@ -14,7 +14,7 @@ main(){
     print(results.data.data.toString());
   });
 
-  var multiRowResponse = '{"Success":true,"Data":{"ColumnNames":["id","category","amount","date"],"RowCount":2,"Data":[[1,13],["blah","something"],[123.2,64.02],["2020-01-13T00:00:00Z","2020-02-03T00:00:00Z"]]}}';
+  var multiRowResponse = '{"Success":true,"Data":{"ColumnNames":["id","category","amount","date"],"RowCount":2,"Data":[[1,13],["blah","something"],[123.2,64.02],["2020-01-13T00:00:00Z","2020-02-03T00:00:00Z"]],"TotalRowCount":20}}';
   test("Parse read success", (){
     var results = parseQuery(multiRowResponse);
     expect(results.hasError, isFalse);

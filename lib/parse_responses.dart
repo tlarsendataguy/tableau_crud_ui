@@ -35,7 +35,8 @@ ResponseObject<QueryResults> parseQuery(String queryResponse) {
         data.add(column as List<dynamic>);
       }
     }
-    var queryResults = QueryResults(columnNames: columnNames, data: data);
+    var totalRowCount = decoded['Data']['TotalRowCount'] as int;
+    var queryResults = QueryResults(columnNames: columnNames, data: data, totalRowCount: totalRowCount);
     return ResponseObject<QueryResults>(hasError: false, error: '', data: queryResults);
 
   } on Exception catch (ex) {

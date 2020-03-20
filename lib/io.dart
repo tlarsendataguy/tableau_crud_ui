@@ -32,7 +32,7 @@ class TableauFilter{
 
 class DbMockSuccessIo extends DbIo {
   Future<String> testConnection(RequestData request) async =>
-      '{"Success":true,"Data":{"ColumnNames":["id","category","amount","date"],"RowCount":0,"Data":[[],[],[]]}}';
+      '{"Success":true,"Data":{"ColumnNames":["id","category","amount","date"],"RowCount":0,"Data":[[],[],[]],"TotalRowCount":0}}';
   Future<String> insert(RequestData request) async =>
       '{"Success":true,"Data":1}';
   Future<String> update(RequestData request) async =>
@@ -40,7 +40,7 @@ class DbMockSuccessIo extends DbIo {
   Future<String> delete(RequestData request) async =>
       '{"Success":true,"Data":1}';
   Future<String> read(RequestData request) async =>
-      '{"Success":true,"Data":{"ColumnNames":["id","category","amount","date"],"RowCount":2,"Data":[[1,13],["blah","something"],[123.2,64.02],["2020-01-13T00:00:00Z","2020-02-03T00:00:00Z"]]}}';
+      '{"Success":true,"Data":{"ColumnNames":["id","category","amount","date"],"RowCount":2,"Data":[[1,13],["blah","something"],[123.2,64.02],["2020-01-13T00:00:00Z","2020-02-03T00:00:00Z"]],"TotalRowCount":20}}';
 }
 
 class DbMockFailIo extends DbIo {
