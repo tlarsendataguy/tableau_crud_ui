@@ -65,7 +65,7 @@ class TableauMockIo extends TableauIo {
     database: '',
     schema: '',
     table: '',
-    selectFields: [],
+    selectFields: {},
     orderByFields: [],
     primaryKey: [],
     filters: [],

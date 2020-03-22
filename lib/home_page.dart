@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/app_state.dart';
 import 'package:tableau_crud_ui/bloc_provider.dart';
 import 'package:tableau_crud_ui/data_viewer.dart';
+import 'package:tableau_crud_ui/dialogs.dart';
 
 class Home extends StatelessWidget {
   Widget build(BuildContext context) {
@@ -50,25 +51,9 @@ class Home extends StatelessWidget {
               if (error != ""){
                 await showDialog(
                   context: context,
-                  child: Dialog(
-                    child: Container(
-                      width: 300,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.all(8),
-                              child: Text(error, softWrap: true),
-                            ),
-                          ),
-                          RaisedButton(
-                            child: Text("ok"),
-                            onPressed: ()=>Navigator.of(context).pop(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  child: OkDialog(
+                    child: Text(error, softWrap: true),
+                    msgType: MsgType.Error),
                 );
               }
             },

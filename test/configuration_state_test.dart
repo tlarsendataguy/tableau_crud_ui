@@ -13,9 +13,9 @@ var testSettings = Settings(
   database: 'test database',
   schema: 'test schema',
   table: 'test table',
-  selectFields: ['field 1', 'field 2'],
-  orderByFields: ['pk'],
-  primaryKey: ['pk'],
+  selectFields: {'field 1': editNone, 'field 2': editText},
+  orderByFields: ['pk1','pk2'],
+  primaryKey: ['pk1','pk2'],
   filters: [Filter(worksheet: 'test worksheet', fieldName: 'test field', mapsTo: 'field 1')],
 );
 
@@ -27,8 +27,8 @@ main(){
   test("Initialize configuration state from saved settings",() async {
     var state = ConfigurationState(tIo: tIo, dbIo: dbIo);
     expect(state.selectFields, emitsInOrder([isEmpty,['field 1','field 2']]));
-    expect(state.orderByFields, emitsInOrder([isEmpty,['pk']]));
-    expect(state.primaryKey, emitsInOrder([isEmpty,['pk']]));
+    expect(state.orderByFields, emitsInOrder([isEmpty,['pk1','pk2']]));
+    expect(state.primaryKey, emitsInOrder([isEmpty,['pk1','pk2']]));
     expect(state.filters, emitsInOrder([isEmpty, isNotEmpty]));
     expect(state.columnNames, emitsInOrder([isEmpty,["id","category","amount","date"]]));
 
@@ -97,28 +97,77 @@ main(){
     expect(settings.database, equals('new database'));
     expect(settings.schema, equals('new schema'));
     expect(settings.table, equals('new table'));
-    expect(settings.selectFields, equals(['field 1','field 2']));
+    expect(settings.selectFields, equals({'field 1':editNone,'field 2':editText}));
   });
 
-  test("Update select fields", () async {
+  test("Add select field", () async {
     var state = ConfigurationState(tIo: tIo, dbIo: dbIo);
-    expect(state.selectFields, emitsInOrder([isEmpty,['field 1','field 2'],['some other field']]));
+    expect(state.selectFields, emitsInOrder([isEmpty,['field 1','field 2'],['field 1','field 2', 'some other field']]));
     await state.initialize();
-    state.setSelectFields(['some other field']);
+    state.addSelectField('some other field');
   });
 
-  test("Update order by fields", () async {
+  test("Remove select field", () async {
     var state = ConfigurationState(tIo: tIo, dbIo: dbIo);
-    expect(state.orderByFields, emitsInOrder([isEmpty,['pk'],['some other field']]));
+    expect(state.selectFields, emitsInOrder([isEmpty,['field 1','field 2'],['field 1']]));
     await state.initialize();
-    state.setOrderByFields(['some other field']);
+    state.removeSelectField('field 2');
   });
 
-  test("Update primary key fields", () async {
+  test("Move select field up", () async {
     var state = ConfigurationState(tIo: tIo, dbIo: dbIo);
-    expect(state.primaryKey, emitsInOrder([isEmpty,['pk'],['some other field']]));
+    expect(state.selectFields, emitsInOrder([isEmpty,['field 1','field 2'],['field 2','field 1']]));
     await state.initialize();
-    state.setPrimaryKey(['some other field']);
+    state.moveSelectFieldUp('field 2');
+  });
+
+  test("Move select field down", () async {
+    var state = ConfigurationState(tIo: tIo, dbIo: dbIo);
+    expect(state.selectFields, emitsInOrder([isEmpty,['field 1','field 2'],['field 2','field 1']]));
+    await state.initialize();
+    state.moveSelectFieldDown('field 1');
+  });
+
+  test("Add order by field", () async {
+    var state = ConfigurationState(tIo: tIo, dbIo: dbIo);
+    expect(state.orderByFields, emitsInOrder([isEmpty,['pk1','pk2'],['pk1','pk2','some other field']]));
+    await state.initialize();
+    state.addOrderByField('some other field');
+  });
+
+  test("Remove order by field", () async {
+    var state = ConfigurationState(tIo: tIo, dbIo: dbIo);
+    expect(state.orderByFields, emitsInOrder([isEmpty,['pk1','pk2'],['pk1']]));
+    await state.initialize();
+    state.removeOrderByField('pk2');
+  });
+
+  test("Move order by field up", () async {
+    var state = ConfigurationState(tIo: tIo, dbIo: dbIo);
+    expect(state.orderByFields, emitsInOrder([isEmpty,['pk1','pk2'],['pk2','pk1']]));
+    await state.initialize();
+    state.moveOrderByFieldUp('pk2');
+  });
+
+  test("Move order by field down", () async {
+    var state = ConfigurationState(tIo: tIo, dbIo: dbIo);
+    expect(state.orderByFields, emitsInOrder([isEmpty,['pk1','pk2'],['pk2','pk1']]));
+    await state.initialize();
+    state.moveOrderByFieldDown('pk1');
+  });
+
+  test("Add primary key field", () async {
+    var state = ConfigurationState(tIo: tIo, dbIo: dbIo);
+    expect(state.primaryKey, emitsInOrder([isEmpty,['pk1','pk2'],['pk1','pk2','some other field']]));
+    await state.initialize();
+    state.addPrimaryKeyField('some other field');
+  });
+
+  test("Remove primary key field", () async {
+    var state = ConfigurationState(tIo: tIo, dbIo: dbIo);
+    expect(state.primaryKey, emitsInOrder([isEmpty,['pk1','pk2'],['pk1']]));
+    await state.initialize();
+    state.removePrimaryKeyField('pk2');
   });
 
   test("Update filters", () async {
@@ -135,5 +184,21 @@ main(){
         mapsTo: 'some other field',
       ),
     ]);
+  });
+
+  test("Get select field edit value",()async{
+    var state = ConfigurationState(tIo: tIo, dbIo: dbIo);
+    await state.initialize();
+    var editValue = state.getSelectFieldEditMode('field 1');
+    expect(editValue, equals(editNone));
+  });
+
+  test("Update select field edit value",()async{
+    var state = ConfigurationState(tIo: tIo, dbIo: dbIo);
+    expect(state.selectFields, emitsInOrder([isEmpty,['field 1','field 2'],['field 1','field 2']]));
+    await state.initialize();
+    state.updateSelectFieldEditMode('field 1',editInteger);
+    var editValue = state.getSelectFieldEditMode('field 1');
+    expect(editValue, equals(editInteger));
   });
 }

@@ -52,7 +52,7 @@ class AppState extends BlocState {
   Future<String> readTable() async {
     _readLoaders.add(++_reads);
     var function = ReadFunction(
-      fields: _settings.selectFields,
+      fields: _settings.selectFields.keys.toList(),
       orderBy: _settings.orderByFields,
       pageSize: pageSize,
       page: page,

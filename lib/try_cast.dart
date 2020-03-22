@@ -16,4 +16,15 @@ extension RetrieveCastedValues on Map<String, dynamic> {
     }
     return stringList;
   }
+  Map<String,String> tryStringStringMap(String key){
+    var dynamicMap = tryCast(this[key], Map<String,dynamic>());
+    var stringMap = Map<String,String>();
+    for (var key in dynamicMap.keys){
+      var value = dynamicMap[key];
+      if (value is String){
+        stringMap[key] = value;
+      }
+    }
+    return stringMap;
+  }
 }

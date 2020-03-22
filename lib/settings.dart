@@ -17,6 +17,13 @@ const _fieldName = "fieldName";
 const _mapsTo = "mapsTo";
 const _defaultPageSize = "defaultPageSize";
 
+const editNone = 'None';
+const editInteger = 'Integer';
+const editNumber = 'Number';
+const editText = 'Text';
+const editDate = 'Date';
+const editBool = 'Bool';
+
 class Settings {
   Settings(
       {
@@ -42,7 +49,7 @@ class Settings {
   final String database;
   final String schema;
   final String table;
-  final List<String> selectFields;
+  final Map<String,String> selectFields;
   final List<String> orderByFields;
   final List<String> primaryKey;
   final List<Filter> filters;
@@ -56,11 +63,25 @@ class Settings {
         database == '' &&
         schema == '' &&
         table == '' &&
-        selectFields == [] &&
+        selectFields == {} &&
         orderByFields == [] &&
         primaryKey == [] &&
         filters == [] &&
         defaultPageSize == 0;
+  }
+
+  String validate(){
+    var errors = <String>[];
+    if (selectFields.length == 0){
+      errors.add("no fields were selected");
+    }
+    if (primaryKey.length == 0){
+      errors.add("no primary key was selected");
+    }
+    if (orderByFields.length == 0){
+      errors.add("no order by fields were defined");
+    }
+    return errors.join(", ");
   }
 
   String toJson() {
@@ -90,7 +111,7 @@ class Settings {
     var database = mapped.tryString(_database);
     var schema = mapped.tryString(_schema);
     var table = mapped.tryString(_table);
-    var selectFields = mapped.tryStringList(_selectFields);
+    var selectFields = mapped.tryStringStringMap(_selectFields);
     var orderByFields = mapped.tryStringList(_orderByFields);
     var primaryKey = mapped.tryStringList(_primaryKey);
     var defaultPageSize = mapped.tryInt(_defaultPageSize);

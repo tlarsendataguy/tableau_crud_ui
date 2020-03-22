@@ -11,7 +11,7 @@ var testSettings = Settings(
   database: 'test database',
   schema: 'test schema',
   table: 'test table',
-  selectFields: ['field 1', 'field 2'],
+  selectFields: {'field 1': editNone, 'field 2': editText},
   orderByFields: ['pk'],
   primaryKey: ['pk'],
   filters: [Filter(worksheet: 'test worksheet', fieldName: 'test field', mapsTo: 'field 1')],

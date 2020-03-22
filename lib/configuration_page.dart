@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/app_state.dart';
 import 'package:tableau_crud_ui/bloc_provider.dart';
 import 'package:tableau_crud_ui/configuration_state.dart';
+import 'package:tableau_crud_ui/dialogs.dart';
+import 'package:tableau_crud_ui/settings.dart';
 
 class ConfigurationPage extends StatelessWidget{
   Widget build(BuildContext context) {
@@ -21,7 +23,7 @@ class ConfigurationPage extends StatelessWidget{
 
         switch (page){
           case Page.connection:
-            content = ConnectionPage();
+            content = ConnectionPage(configState: configState);
             break;
           case Page.selectFields:
             content = SelectFieldsPage();
@@ -47,9 +49,21 @@ class ConfigurationPage extends StatelessWidget{
                       Tooltip(
                         message: 'Save settings and go back',
                         child: IconButton(
+                          focusNode: FocusNode(skipTraversal: true),
                           icon: Icon(Icons.save),
                           onPressed: () async {
                             var settings = configState.generateSettings();
+                            var error = settings.validate();
+                            if (error != ''){
+                              await showDialog(
+                                context: context,
+                                child: OkDialog(
+                                  child: Text("WARNING! Settings not saved because of the following error: $error"),
+                                  msgType: MsgType.Error,
+                                ),
+                              );
+                              return;
+                            }
                             await configState.tIo.saveSettings(settings.toJson());
                             appState.updateSettings(settings);
                             Navigator.of(context).pop();
@@ -59,6 +73,7 @@ class ConfigurationPage extends StatelessWidget{
                       Tooltip(
                         message: 'Go back without saving',
                         child: IconButton(
+                          focusNode: FocusNode(skipTraversal: true),
                           icon: Icon(Icons.cancel),
                           onPressed: () => Navigator.of(context).pop(),
                         ),
@@ -98,27 +113,254 @@ class FiltersPage extends StatelessWidget {
 class OrderByFieldsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     var state = BlocProvider.of<ConfigurationState>(context);
-    return Center(child: Text("Order by"));
+    return ItemSelector<String>(
+      leftLabel: "Available fields:",
+      sourceStream: state.columnNames,
+      sourceItemBuilder: (context, sourceField){
+        return Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(sourceField),
+            ),
+            IconButton(
+              icon: Icon(Icons.arrow_forward),
+              onPressed: ()=>state.addOrderByField(sourceField),
+            ),
+          ],
+        );
+      },
+      rightLabel: "Order by:",
+      selectorStream: state.orderByFields,
+      selectorItemBuilder: (context, orderByField){
+        return Row(
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: ()=>state.removeOrderByField(orderByField),
+            ),
+            Expanded(child: Text(orderByField)),
+            IconButton(
+              icon: Icon(Icons.arrow_upward),
+              onPressed: ()=>state.moveOrderByFieldUp(orderByField),
+            ),
+            IconButton(
+              icon: Icon(Icons.arrow_downward),
+              onPressed: ()=>state.moveOrderByFieldDown(orderByField),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
 class SelectFieldsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     var state = BlocProvider.of<ConfigurationState>(context);
-    return Center(child: Text("Select fields"));
+    return ItemSelector<String>(
+      leftLabel: "Available fields:",
+      sourceStream: state.columnNames,
+      sourceItemBuilder: (context, sourceField){
+        return Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(sourceField),
+            ),
+            IconButton(
+              icon: Icon(Icons.arrow_forward),
+              onPressed: ()=>state.addSelectField(sourceField),
+            ),
+          ],
+        );
+      },
+      rightLabel: "Selected fields:",
+      selectorStream: state.selectFields,
+      selectorItemBuilder: (context, selectedField){
+        var editMode = state.getSelectFieldEditMode(selectedField);
+        return Row(
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: () {
+                state.removeSelectField(selectedField);
+                state.removePrimaryKeyField(selectedField);
+              },
+            ),
+            Expanded(child: Text(selectedField)),
+            Tooltip(
+              message: "The data type to use for inserting and updating values",
+              child: DropdownButton(
+                value: editMode,
+                items: [
+                  DropdownMenuItem(value: editNone, child: Text(editNone)),
+                  DropdownMenuItem(value: editText, child: Text(editText)),
+                  DropdownMenuItem(value: editDate, child: Text(editDate)),
+                  DropdownMenuItem(value: editInteger, child: Text(editInteger)),
+                  DropdownMenuItem(value: editNumber, child: Text(editNumber)),
+                  DropdownMenuItem(value: editBool, child: Text(editBool)),
+                ],
+                onChanged: (newValue)=>
+                    state.updateSelectFieldEditMode(selectedField, newValue),
+              ),
+            ),
+            StreamBuilder(
+              stream: state.primaryKey,
+              builder: (context, AsyncSnapshot<List<String>> pkSnapshot){
+                if (!pkSnapshot.hasData){
+                  return Container();
+                }
+                var pk = pkSnapshot.data;
+                return Tooltip(
+                  message: "Field is part of the primary key?",
+                  child: Row(
+                    children: [
+                      Checkbox(
+                        value: pk.contains(selectedField),
+                        onChanged: (newValue){
+                          if (newValue){
+                            state.addPrimaryKeyField(selectedField);
+                          } else {
+                            state.removePrimaryKeyField(selectedField);
+                          }
+                        },
+                      ),
+                      Text("PK"),
+                    ],
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.arrow_upward),
+              onPressed: ()=>state.moveSelectFieldUp(selectedField),
+            ),
+            IconButton(
+              icon: Icon(Icons.arrow_downward),
+              onPressed: ()=>state.moveSelectFieldDown(selectedField),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
 class ConnectionPage extends StatefulWidget {
-  @override
+  ConnectionPage({this.configState});
+
+  final ConfigurationState configState;
+
   State<StatefulWidget> createState() => _ConnectionPageState();
 }
 
 class _ConnectionPageState extends State<ConnectionPage> {
+  initState(){
+    super.initState();
+    _server = TextEditingController(text: widget.configState.server);
+    _port = TextEditingController(text: widget.configState.port);
+    _username = TextEditingController(text: widget.configState.username);
+    _password = TextEditingController(text: widget.configState.password);
+    _database = TextEditingController(text: widget.configState.database);
+    _schema = TextEditingController(text: widget.configState.schema);
+    _table = TextEditingController(text: widget.configState.table);
+    _server.addListener(_updateServer);
+    _port.addListener(_updatePort);
+    _username.addListener(_updateUsername);
+    _password.addListener(_updatePassword);
+    _database.addListener(_updateDatabase);
+    _schema.addListener(_updateSchema);
+    _table.addListener(_updateTable);
+  }
+
+  void _updateServer() => widget.configState.server = _server.text;
+  void _updatePort() => widget.configState.port = _port.text;
+  void _updateUsername() => widget.configState.username = _username.text;
+  void _updatePassword() => widget.configState.password = _password.text;
+  void _updateDatabase() => widget.configState.database = _database.text;
+  void _updateSchema() => widget.configState.schema = _schema.text;
+  void _updateTable() => widget.configState.table = _table.text;
+
+  dispose(){
+    _server.removeListener(_updateServer);
+    _port.removeListener(_updatePort);
+    _username.removeListener(_updateUsername);
+    _password.removeListener(_updatePassword);
+    _database.removeListener(_updateDatabase);
+    _schema.removeListener(_updateSchema);
+    _table.removeListener(_updateTable);
+    super.dispose();
+  }
+
+  TextEditingController _server;
+  TextEditingController _port;
+  TextEditingController _username;
+  TextEditingController _password;
+  TextEditingController _database;
+  TextEditingController _schema;
+  TextEditingController _table;
 
   Widget build(BuildContext context) {
-    var state = BlocProvider.of<ConfigurationState>(context);
-    return Center(child: Text("Connection info"));
+    return ListView(
+      children: <Widget>[
+        TextField(
+          controller: _server,
+          decoration: InputDecoration(labelText: "Server"),
+        ),
+        TextField(
+          controller: _port,
+          decoration: InputDecoration(labelText: "Port"),
+        ),
+        TextField(
+          controller: _username,
+          decoration: InputDecoration(labelText: "Username"),
+        ),
+        TextField(
+          controller: _password,
+          decoration: InputDecoration(labelText: "Password"),
+          obscureText: true,
+        ),
+        TextField(
+          controller: _database,
+          decoration: InputDecoration(labelText: "Database"),
+        ),
+        TextField(
+          controller: _schema,
+          decoration: InputDecoration(labelText: "Schema"),
+        ),
+        TextField(
+          controller: _table,
+          decoration: InputDecoration(labelText: "Table"),
+        ),
+        RaisedButton(
+          child: Text("Test connection"),
+          onPressed: () async {
+            showDialog(
+              context: context,
+              child: LoadingDialog(message: "Testing connection..."),
+            );
+            var error = await widget.configState.testConnection();
+            Navigator.of(context).pop();
+            if (error == ""){
+              await showDialog(
+                context: context,
+                child: OkDialog(
+                    child: Text("Connection successful!"),
+                    msgType: MsgType.Success,
+                ),
+              );
+            } else {
+              await showDialog(
+                context: context,
+                child: OkDialog(
+                  child: Text("Error: $error"),
+                  msgType: MsgType.Error,
+                ),
+              );
+            }
+          },
+        ),
+      ],
+    );
   }
 }
 
@@ -161,12 +403,91 @@ class PageButton extends StatelessWidget{
         child: goToPage == currentPage ?
         Icon(icon, color: Colors.blue) :
         IconButton(
+          focusNode: FocusNode(skipTraversal: true),
           color: color,
           icon: Icon(icon),
           onPressed: goToPage == currentPage ? null :
             ()=>configState.goToPage(goToPage),
         ),
       ),
+    );
+  }
+}
+
+typedef Widget ItemSelectorBuilder<T>(BuildContext context, T item);
+
+class ItemSelector<T> extends StatelessWidget {
+  ItemSelector({this.sourceStream, this.sourceItemBuilder, this.selectorStream, this.selectorItemBuilder,this.leftLabel,this.rightLabel});
+  final Stream<List<T>> sourceStream;
+  final Stream<List<T>> selectorStream;
+  final ItemSelectorBuilder<T> sourceItemBuilder;
+  final ItemSelectorBuilder<T> selectorItemBuilder;
+  final String leftLabel;
+  final String rightLabel;
+
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: selectorStream,
+      builder: (context, AsyncSnapshot<List<T>> selectSnapshot){
+        if (!selectSnapshot.hasData) {
+          return Center(child: Text("No data"));
+        }
+        var selected = selectSnapshot.data;
+        return Row(
+          children: [
+            Expanded(
+              child: Column(
+                children: [
+                  Center(child: Text(leftLabel)),
+                  Expanded(child:
+                    StreamBuilder(
+                      stream: sourceStream,
+                      builder: (context, AsyncSnapshot<List<T>> sourceSnapshot){
+                        if (!sourceSnapshot.hasData) {
+                          return Center(child: Text("No data"));
+                        }
+                        var source = List<T>.from(sourceSnapshot.data);
+                        for (var selectedItem in selected){
+                          source.remove(selectedItem);
+                        }
+                        return ListView(
+                          children: source.map((sourceItem)=>
+                              Card(
+                                child: Padding(
+                                  padding: EdgeInsets.all(8),
+                                  child: sourceItemBuilder(context, sourceItem),
+                                ),
+                              ),
+                          ).toList(),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Column(
+                children: [
+                  Center(child: Text(rightLabel)),
+                  Expanded(
+                    child: ListView(
+                      children: selected.map((sourceItem)=>
+                          Card(
+                            child: Padding(
+                              padding: EdgeInsets.all(8),
+                              child: selectorItemBuilder(context, sourceItem),
+                            ),
+                          ),
+                      ).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

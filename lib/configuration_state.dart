@@ -26,8 +26,8 @@ class ConfigurationState extends BlocState {
   String dbo;
   String table;
 
-  var _selectFields = BehaviorSubject<List<String>>.seeded([]);
-  Stream<List<String>> get selectFields => _selectFields.stream;
+  var _selectFields = BehaviorSubject<Map<String,String>>.seeded({});
+  Stream<List<String>> get selectFields => _selectFields.stream.map((s)=>s.keys.toList());
 
   var _orderByFields = BehaviorSubject<List<String>>.seeded([]);
   Stream<List<String>> get orderByFields => _orderByFields.stream;
@@ -94,16 +94,100 @@ class ConfigurationState extends BlocState {
     return await tIo.getFilters(worksheet);
   }
 
-  void setSelectFields(List<String> newSelectFields){
+  void addSelectField(String newSelectField){
+    var newSelectFields = Map<String,String>.from(_selectFields.value);
+    newSelectFields[newSelectField] = editNone;
     _selectFields.add(newSelectFields);
   }
 
-  void setOrderByFields(List<String> newOrderByFields){
+  void removeSelectField(String toRemove){
+    var newSelectFields = Map<String,String>.from(_selectFields.value);
+    newSelectFields.remove(toRemove);
+    _selectFields.add(newSelectFields);
+  }
+
+  void moveSelectFieldUp(String field){
+    var oldSelectFields = Map<String,String>.from(_selectFields.value);
+    var fields = oldSelectFields.keys.toList();
+    var index = fields.indexOf(field);
+    if (index < 1) return;
+    index--;
+    fields.remove(field);
+    fields.insert(index, field);
+    var newSelectFields = Map<String,String>();
+    for (var field in fields){
+      newSelectFields[field] = oldSelectFields[field];
+    }
+    _selectFields.add(newSelectFields);
+  }
+
+  void moveSelectFieldDown(String field){
+    var oldSelectFields = Map<String,String>.from(_selectFields.value);
+    var fields = oldSelectFields.keys.toList();
+    var index = fields.indexOf(field);
+    if (index == -1 || index == fields.length-1) return;
+    index++;
+    fields.remove(field);
+    fields.insert(index, field);
+    var newSelectFields = Map<String,String>();
+    for (var field in fields){
+      newSelectFields[field] = oldSelectFields[field];
+    }
+    _selectFields.add(newSelectFields);
+  }
+
+  void addOrderByField(String newOrderByField){
+    var newOrderByFields = List<String>.from(_orderByFields.value);
+    newOrderByFields.add(newOrderByField);
     _orderByFields.add(newOrderByFields);
   }
 
-  void setPrimaryKey(List<String> newPrimaryKey){
+  void removeOrderByField(String toRemove){
+    var newOrderByFields = List<String>.from(_orderByFields.value);
+    newOrderByFields.remove(toRemove);
+    _orderByFields.add(newOrderByFields);
+  }
+
+  void moveOrderByFieldUp(String field){
+    var newOrderByFields = List<String>.from(_orderByFields.value);
+    var index = newOrderByFields.indexOf(field);
+    if (index < 1) return;
+    index--;
+    newOrderByFields.remove(field);
+    newOrderByFields.insert(index, field);
+    _orderByFields.add(newOrderByFields);
+  }
+
+  void moveOrderByFieldDown(String field){
+    var newOrderByFields = List<String>.from(_orderByFields.value);
+    var index = newOrderByFields.indexOf(field);
+    if (index == -1 || index == newOrderByFields.length-1) return;
+    index++;
+    newOrderByFields.remove(field);
+    newOrderByFields.insert(index, field);
+    _orderByFields.add(newOrderByFields);
+  }
+
+  void addPrimaryKeyField(String newPrimaryKeyField){
+    var newPrimaryKey = List<String>.from(_primaryKey.value);
+    newPrimaryKey.add(newPrimaryKeyField);
     _primaryKey.add(newPrimaryKey);
+  }
+
+  void removePrimaryKeyField(String removePrimaryKeyField){
+    var newPrimaryKey = List<String>.from(_primaryKey.value);
+    newPrimaryKey.remove(removePrimaryKeyField);
+    _primaryKey.add(newPrimaryKey);
+  }
+
+  String getSelectFieldEditMode(String selectField){
+    return _selectFields.value[selectField];
+  }
+
+  void updateSelectFieldEditMode(String selectField, String editMode){
+    var newSelectFields = Map<String,String>.from(_selectFields.value);
+    newSelectFields[selectField] = editMode;
+    _selectFields.add(newSelectFields);
   }
 
   void setFilters(List<Filter> newFilters){
