@@ -190,7 +190,19 @@ class ConfigurationState extends BlocState {
     _selectFields.add(newSelectFields);
   }
 
-  void setFilters(List<Filter> newFilters){
+  void addFilter({String worksheet, String fieldName, String mapsTo}){
+    var newFilters = List<Filter>.from(_filters.value);
+    newFilters.add(Filter(
+      worksheet: worksheet,
+      fieldName: fieldName,
+      mapsTo: mapsTo,
+    ));
+    _filters.add(newFilters);
+  }
+
+  void removeFilter({String worksheet, String fieldName, String mapsTo}){
+    var newFilters = List<Filter>.from(_filters.value);
+    newFilters.removeWhere((f)=>f.worksheet == worksheet && f.fieldName == fieldName && f.mapsTo == mapsTo);
     _filters.add(newFilters);
   }
 

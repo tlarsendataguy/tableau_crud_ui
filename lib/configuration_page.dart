@@ -4,6 +4,7 @@ import 'package:tableau_crud_ui/app_state.dart';
 import 'package:tableau_crud_ui/bloc_provider.dart';
 import 'package:tableau_crud_ui/configuration_state.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
+import 'package:tableau_crud_ui/io.dart';
 import 'package:tableau_crud_ui/settings.dart';
 
 class ConfigurationPage extends StatelessWidget{
@@ -103,10 +104,141 @@ class ConfigurationPage extends StatelessWidget{
   }
 }
 
-class FiltersPage extends StatelessWidget {
+class FiltersPage extends StatefulWidget {
+  createState()=>_FiltersPageState();
+}
+
+class _FiltersPageState extends State<FiltersPage> {
+
+  String selectedWorksheet = '';
+  List<TableauFilter> worksheetFilters = [];
+
   Widget build(BuildContext context) {
     var state = BlocProvider.of<ConfigurationState>(context);
-    return Center(child: Text("Filters"));
+
+    return Row(
+      children: <Widget>[
+        Expanded(
+          flex: 1,
+          child: Column(
+            children: <Widget>[
+              Center(child: Text("Worksheets:")),
+                Expanded(
+                  child: ListView(
+                  children: state.worksheets.map((e) =>
+                    Card(
+                      color: e == selectedWorksheet ? Colors.lightBlueAccent : null,
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Text(e),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.arrow_forward),
+                              onPressed: () async {
+                                worksheetFilters = await state.getFilters(e);
+                                setState(() {
+                                  selectedWorksheet = e;
+                                });
+                              },
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ).toList(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Column(
+            children: <Widget>[
+              Center(child: Text("Worksheet filters:")),
+                Expanded(
+                  child: ListView(
+                  children: worksheetFilters.map((e) =>
+                      Card(
+                        child: Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Row(
+                            children: <Widget>[
+                              Expanded(
+                                child: Text(e.fieldName),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.arrow_forward),
+                                onPressed: () async {
+                                  var mapsTo = await showDialog(context: context, child: ChooseColumnDialog("Filter on [${e.fieldName}] from worksheet [$selectedWorksheet] maps to:"));
+                                  if (mapsTo == '' || mapsTo == null) return;
+                                  state.addFilter(
+                                    worksheet: selectedWorksheet,
+                                    fieldName: e.fieldName,
+                                    mapsTo: mapsTo,
+                                  );
+                                },
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                  ).toList(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Column(
+            children: <Widget>[
+              Center(child: Text("Mapped filters:")),
+              Expanded(
+                child: StreamBuilder(
+                  stream: state.filters,
+                  builder: (context, AsyncSnapshot<List<Filter>> snapshot){
+                    if (!snapshot.hasData){
+                      return Container();
+                    }
+                    var filters = snapshot.data;
+                    return ListView(
+                      children: filters.map((e) =>
+                          Card(
+                            child: Padding(
+                              padding: EdgeInsets.all(8),
+                              child: Row(
+                                children: <Widget>[
+                                  IconButton(
+                                    icon: Icon(Icons.delete),
+                                    onPressed: (){
+                                      state.removeFilter(
+                                        worksheet: e.worksheet,
+                                        fieldName: e.fieldName,
+                                        mapsTo: e.mapsTo,
+                                      );
+                                    },
+                                  ),
+                                  Expanded(
+                                    child: Text("Filter on [${e.fieldName}] from worksheet [${e.worksheet}] maps to [${e.mapsTo}]"),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ).toList(),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -488,6 +620,74 @@ class ItemSelector<T> extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class ChooseColumnDialog extends StatefulWidget{
+  ChooseColumnDialog(this.header);
+  final String header;
+  State<StatefulWidget> createState() => _ChooseColumnDialogState();
+}
+
+class _ChooseColumnDialogState extends State<ChooseColumnDialog>{
+  var selectedColumn = '';
+
+  Widget build(BuildContext context) {
+    var state = BlocProvider.of<ConfigurationState>(context);
+    return Dialog(
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            child: Card(
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: Column(
+                  children: [
+                    Text(widget.header),
+                    Expanded(
+                      child: StreamBuilder(
+                        stream: state.columnNames,
+                        builder: (context, AsyncSnapshot<List<String>> snapshot){
+                          if (!snapshot.hasData) {
+                            return Container();
+                          }
+                          return ListView(
+                            children: snapshot.data.map((e) =>
+                            FlatButton(
+                              color: e == selectedColumn ? Colors.lightBlueAccent : null,
+                              child: Text(e),
+                              onPressed: ()=>setState(()=>selectedColumn=e),
+                            )).toList(),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                FlatButton(
+                  child: Text("Cancel"),
+                  onPressed: ()=>Navigator.of(context).pop(""),
+                ),
+                RaisedButton(
+                  child: Text("Select"),
+                  onPressed: selectedColumn == "" ?
+                    null :
+                    ()=>Navigator.of(context).pop(selectedColumn),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

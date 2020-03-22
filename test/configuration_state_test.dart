@@ -170,20 +170,28 @@ main(){
     state.removePrimaryKeyField('pk2');
   });
 
-  test("Update filters", () async {
+  test("Add filter", () async {
     var state = ConfigurationState(tIo: tIo, dbIo: dbIo);
     expect(
       state.filters.map((e)=>e.map((f)=>f.mapsTo)),
-      emitsInOrder([isEmpty,['field 1'],['some other field']]),
+      emitsInOrder([isEmpty,['field 1'],['field 1','some other field']]),
     );
     await state.initialize();
-    state.setFilters([
-      Filter(
-        worksheet: 'sheet1',
-        fieldName: 'some field on sheet1',
-        mapsTo: 'some other field',
-      ),
-    ]);
+    state.addFilter(
+      worksheet: 'sheet1',
+      fieldName: 'some field on sheet1',
+      mapsTo: 'some other field',
+    );
+  });
+
+  test("Remove filter", () async {
+    var state = ConfigurationState(tIo: tIo, dbIo: dbIo);
+    expect(
+      state.filters.map((e)=>e.map((f)=>f.mapsTo)),
+      emitsInOrder([isEmpty,['field 1'],isEmpty]),
+    );
+    await state.initialize();
+    state.removeFilter(worksheet: 'test worksheet', fieldName: 'test field', mapsTo: 'field 1');
   });
 
   test("Get select field edit value",()async{
