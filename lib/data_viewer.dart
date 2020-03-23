@@ -4,10 +4,11 @@ import 'package:tableau_crud_ui/bloc_provider.dart';
 import 'package:tableau_crud_ui/response_objects.dart';
 
 class DataViewer extends StatelessWidget {
-  final ScrollController _horizontalScroller = ScrollController();
+  final ScrollController horizontalScroller = ScrollController();
 
   Widget build(BuildContext context) {
     var state = BlocProvider.of<AppState>(context);
+
     return StreamBuilder(
       stream: state.readLoaders,
       builder: (context, AsyncSnapshot<int> snapshot){
@@ -21,6 +22,7 @@ class DataViewer extends StatelessWidget {
             if (!snapshot.hasData) {
               return Center(child: Text("No data"));
             }
+            
             var data = snapshot.data;
             var headerHeight = 20.0;
             var dataHeight = 30.0;
@@ -69,50 +71,39 @@ class DataViewer extends StatelessWidget {
             ];
             for (var index = 0; index < data.rowCount(); index++){
               selectionRows.add(
-                Container(
-                  height: dataHeight,
-                  decoration: BoxDecoration(
-                      border: Border(top: BorderSide(color: Colors.grey))
-                  ),
-                  child: InkWell(
-                    onTap: ()async{
-                      await showDialog(
-                        context: context,
-                        child: Dialog(
-                          child: Container(
-                            width: 300,
-                            child: Column(
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(8),
-                                    child: Text("Row $index"),
-                                  ),
-                                ),
-                                RaisedButton(
-                                  child: Text("ok"),
-                                  onPressed: ()=>Navigator.of(context).pop(),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                StreamBuilder(
+                  stream: state.selectedRow,
+                  builder: (context, AsyncSnapshot<int> snapshot){
+                    var selectedRow = snapshot.hasData ? snapshot.data : -1;
+
+                    return Container(
+                      height: dataHeight,
+                      decoration: BoxDecoration(
+                        border: Border(top: BorderSide(color: Colors.grey)),
+                        color: index == selectedRow ? Color.fromARGB(30, 0, 0, 255) : null,
+                      ),
+                      child: InkWell(
+                        onTap: (){
+                          var selection = index;
+                          if (selection == selectedRow) selection = -1;
+                          state.selectRow(selection);
+                        },
+                      ),
+                    );
+                  },
                 ),
               );
             }
 
             return Scrollbar(
-              controller: _horizontalScroller,
+              controller: horizontalScroller,
               child: SingleChildScrollView(
                 scrollDirection: Axis.vertical,
                 child: Stack(
                   children: <Widget>[
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      controller: _horizontalScroller,
+                      controller: horizontalScroller,
                       child: Row(
                         children: columns,
                       ),

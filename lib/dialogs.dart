@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 enum MsgType {
@@ -43,6 +44,40 @@ class OkDialog extends StatelessWidget {
     );
   }
 }
+class YesNoDialog extends StatelessWidget {
+  YesNoDialog({this.child});
+  final Widget child;
+
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Card(
+        child: Padding(
+          padding: EdgeInsets.all(8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              child,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  FlatButton(
+                    child: Text("No"),
+                    onPressed: ()=>Navigator.of(context).pop("No"),
+                  ),
+                  RaisedButton(
+                    child: Text("Yes"),
+                    onPressed: ()=>Navigator.of(context).pop("Yes"),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class LoadingDialog extends StatelessWidget {
   LoadingDialog({this.message});
   final String message;

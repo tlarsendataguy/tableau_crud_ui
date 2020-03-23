@@ -56,6 +56,20 @@ class DbMockFailIo extends DbIo {
       '{"Success":false,"Data";"read failed"}';
 }
 
+var mockSettings = Settings(
+  server: 'test server',
+  port: 'test port',
+  username: 'test username',
+  password: 'test password',
+  database: 'test database',
+  schema: 'test schema',
+  table: 'test table',
+  selectFields: {'id': editNone, 'category': editText, 'amount': editNumber, 'date': editDate},
+  orderByFields: ['id'],
+  primaryKey: ['id'],
+  filters: [Filter(worksheet: 'test worksheet', fieldName: 'test field', mapsTo: 'category')],
+);
+
 class TableauMockIo extends TableauIo {
   var _settings = Settings(
     server: '',

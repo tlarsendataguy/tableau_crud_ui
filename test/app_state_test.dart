@@ -11,10 +11,10 @@ var testSettings = Settings(
   database: 'test database',
   schema: 'test schema',
   table: 'test table',
-  selectFields: {'field 1': editNone, 'field 2': editText},
-  orderByFields: ['pk'],
-  primaryKey: ['pk'],
-  filters: [Filter(worksheet: 'test worksheet', fieldName: 'test field', mapsTo: 'field 1')],
+  selectFields: {'id': editNone, 'category': editText, 'amount': editNumber},
+  orderByFields: ['id'],
+  primaryKey: ['id'],
+  filters: [Filter(worksheet: 'test worksheet', fieldName: 'test field', mapsTo: 'category')],
 );
 
 Future<TableauIo> generateTIo() async {
@@ -40,7 +40,7 @@ main() async {
     await tIo.saveSettings(testSettings.toJson());
     var state = AppState(tIo: tIo, dbIo: dbIo);
     expect(state.data, emitsInOrder([isNull, isNotNull,isNotNull]));
-    expect(state.readLoaders, emitsInOrder([0,1,2,1,0]));
+    expect(state.readLoaders, emitsInOrder([0,1,0,1,0]));
 
     await state.initialize();
     var error = await state.readTable();
@@ -54,7 +54,7 @@ main() async {
     expect(state.data, emitsInOrder([isNull, isNotNull]));
 
     await state.initialize();
-    var error = await state.insert(['abc', 123]);
+    var error = await state.insert({'category': 'abc','amount': 123});
     expect(error, equals(""));
   });
 
@@ -65,7 +65,8 @@ main() async {
     expect(state.data, emitsInOrder([isNull, isNotNull]));
 
     await state.initialize();
-    var error = await state.update(values: {"field 1": 'xyz', "field 2": 987}, where: {"pk": 1});
+    state.selectRow(0);
+    var error = await state.update({"category": 'xyz', "amount": 987});
     expect(error, equals(""));
   });
 
@@ -76,7 +77,19 @@ main() async {
     expect(state.data, emitsInOrder([isNull, isNotNull]));
 
     await state.initialize();
-    var error = await state.delete(where: {"pk": 1});
+    state.selectRow(0);
+    var error = await state.delete();
     expect(error, equals(""));
+  });
+
+  test("select row", () async {
+    var tIo = await generateTIo();
+    await tIo.saveSettings(testSettings.toJson());
+    var state = AppState(tIo: tIo, dbIo: dbIo);
+    expect(state.selectedRow, emitsInOrder([-1, -1, 0]));
+
+    await state.initialize();
+    state.selectRow(0);
+    expect(state.getSelectedRowValues(), equals([1,'blah',123.2]));
   });
 }

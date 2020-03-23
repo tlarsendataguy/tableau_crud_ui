@@ -18,6 +18,8 @@ class AppState extends BlocState {
   int _reads = 0;
   Settings _settings;
 
+  Settings get settings => _settings;
+
   var _tableColumns = BehaviorSubject<List<String>>.seeded([]);
   Stream<List<String>> get tableColumns => _tableColumns.stream;
 
@@ -27,12 +29,20 @@ class AppState extends BlocState {
   var _readLoaders = BehaviorSubject<int>.seeded(0);
   Stream<int> get readLoaders => _readLoaders.stream;
 
+  var _selectedRow = BehaviorSubject<int>.seeded(-1);
+  Stream<int> get selectedRow => _selectedRow.stream;
+
+  List<dynamic> getSelectedRowValues(){
+    if (_data.value == null) return [];
+    return _data.value.getMultiFieldValuesFromRow(_settings.selectFields.keys.toList(), _selectedRow.value);
+  }
+
   Future initialize() async {
     _settings = await tIo.getSettings();
     _tableauContext = await tIo.getContext();
     pageSize = _settings.defaultPageSize;
     if (!_settings.isEmpty()){
-      readTable();
+      await readTable();
     }
   }
 
@@ -45,12 +55,17 @@ class AppState extends BlocState {
     }
   }
 
+  void selectRow(int selection){
+    _selectedRow.add(selection);
+  }
+
   Future<List<String>> getWorksheets() async {
     return await tIo.getWorksheets();
   }
 
   Future<String> readTable() async {
     _readLoaders.add(++_reads);
+    _selectedRow.add(-1);
     var function = ReadFunction(
       fields: _settings.selectFields.keys.toList(),
       orderBy: _settings.orderByFields,
@@ -68,16 +83,19 @@ class AppState extends BlocState {
     return queryResult.error;
   }
 
-  Future<String> insert(List<dynamic> values) async {
-    if (values.length != _settings.selectFields.length){
-      return "${values.length} fields were provided but ${_settings.selectFields.length} fields were required";
+  Future<String> insert(Map<String,dynamic> values) async {
+    var requiredFields = _settings.selectFields.keys.where((key) =>
+      _settings.selectFields[key] == editText ||
+      _settings.selectFields[key] == editInteger ||
+      _settings.selectFields[key] == editNumber ||
+      _settings.selectFields[key] == editBool ||
+      _settings.selectFields[key] == editDate
+    );
+    if (values.length != requiredFields.length){
+      return "${values.length} fields were provided but ${requiredFields.length} fields were required";
     }
 
-    var insertValues = Map<String,dynamic>();
-    for (var index = 0; index < values.length; index++){
-      insertValues[_settings.selectFields[index]] = values[index];
-    }
-    var function = InsertFunction(insertValues);
+    var function = InsertFunction(values);
     var request = ConnectionData.fromSettings(_settings).generateRequest(function);
     var response = await dbIo.insert(request);
     var result = parseExec(response);
@@ -87,17 +105,12 @@ class AppState extends BlocState {
     return await readTable();
   }
 
-  Future<String> update({Map<String,dynamic> values, Map<String,dynamic> where}) async {
-    if (where.length != _settings.primaryKey.length){
-      return "${where.length} where clauses were provided but there are ${_settings.primaryKey.length} primary key fields";
-    }
-
-    var wheres = List<Where>();
-    for (var key in where.keys){
-      if (!_settings.primaryKey.contains(key)){
-        return "$key is not a primary key field";
-      }
-      wheres.add(WhereEqual(key, where[key]));
+  Future<String> update(Map<String,dynamic> values) async {
+    List<Where> wheres;
+    try{
+      wheres = _generatePkWhere();
+    } on Exception catch (ex){
+      return ex.toString();
     }
     var function = UpdateFunction(whereClauses: wheres, updates: values);
     var request = ConnectionData.fromSettings(_settings).generateRequest(function);
@@ -109,17 +122,12 @@ class AppState extends BlocState {
     return await readTable();
   }
 
-  Future<String> delete({Map<String,dynamic> where}) async {
-    if (where.length != _settings.primaryKey.length){
-      return "${where.length} where clauses were provided but there are ${_settings.primaryKey.length} primary key fields";
-    }
-
-    var wheres = List<Where>();
-    for (var key in where.keys){
-      if (!_settings.primaryKey.contains(key)){
-        return "$key is not a primary key field";
-      }
-      wheres.add(WhereEqual(key, where[key]));
+  Future<String> delete() async {
+    List<Where> wheres;
+    try{
+      wheres = _generatePkWhere();
+    } on Exception catch (ex){
+      return ex.toString();
     }
     var function = DeleteFunction(whereClauses: wheres);
     var request = ConnectionData.fromSettings(_settings).generateRequest(function);
@@ -135,6 +143,20 @@ class AppState extends BlocState {
     _tableColumns.close();
     _data.close();
     _readLoaders.close();
+  }
+
+  List<Where> _generatePkWhere(){
+    var selected = _selectedRow.value;
+    if (selected == -1){
+      throw new Exception("no row was selected");
+    }
+    var pk = _settings.primaryKey;
+    var pkValues = _data.value.getMultiFieldValuesFromRow(pk, selected);
+    var wheres = List<Where>();
+    for (var index = 0; index < pk.length; index++){
+      wheres.add(WhereEqual(pk[index], pkValues[index]));
+    }
+    return wheres;
   }
 
   Future<List<Where>> _generateWheres() async {

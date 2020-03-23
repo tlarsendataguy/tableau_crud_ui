@@ -305,6 +305,7 @@ class SelectFieldsPage extends StatelessWidget {
           ],
         );
       },
+      rightFlex: 2,
       rightLabel: "Selected fields:",
       selectorStream: state.selectFields,
       selectorItemBuilder: (context, selectedField){
@@ -549,13 +550,15 @@ class PageButton extends StatelessWidget{
 typedef Widget ItemSelectorBuilder<T>(BuildContext context, T item);
 
 class ItemSelector<T> extends StatelessWidget {
-  ItemSelector({this.sourceStream, this.sourceItemBuilder, this.selectorStream, this.selectorItemBuilder,this.leftLabel,this.rightLabel});
+  ItemSelector({this.sourceStream, this.sourceItemBuilder, this.selectorStream, this.selectorItemBuilder,this.leftLabel,this.rightLabel, this.leftFlex=1, this.rightFlex=1});
   final Stream<List<T>> sourceStream;
   final Stream<List<T>> selectorStream;
   final ItemSelectorBuilder<T> sourceItemBuilder;
   final ItemSelectorBuilder<T> selectorItemBuilder;
   final String leftLabel;
   final String rightLabel;
+  final int leftFlex;
+  final int rightFlex;
 
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -568,6 +571,7 @@ class ItemSelector<T> extends StatelessWidget {
         return Row(
           children: [
             Expanded(
+              flex: leftFlex,
               child: Column(
                 children: [
                   Center(child: Text(leftLabel)),
@@ -599,6 +603,7 @@ class ItemSelector<T> extends StatelessWidget {
               ),
             ),
             Expanded(
+              flex: rightFlex,
               child: Column(
                 children: [
                   Center(child: Text(rightLabel)),

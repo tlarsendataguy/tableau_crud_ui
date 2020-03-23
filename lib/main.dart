@@ -13,6 +13,7 @@ import 'package:tableau_crud_ui/tableau_extension_io.dart';
 
 void main() async {
   var tIo = TableauMockIo();
+  await tIo.saveSettings(mockSettings.toJson());
   //var tIo = TableauExtensionIo();
   await tIo.initialize();
   var dbIo = DbMockSuccessIo();
