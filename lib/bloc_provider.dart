@@ -17,11 +17,6 @@ class BlocProvider<T extends BlocState> extends StatefulWidget{
 }
 
 class _BlocProviderState<T extends BlocState> extends State<BlocProvider> {
-  void initState(){
-    super.initState();
-    widget.bloc.initialize();
-  }
-
   void dispose() {
     widget.bloc.dispose();
     super.dispose();

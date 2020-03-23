@@ -98,6 +98,7 @@ main(){
     expect(settings.schema, equals('new schema'));
     expect(settings.table, equals('new table'));
     expect(settings.selectFields, equals({'field 1':editNone,'field 2':editText}));
+    expect(settings.defaultPageSize, equals(10));
   });
 
   test("Add select field", () async {

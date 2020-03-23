@@ -22,7 +22,7 @@ main(){
   test("Test json generated to insert record",(){
     var request = connectionData.generateRequest(InsertFunction({"Field1":"test", "Field2": 123}));
     var requestJson = request.toJson();
-    expect(requestJson, equals('{"Server":"server","Port":"port","Username":"username","Password":"password","Database":"test","Schema":"dbo","Table":"some_table","Function":"Insert","Parameters":{"Field1":"test","Field2":123}}'));
+    expect(requestJson, equals('{"Server":"server","Port":"port","Username":"username","Password":"password","Database":"test","Schema":"dbo","Table":"some_table","Function":"Insert","Parameters":{"values":{"Field1":"test","Field2":123}}}'));
     print(requestJson);
   });
 

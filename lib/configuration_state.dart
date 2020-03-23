@@ -75,6 +75,7 @@ class ConfigurationState extends BlocState {
       database: database,
       schema: schema,
       table: table,
+      defaultPageSize: 10,
     );
     var function = TestConnectionFunction();
     var request = ConnectionData.fromSettings(settings).generateRequest(function);
@@ -82,6 +83,8 @@ class ConfigurationState extends BlocState {
     var queryResult = parseQuery(response);
     if (!queryResult.hasError){
       _columnNames.add(queryResult.data.columnNames);
+    } else {
+      print(queryResult.error);
     }
     return queryResult.error;
   }
@@ -219,6 +222,7 @@ class ConfigurationState extends BlocState {
       primaryKey: _primaryKey.value,
       orderByFields: _orderByFields.value,
       filters: _filters.value,
+      defaultPageSize: 10,
     );
   }
 

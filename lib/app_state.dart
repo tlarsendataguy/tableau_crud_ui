@@ -80,6 +80,9 @@ class AppState extends BlocState {
       _data.add(queryResult.data);
     }
     _readLoaders.add(--_reads);
+    if (queryResult.error != ''){
+      print(queryResult.error);
+    }
     return queryResult.error;
   }
 
@@ -100,7 +103,13 @@ class AppState extends BlocState {
     var response = await dbIo.insert(request);
     var result = parseExec(response);
     if (result.hasError) {
+      print(result.error);
       return result.error;
+    }
+    if (result.data == 0){
+      var err = 'Zero records were inserted for an unknown reason';
+      print(err);
+      return err;
     }
     return await readTable();
   }
@@ -117,7 +126,13 @@ class AppState extends BlocState {
     var response = await dbIo.update(request);
     var result = parseExec(response);
     if (result.hasError) {
+      print(result.error);
       return result.error;
+    }
+    if (result.data == 0){
+      var err = 'Zero records were updated for an unknown reason';
+      print(err);
+      return err;
     }
     return await readTable();
   }
@@ -134,7 +149,13 @@ class AppState extends BlocState {
     var response = await dbIo.delete(request);
     var result = parseExec(response);
     if (result.hasError) {
+      print(result.error);
       return result.error;
+    }
+    if (result.data == 0){
+      var err = 'Zero records were deleted for an unknown reason';
+      print(err);
+      return err;
     }
     return await readTable();
   }

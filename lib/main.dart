@@ -1,4 +1,4 @@
-import 'dart:html';
+//import 'dart:html';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,20 +8,28 @@ import 'package:tableau_crud_ui/configuration_page.dart';
 import 'package:tableau_crud_ui/configuration_state.dart';
 import 'package:tableau_crud_ui/db_web_io.dart';
 import 'package:tableau_crud_ui/home_page.dart';
-import 'package:tableau_crud_ui/io.dart';
+//import 'package:tableau_crud_ui/io.dart';
 import 'package:tableau_crud_ui/tableau_extension_io.dart';
 
 void main() async {
-  var tIo = TableauMockIo();
-  await tIo.saveSettings(mockSettings.toJson());
-  //var tIo = TableauExtensionIo();
+  //var tIo = TableauMockIo();
+  //await tIo.saveSettings(mockSettings.toJson());
+  print('Creating Tableau Extension IO object...');
+  var tIo = TableauExtensionIo();
+  print('Initializing Tableau Extension IO object...');
   await tIo.initialize();
-  var dbIo = DbMockSuccessIo();
-  //var dbIo = DbWebIo();
+  //var dbIo = DbMockSuccessIo();
+  print('Creating DB connector...');
+  var dbIo = DbWebIo();
+  print('Creating application state...');
   var appState = AppState(tIo: tIo, dbIo: dbIo);
+  print('Initializing application state...');
   await appState.initialize();
+  print('Creating configuration state...');
   var configurationState = ConfigurationState(tIo: tIo, dbIo: dbIo);
+  print('Initializing configuration state...');
   await configurationState.initialize();
+  print('Running app');
   runApp(
     BlocProvider<AppState>(
       child: BlocProvider<ConfigurationState>(
@@ -41,8 +49,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       routes: {
-        "/": (context)=>Home(),
-        "/configure": (context)=>ConfigurationPage(),
+        "/": (context) => Home(),
+        "/configure": (context)=> ConfigurationPage(),
       },
     );
   }

@@ -82,7 +82,13 @@ class Home extends StatelessWidget {
               if (result != 'Yes'){
                 return;
               }
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                child: LoadingDialog(message: "Deleting..."),
+              );
               var err = await state.delete();
+              Navigator.of(context).pop();
               if (err != ''){
                 await showDialog(
                   context: null,
@@ -143,11 +149,16 @@ class Home extends StatelessWidget {
 class PageSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     var state = BlocProvider.of<AppState>(context);
+    //return Container();
     return StreamBuilder(
       stream: state.data,
       builder: (context, AsyncSnapshot<QueryResults> snapshot){
-        if (!snapshot.hasData || snapshot.data.totalRowCount == 0)
+        if (!snapshot.hasData){
           return Container();
+        }
+        if (snapshot.data.totalRowCount == 0 || snapshot.data.totalRowCount == null){
+          return Container();
+        }
         var page = state.page;
         var totalPages = (snapshot.data.totalRowCount / state.pageSize).ceil();
         return Row(
@@ -172,9 +183,9 @@ class PageSelector extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.arrow_forward_ios),
               onPressed: page >= totalPages ? null : () async {
-                state.page = page+1;
+                state.page = page + 1;
                 var err = await state.readTable();
-                if (err != ''){
+                if (err != '') {
                   await showDialog(
                     context: context,
                     child: OkDialog(
@@ -406,7 +417,13 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
                     child: Text("Submit"),
                     onPressed: () async {
                       var values = _generateSubmitValues();
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        child: LoadingDialog(message: "Submitting..."),
+                      );
                       var err = await widget.onSubmit(values);
+                      Navigator.of(context).pop();
                       if (err != ''){
                         await showDialog(
                           context: context,
@@ -453,8 +470,13 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
           submitValues[key] = int.tryParse(value);
           break;
         case editText:
-        case editDate:
           submitValues[key] = value.toString();
+          break;
+        case editDate:
+          if (value == null)
+            submitValues[key] = null;
+          else
+            submitValues[key] = value.toString();
           break;
         default:
           continue;

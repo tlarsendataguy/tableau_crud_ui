@@ -56,4 +56,5 @@ class DataValue {
 @JS()
 class TableauSettings {
   external String get settings;
+  external bool hasOwnProperty(String property);
 }

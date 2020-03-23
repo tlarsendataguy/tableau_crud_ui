@@ -63,10 +63,10 @@ class Settings {
         database == '' &&
         schema == '' &&
         table == '' &&
-        selectFields == {} &&
-        orderByFields == [] &&
-        primaryKey == [] &&
-        filters == [];
+        selectFields.isEmpty &&
+        orderByFields.isEmpty &&
+        primaryKey.isEmpty &&
+        filters.isEmpty;
   }
 
   String validate(){

@@ -59,6 +59,9 @@ class TableauExtensionIo extends TableauIo {
 
   Future<Settings> getSettings() async {
     var setting = api.getAllSettings();
+    if (!setting.hasOwnProperty('settings')){
+      return Settings.fromJson('{}');
+    }
     return Settings.fromJson(setting.settings);
   }
 

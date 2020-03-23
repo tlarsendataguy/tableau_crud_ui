@@ -64,7 +64,7 @@ class InsertFunction extends FunctionData {
   InsertFunction(this.insertValues);
   final Map<String, dynamic> insertValues;
   String function() => 'Insert';
-  Map<String, dynamic> parameters() => insertValues;
+  Map<String, dynamic> parameters() => {"values": insertValues};
 }
 
 abstract class Where {

@@ -27,4 +27,12 @@ main(){
     var error = settings.validate();
     expect(error, equals(""));
   });
+
+  test("Test from JSON when empty",(){
+    var jsonSettings = '{}';
+    var settings = Settings.fromJson(jsonSettings);
+    expect(settings.isEmpty(), isTrue);
+    expect(settings.toJson(), equals('{"server":"","port":"","username":"","password":"","database":"","schema":"","table":"","selectFields":{},"orderByFields":[],"primaryKey":[],"filters":[],"defaultPageSize":10}'));
+    expect(settings.defaultPageSize, equals(10));
+  });
 }

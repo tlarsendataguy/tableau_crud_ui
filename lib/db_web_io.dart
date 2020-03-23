@@ -17,6 +17,7 @@ class DbWebIo extends DbIo {
       var response = await http.post(_address, headers: {"Content-type":"application/json"}, body: jsonRequest);
       return response.body;
     } catch (ex){
+      print('error sending $jsonRequest');
       return '{"Success":false,"Data":"Error connecting to web service"}';
     }
   }
