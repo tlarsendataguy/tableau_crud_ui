@@ -5,6 +5,7 @@ import 'package:tableau_crud_ui/app_state.dart';
 import 'package:tableau_crud_ui/bloc_provider.dart';
 import 'package:tableau_crud_ui/data_viewer.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
+import 'package:tableau_crud_ui/response_objects.dart';
 import 'package:tableau_crud_ui/settings.dart';
 import 'package:tableau_crud_ui/try_cast.dart';
 
@@ -122,6 +123,7 @@ class Home extends StatelessWidget {
         Expanded(
           child: Container(),
         ),
+        PageSelector(),
         configureButton,
       ],
     );
@@ -134,6 +136,58 @@ class Home extends StatelessWidget {
           Expanded(child: Card(child: Padding(padding: EdgeInsets.all(4.0),child: DataViewer()))),
         ],
       ),
+    );
+  }
+}
+
+class PageSelector extends StatelessWidget {
+  Widget build(BuildContext context) {
+    var state = BlocProvider.of<AppState>(context);
+    return StreamBuilder(
+      stream: state.data,
+      builder: (context, AsyncSnapshot<QueryResults> snapshot){
+        if (!snapshot.hasData || snapshot.data.totalRowCount == 0)
+          return Container();
+        var page = state.page;
+        var totalPages = (snapshot.data.totalRowCount / state.pageSize).ceil();
+        return Row(
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.arrow_back_ios),
+              onPressed: page <= 1 ? null : () async {
+                state.page = page-1;
+                var err = await state.readTable();
+                if (err != ''){
+                  await showDialog(
+                    context: context,
+                    child: OkDialog(
+                      child: Text("Error: $err"),
+                      msgType: MsgType.Error,
+                    ),
+                  );
+                }
+              },
+            ),
+            Text("$page of $totalPages"),
+            IconButton(
+              icon: Icon(Icons.arrow_forward_ios),
+              onPressed: page >= totalPages ? null : () async {
+                state.page = page+1;
+                var err = await state.readTable();
+                if (err != ''){
+                  await showDialog(
+                    context: context,
+                    child: OkDialog(
+                      child: Text("Error: $err"),
+                      msgType: MsgType.Error,
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

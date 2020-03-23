@@ -66,8 +66,7 @@ class Settings {
         selectFields == {} &&
         orderByFields == [] &&
         primaryKey == [] &&
-        filters == [] &&
-        defaultPageSize == 0;
+        filters == [];
   }
 
   String validate(){
@@ -115,6 +114,7 @@ class Settings {
     var orderByFields = mapped.tryStringList(_orderByFields);
     var primaryKey = mapped.tryStringList(_primaryKey);
     var defaultPageSize = mapped.tryInt(_defaultPageSize);
+    if (defaultPageSize == 0) defaultPageSize = 10;
 
     var dynamicFilters = mapped.tryDynamicList(_filters);
     var filters = List<Filter>();
