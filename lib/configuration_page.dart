@@ -6,6 +6,7 @@ import 'package:tableau_crud_ui/configuration_state.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
 import 'package:tableau_crud_ui/io.dart';
 import 'package:tableau_crud_ui/settings.dart';
+import 'package:tableau_crud_ui/styling.dart';
 
 class ConfigurationPage extends StatelessWidget{
   Widget build(BuildContext context) {
@@ -39,7 +40,7 @@ class ConfigurationPage extends StatelessWidget{
             content = Center(child: Text("Invalid page"));
         }
         return Container(
-          color: Color.fromARGB(255, 220, 220, 220),
+          color: backgroundColor,
           child: Row(
             children: [
               Container(

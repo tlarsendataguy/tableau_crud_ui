@@ -7,6 +7,7 @@ import 'package:tableau_crud_ui/data_viewer.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
 import 'package:tableau_crud_ui/response_objects.dart';
 import 'package:tableau_crud_ui/settings.dart';
+import 'package:tableau_crud_ui/styling.dart';
 import 'package:tableau_crud_ui/try_cast.dart';
 
 class Home extends StatelessWidget {
@@ -135,7 +136,7 @@ class Home extends StatelessWidget {
     );
 
     return Material(
-      color: Color.fromARGB(255, 220, 220, 220),
+      color: backgroundColor,
       child: Column(
         children: <Widget>[
           Card(child: buttonBar),
