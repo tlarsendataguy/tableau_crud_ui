@@ -10,7 +10,7 @@ import 'package:tableau_crud_ui/home_page.dart';
 import 'package:tableau_crud_ui/tableau_extension_io.dart';
 
 void main() async {
-  var mock = true;
+  var mock = false;
   if (mock) {
     runMock();
   } else {
