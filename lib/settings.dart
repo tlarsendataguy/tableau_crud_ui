@@ -16,6 +16,7 @@ const _worksheet = "worksheet";
 const _fieldName = "fieldName";
 const _mapsTo = "mapsTo";
 const _defaultPageSize = "defaultPageSize";
+const _mappedDataSources = 'mappedDataSources';
 
 const editNone = 'None';
 const editInteger = 'Integer';
@@ -39,6 +40,7 @@ class Settings {
         this.primaryKey,
         this.filters,
         this.defaultPageSize,
+        this.mappedDataSources,
       }
   );
 
@@ -54,19 +56,21 @@ class Settings {
   final List<String> primaryKey;
   final List<Filter> filters;
   final int defaultPageSize;
+  final List<String> mappedDataSources;
 
   bool isEmpty() {
     return server == '' &&
-        port == '' &&
-        username == '' &&
-        password == '' &&
-        database == '' &&
-        schema == '' &&
-        table == '' &&
-        selectFields.isEmpty &&
-        orderByFields.isEmpty &&
-        primaryKey.isEmpty &&
-        filters.isEmpty;
+      port == '' &&
+      username == '' &&
+      password == '' &&
+      database == '' &&
+      schema == '' &&
+      table == '' &&
+      selectFields.isEmpty &&
+      orderByFields.isEmpty &&
+      primaryKey.isEmpty &&
+      filters.isEmpty &&
+      mappedDataSources.isEmpty;
   }
 
   String validate(){
@@ -97,6 +101,7 @@ class Settings {
       _primaryKey: primaryKey,
       _filters: filters.map((e) => e.toJson()).toList(),
       _defaultPageSize: defaultPageSize,
+      _mappedDataSources: mappedDataSources,
     };
     return jsonEncode(mapped);
   }
@@ -115,6 +120,7 @@ class Settings {
     var primaryKey = mapped.tryStringList(_primaryKey);
     var defaultPageSize = mapped.tryInt(_defaultPageSize);
     if (defaultPageSize == 0) defaultPageSize = 10;
+    var mappedDataSources = mapped.tryStringList(_mappedDataSources);
 
     var dynamicFilters = mapped.tryDynamicList(_filters);
     var filters = List<Filter>();
@@ -136,6 +142,7 @@ class Settings {
       primaryKey: primaryKey,
       filters: filters,
       defaultPageSize: defaultPageSize,
+      mappedDataSources: mappedDataSources,
     );
   }
 }

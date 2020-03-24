@@ -17,6 +17,7 @@ var testSettings = Settings(
   orderByFields: ['pk1','pk2'],
   primaryKey: ['pk1','pk2'],
   filters: [Filter(worksheet: 'test worksheet', fieldName: 'test field', mapsTo: 'field 1')],
+  mappedDataSources: [],
 );
 
 main(){
@@ -31,6 +32,7 @@ main(){
     expect(state.primaryKey, emitsInOrder([isEmpty,['pk1','pk2']]));
     expect(state.filters, emitsInOrder([isEmpty, isNotEmpty]));
     expect(state.columnNames, emitsInOrder([isEmpty,["id","category","amount","date"]]));
+    expect(state.mappedDataSources, emitsInOrder([isEmpty,isEmpty]));
 
     await state.initialize();
     expect(state.server, equals("test server"));
@@ -209,5 +211,14 @@ main(){
     state.updateSelectFieldEditMode('field 1',editInteger);
     var editValue = state.getSelectFieldEditMode('field 1');
     expect(editValue, equals(editInteger));
+  });
+
+  test("Add and remove mapped data source", () async {
+    var state = ConfigurationState(tIo: tIo, dbIo: dbIo);
+    expect(state.mappedDataSources, emitsInOrder([isEmpty,isEmpty,isNotEmpty,isEmpty]));
+    await state.initialize();
+
+    state.addMappedDataSource('id1');
+    state.removeMappedDataSource('id1');
   });
 }

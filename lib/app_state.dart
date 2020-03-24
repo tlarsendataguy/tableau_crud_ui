@@ -127,6 +127,7 @@ class AppState extends BlocState {
       print(err);
       return err;
     }
+    tIo.updateDataSources(_settings.mappedDataSources);
     return await readTable();
   }
 
@@ -150,6 +151,7 @@ class AppState extends BlocState {
       print(err);
       return err;
     }
+    tIo.updateDataSources(_settings.mappedDataSources);
     return await readTable();
   }
 
@@ -173,6 +175,7 @@ class AppState extends BlocState {
       print(err);
       return err;
     }
+    tIo.updateDataSources(_settings.mappedDataSources);
     return await readTable();
   }
 

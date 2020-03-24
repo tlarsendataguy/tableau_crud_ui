@@ -36,6 +36,9 @@ class ConfigurationPage extends StatelessWidget{
           case Page.filters:
             content = FiltersPage();
             break;
+          case Page.mappedDataSources:
+            content = MappedDataSourcesPage();
+            break;
           default:
             content = Center(child: Text("Invalid page"));
         }
@@ -85,6 +88,7 @@ class ConfigurationPage extends StatelessWidget{
                       PageButton(goToPage: Page.selectFields, currentPage: page),
                       PageButton(goToPage: Page.orderByFields, currentPage: page),
                       PageButton(goToPage: Page.filters, currentPage: page),
+                      PageButton(goToPage: Page.mappedDataSources, currentPage: page),
                     ],
                   ),
                 ),
@@ -379,6 +383,45 @@ class SelectFieldsPage extends StatelessWidget {
   }
 }
 
+class MappedDataSourcesPage extends StatelessWidget {
+  Widget build(BuildContext context) {
+    var state = BlocProvider.of<ConfigurationState>(context);
+    var dataSources = state.getDataSources;
+    return ItemSelector(
+      sourceStream: state.allDataSources.map((e)=>e.keys.toList()),
+      sourceItemBuilder: (context, dataSourceId){
+        var dataSourceName = dataSources[dataSourceId];
+        if (dataSourceName == null) dataSourceName = 'Invalid';
+        return Row(
+          children: <Widget>[
+            Expanded(child: Text("$dataSourceId: $dataSourceName")),
+            IconButton(
+              icon: Icon(Icons.arrow_forward),
+              onPressed: ()=>state.addMappedDataSource(dataSourceId),
+            ),
+          ],
+        );
+      },
+      selectorStream: state.mappedDataSources,
+      selectorItemBuilder:  (context, dataSourceId){
+        var dataSourceName = dataSources[dataSourceId];
+        if (dataSourceName == null) dataSourceName = 'Invalid';
+        return Row(
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: ()=>state.removeMappedDataSource(dataSourceId),
+            ),
+            Expanded(child: Text("$dataSourceId: $dataSourceName")),
+          ],
+        );
+      },
+      leftLabel: 'Data sources available:',
+      rightLabel: 'Mapped data sources:',
+    );
+  }
+}
+
 class ConnectionPage extends StatefulWidget {
   ConnectionPage({this.configState});
 
@@ -527,6 +570,10 @@ class PageButton extends StatelessWidget{
         message = "Map filters";
         icon = Icons.filter_list;
         break;
+      case Page.mappedDataSources:
+        message = "Map data sources";
+        icon = Icons.file_download;
+        break;
     }
 
     return Tooltip(
@@ -541,7 +588,7 @@ class PageButton extends StatelessWidget{
           color: color,
           icon: Icon(icon),
           onPressed: goToPage == currentPage ? null :
-            ()=>configState.goToPage(goToPage),
+            () async => await configState.goToPage(goToPage),
         ),
       ),
     );

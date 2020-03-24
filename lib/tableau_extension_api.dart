@@ -34,6 +34,14 @@ class Worksheet {
   external String get name;
   external dynamic getFiltersAsync();
   external Function addEventListener(String eventType, dynamic handler);
+  external dynamic getDataSourcesAsync();
+}
+
+@JS()
+class DataSource {
+  external String get id;
+  external String get name;
+  external dynamic refreshAsync();
 }
 
 @JS()

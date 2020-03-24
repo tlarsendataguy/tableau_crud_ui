@@ -77,6 +77,35 @@ class TableauExtensionIo extends TableauIo {
     return worksheetNames;
   }
 
+  Future<Map<String,String>> getAllDataSources() async {
+    var dataSources = Map<String,String>();
+    for (var worksheet in api.worksheets){
+      var tDataSources = await promiseToFuture<List<api.DataSource>>(worksheet.getDataSourcesAsync());
+      for (var tDataSource in tDataSources){
+        dataSources[tDataSource.id] = tDataSource.name;
+      }
+    }
+    return dataSources;
+  }
+
+  Future updateDataSources(List<String> ids) async {
+    for (var id in ids){
+      var found = false;
+      for (var worksheet in api.worksheets) {
+        var tDataSources = await promiseToFuture<List<api.DataSource>>(
+            worksheet.getDataSourcesAsync());
+        for (var tDataSource in tDataSources) {
+          if (tDataSource.id == id) {
+            found = true;
+            await promiseToFuture<void>(tDataSource.refreshAsync());
+            break;
+          }
+        }
+        if (found) break;
+      }
+    }
+  }
+
   Future saveSettings(String settingsJson) async {
     api.setSetting('settings', settingsJson);
     await promiseToFuture(api.saveSettingsAsync());
@@ -87,7 +116,6 @@ class TableauExtensionIo extends TableauIo {
       if (worksheets.contains(worksheet.name)){
         var interop = allowInterop((dynamic event){callback(event);});
         _toUnregister.add(worksheet.addEventListener('filter-changed', interop));
-        print(_toUnregister.last);
       }
     }
   }

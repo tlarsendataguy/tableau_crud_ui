@@ -10,6 +10,7 @@ enum Page {
   selectFields,
   orderByFields,
   filters,
+  mappedDataSources
 }
 
 class ConfigurationState extends BlocState {
@@ -41,15 +42,23 @@ class ConfigurationState extends BlocState {
   var _columnNames = BehaviorSubject<List<String>>.seeded([]);
   Stream<List<String>> get columnNames => _columnNames.stream;
 
+  var _mappedDataSources = BehaviorSubject<List<String>>.seeded([]);
+  Stream<List<String>> get mappedDataSources => _mappedDataSources.stream;
+
+  var _allDataSources = BehaviorSubject<Map<String,String>>.seeded({});
+  Stream<Map<String,String>> get allDataSources => _allDataSources.stream;
+
   var _page = BehaviorSubject<Page>.seeded(Page.connection);
   Stream<Page> get page => _page.stream;
 
   List<String> _worksheets;
   List<String> get worksheets => _worksheets;
+  Map<String,String> get getDataSources => _allDataSources.value;
 
   Future initialize() async {
     var settings = await tIo.getSettings();
     _worksheets = await tIo.getWorksheets();
+    _allDataSources.add(await tIo.getAllDataSources());
     server = settings.server;
     port = settings.port;
     username = settings.username;
@@ -61,9 +70,18 @@ class ConfigurationState extends BlocState {
     _orderByFields.add(settings.orderByFields);
     _primaryKey.add(settings.primaryKey);
     _filters.add(settings.filters);
+    _mappedDataSources.add(settings.mappedDataSources);
     if (!settings.isEmpty()){
       await testConnection();
     }
+  }
+
+  Future refreshDataSources() async {
+    _allDataSources.add(await tIo.getAllDataSources());
+  }
+
+  Future refreshWorksheets() async {
+    _worksheets = await tIo.getWorksheets();
   }
 
   Future<String> testConnection() async {
@@ -89,7 +107,9 @@ class ConfigurationState extends BlocState {
     return queryResult.error;
   }
 
-  void goToPage(Page page){
+  Future goToPage(Page page) async {
+    if (page == Page.filters) await refreshWorksheets();
+    if (page == Page.mappedDataSources) await refreshDataSources();
     _page.add(page);
   }
 
@@ -183,6 +203,18 @@ class ConfigurationState extends BlocState {
     _primaryKey.add(newPrimaryKey);
   }
 
+  void addMappedDataSource(String newDataSource){
+    var newMappedDataSources = List<String>.from(_mappedDataSources.value);
+    newMappedDataSources.add(newDataSource);
+    _mappedDataSources.add(newMappedDataSources);
+  }
+
+  void removeMappedDataSource(String removeDataSource){
+    var newMappedDataSources = List<String>.from(_mappedDataSources.value);
+    newMappedDataSources.remove(removeDataSource);
+    _mappedDataSources.add(newMappedDataSources);
+  }
+
   String getSelectFieldEditMode(String selectField){
     return _selectFields.value[selectField];
   }
@@ -223,6 +255,7 @@ class ConfigurationState extends BlocState {
       orderByFields: _orderByFields.value,
       filters: _filters.value,
       defaultPageSize: 10,
+      mappedDataSources: _mappedDataSources.value,
     );
   }
 
