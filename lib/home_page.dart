@@ -30,7 +30,10 @@ class Home extends StatelessWidget {
         Tooltip(
           message: "Add record",
           child: IconButton(
-            icon: Icon(Icons.add),
+            icon: Icon(
+              Icons.add,
+              color: editIconColor,
+            ),
             onPressed: () async {
               var editModes = state.settings.selectFields;
               var initialValues = editModes.keys.map((e)=>null).toList();
@@ -65,6 +68,7 @@ class Home extends StatelessWidget {
               message: "Edit record",
               child: IconButton(
                 icon: Icon(Icons.edit),
+                color: editIconColor,
                 onPressed: onPressed,
               ),
             );
@@ -105,6 +109,7 @@ class Home extends StatelessWidget {
               message: "Delete record",
               child: IconButton(
                 icon: Icon(Icons.delete),
+                color: editIconColor,
                 onPressed: onPressed,
               ),
             );
@@ -113,7 +118,10 @@ class Home extends StatelessWidget {
         Tooltip(
           message: "Refresh table",
           child: IconButton(
-            icon: Icon(Icons.refresh),
+            icon: Icon(
+              Icons.refresh,
+              color: Colors.blue,
+            ),
             onPressed: () async {
               var error = await state.readTable();
               if (error != ""){

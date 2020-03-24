@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/app_state.dart';
 import 'package:tableau_crud_ui/bloc_provider.dart';
 import 'package:tableau_crud_ui/response_objects.dart';
+import 'package:tableau_crud_ui/styling.dart';
 
 class DataViewer extends StatelessWidget {
   final ScrollController horizontalScroller = ScrollController();
@@ -67,7 +68,10 @@ class DataViewer extends StatelessWidget {
             }
 
             var selectionRows = <Widget>[
-              Container(height: headerHeight),
+              Container(
+                height: headerHeight,
+                color: tableHeaderBackgroundColor,
+              ),
             ];
             for (var index = 0; index < data.rowCount(); index++){
               selectionRows.add(
