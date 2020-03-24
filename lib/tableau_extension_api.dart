@@ -1,6 +1,8 @@
 @JS('tableau')
 library Tableau.js;
 
+import 'dart:js';
+
 import 'package:js/js.dart';
 
 @JS('extensions.environment.context')
@@ -31,6 +33,7 @@ external String dateToString(dynamic object);
 class Worksheet {
   external String get name;
   external dynamic getFiltersAsync();
+  external Function addEventListener(String eventType, dynamic handler);
 }
 
 @JS()

@@ -43,16 +43,32 @@ class AppState extends BlocState {
     pageSize = _settings.defaultPageSize;
     if (!_settings.isEmpty()){
       await readTable();
+      setFilterChangeCallbacks();
     }
   }
 
   String get tableauContext =>_tableauContext;
 
   Future updateSettings(Settings settings) async {
+    tIo.unregisterFilterChangedOnAll();
     _settings = await tIo.getSettings();
     if (!_settings.isEmpty()){
       readTable();
+      setFilterChangeCallbacks();
     }
+  }
+
+  void setFilterChangeCallbacks(){
+    var registerOn = List<String>();
+    for (var filter in _settings.filters){
+      if (registerOn.contains(filter.worksheet)) continue;
+      registerOn.add(filter.worksheet);
+    }
+    tIo.registerFilterChangedOn(registerOn, filterChangeCallback);
+  }
+
+  void filterChangeCallback(dynamic event){
+    readTable();
   }
 
   void selectRow(int selection){
@@ -188,6 +204,7 @@ class AppState extends BlocState {
         if (tFilter.fieldName == filter.fieldName) {
           switch (tFilter.filterType){
             case 'categorical':
+              if (tFilter.isAllSelected) break;
               wheres.add(
                 WhereIn(
                   filter.mapsTo,

@@ -1,9 +1,13 @@
+import 'package:js/js.dart';
 import 'package:js/js_util.dart';
 import 'package:tableau_crud_ui/io.dart';
 import 'package:tableau_crud_ui/settings.dart';
 import 'package:tableau_crud_ui/tableau_extension_api.dart' as api;
 
 class TableauExtensionIo extends TableauIo {
+  
+  var _toUnregister = List<Function>();
+  
   Future initialize() async => await promiseToFuture(api.initializeAsync());
   Future<String> getContext() async => api.context;
 
@@ -76,6 +80,22 @@ class TableauExtensionIo extends TableauIo {
   Future saveSettings(String settingsJson) async {
     api.setSetting('settings', settingsJson);
     await promiseToFuture(api.saveSettingsAsync());
+  }
+
+  void registerFilterChangedOn(List<String> worksheets, Function(dynamic) callback){
+    for (var worksheet in api.worksheets){
+      if (worksheets.contains(worksheet.name)){
+        var interop = allowInterop((dynamic event){callback(event);});
+        _toUnregister.add(worksheet.addEventListener('filter-changed', interop));
+        print(_toUnregister.last);
+      }
+    }
+  }
+
+  void unregisterFilterChangedOnAll(){
+    for (var unregister in _toUnregister){
+      unregister();
+    }
   }
 }
 

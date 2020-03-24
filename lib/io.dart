@@ -16,6 +16,8 @@ abstract class TableauIo {
   Future saveSettings(String settingsJson);
   Future<List<String>> getWorksheets();
   Future<List<TableauFilter>> getFilters(String worksheet);
+  void registerFilterChangedOn(List<String> worksheets, Function(dynamic) callback);
+  void unregisterFilterChangedOnAll();
 }
 
 class TableauFilter{
@@ -113,5 +115,8 @@ class TableauMockIo extends TableauIo {
       ),
     ];
   }
+
+  void registerFilterChangedOn(List<String> worksheets, Function callback){}
+  void unregisterFilterChangedOnAll(){}
 }
 
