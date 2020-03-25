@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
@@ -54,7 +55,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
       switch (getEditMode(widget.editModes[key])){
         case editText:
           editorWidget = Container(
-            height: rowHeight,
+            height: 60,
             child: Row(
               children: <Widget>[
                 Expanded(
@@ -62,6 +63,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
                 ),
                 Expanded(
                   child: TextField(
+                    maxLength: 255,
                     controller: _textControllers[index],
                     decoration: InputDecoration.collapsed(
                       hintText: '',
@@ -186,10 +188,15 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
           editorWidget = Row(
             children: <Widget>[
               Expanded(child: Text(key)),
-              Expanded(child: DropdownButton(
-                value: value,
-                items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                onChanged: (value)=>setState(()=>_values[index] = value),
+              Expanded(child: Container(
+                color: textBackground,
+                child: DropdownButton(
+                  icon: Container(),
+                  underline: Container(),
+                  value: value,
+                  items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                  onChanged: (value)=>setState(()=>_values[index] = value),
+                ),
               )),
             ],
           );

@@ -31,7 +31,7 @@ main(){
     expect(state.orderByFields, emitsInOrder([isEmpty,['pk1','pk2']]));
     expect(state.primaryKey, emitsInOrder([isEmpty,['pk1','pk2']]));
     expect(state.filters, emitsInOrder([isEmpty, isNotEmpty]));
-    expect(state.columnNames, emitsInOrder([isEmpty,["id","category","amount","date"]]));
+    expect(state.columnNames, emitsInOrder([isEmpty,["id","category","amount","date","comment"]]));
     expect(state.mappedDataSources, emitsInOrder([isEmpty,isEmpty]));
 
     await state.initialize();
@@ -53,7 +53,7 @@ main(){
     state.database = 'test database';
     state.schema = 'test schema';
     state.table = 'test table';
-    expect(state.columnNames, emitsInOrder([isEmpty,["id","category","amount","date"]]));
+    expect(state.columnNames, emitsInOrder([isEmpty,["id","category","amount","date","comment"]]));
 
     var error = await state.testConnection();
     expect(error, equals(''));
