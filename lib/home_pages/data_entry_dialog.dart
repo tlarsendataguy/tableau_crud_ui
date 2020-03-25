@@ -51,7 +51,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
     for (var index = 0; index < keys.length; index++) {
       var key = keys[index];
       Widget editorWidget;
-      switch (widget.editModes[key]){
+      switch (getEditMode(widget.editModes[key])){
         case editText:
           editorWidget = Container(
             height: rowHeight,
@@ -177,6 +177,21 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
                 ),
               ],
             ),
+          );
+          break;
+        case editFixedList:
+          var items = parseFixedList(widget.editModes[key]);
+          var value = _values[index].toString();
+          if (!items.contains(value)) items.insert(0, value);
+          editorWidget = Row(
+            children: <Widget>[
+              Expanded(child: Text(key)),
+              Expanded(child: DropdownButton(
+                value: value,
+                items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                onChanged: (value)=>setState(()=>_values[index] = value),
+              )),
+            ],
           );
           break;
         default:
