@@ -280,7 +280,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
       } else {
         value = controller.text;
       };
-      switch (editMode){
+      switch (getEditMode(editMode)){
         case editBool:
           submitValues[key] = tryCast<bool>(value, null);
           break;
@@ -298,6 +298,9 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
             submitValues[key] = null;
           else
             submitValues[key] = value.toString();
+          break;
+        case editFixedList:
+          submitValues[key] = value.toString();
           break;
         default:
           continue;
