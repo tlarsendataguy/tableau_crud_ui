@@ -1,21 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tableau_crud_ui/state_and_model/app_state.dart';
 import 'package:tableau_crud_ui/state_and_model/io.dart';
-import 'package:tableau_crud_ui/state_and_model/settings.dart';
 
-var testSettings = Settings(
-  server: 'test server',
-  port: 'test port',
-  username: 'test username',
-  password: 'test password',
-  database: 'test database',
-  schema: 'test schema',
-  table: 'test table',
-  selectFields: {'id': editNone, 'category': editText, 'amount': editNumber},
-  orderByFields: ['id'],
-  primaryKey: ['id'],
-  filters: [Filter(worksheet: 'test worksheet', fieldName: 'test field', mapsTo: 'category')],
-);
 
 Future<TableauIo> generateTIo() async {
   var tIo = TableauMockIo();
@@ -37,7 +23,7 @@ main() async {
 
   test("Read table", () async {
     var tIo = await generateTIo();
-    await tIo.saveSettings(testSettings.toJson());
+    await tIo.saveSettings(mockSettings.toJson());
     var state = AppState(tIo: tIo, dbIo: dbIo);
     expect(state.data, emitsInOrder([isNull, isNotNull,isNotNull]));
     expect(state.readLoaders, emitsInOrder([0,1,0,1,0]));
@@ -49,18 +35,18 @@ main() async {
 
   test("create new record", () async {
     var tIo = await generateTIo();
-    await tIo.saveSettings(testSettings.toJson());
+    await tIo.saveSettings(mockSettings.toJson());
     var state = AppState(tIo: tIo, dbIo: dbIo);
     expect(state.data, emitsInOrder([isNull, isNotNull]));
 
     await state.initialize();
-    var error = await state.insert({'category': 'abc','amount': 123});
+    var error = await state.insert({'category': 'blah','amount': 123, 'date': '2019-01-01', 'comment':'hello world','is true':true});
     expect(error, equals(""));
   });
 
   test("update record", () async {
     var tIo = await generateTIo();
-    await tIo.saveSettings(testSettings.toJson());
+    await tIo.saveSettings(mockSettings.toJson());
     var state = AppState(tIo: tIo, dbIo: dbIo);
     expect(state.data, emitsInOrder([isNull, isNotNull]));
 
@@ -72,7 +58,7 @@ main() async {
 
   test("delete record", () async {
     var tIo = await generateTIo();
-    await tIo.saveSettings(testSettings.toJson());
+    await tIo.saveSettings(mockSettings.toJson());
     var state = AppState(tIo: tIo, dbIo: dbIo);
     expect(state.data, emitsInOrder([isNull, isNotNull]));
 
@@ -84,12 +70,12 @@ main() async {
 
   test("select row", () async {
     var tIo = await generateTIo();
-    await tIo.saveSettings(testSettings.toJson());
+    await tIo.saveSettings(mockSettings.toJson());
     var state = AppState(tIo: tIo, dbIo: dbIo);
     expect(state.selectedRow, emitsInOrder([-1, -1, 0]));
 
     await state.initialize();
     state.selectRow(0);
-    expect(state.getSelectedRowValues(), equals([1,'blah',123.2]));
+    expect(state.getSelectedRowValues(), equals([1,'blah',123.2,"2020-01-13T00:00:00Z","hello world",true]));
   });
 }

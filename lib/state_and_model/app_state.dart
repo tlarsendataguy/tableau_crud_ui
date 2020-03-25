@@ -103,13 +103,15 @@ class AppState extends BlocState {
   }
 
   Future<String> insert(Map<String,dynamic> values) async {
-    var requiredFields = _settings.selectFields.keys.where((key) =>
-      _settings.selectFields[key] == editText ||
-      _settings.selectFields[key] == editInteger ||
-      _settings.selectFields[key] == editNumber ||
-      _settings.selectFields[key] == editBool ||
-      _settings.selectFields[key] == editDate
-    );
+    var requiredFields = _settings.selectFields.keys.where((key) {
+      var editMode = getEditMode(_settings.selectFields[key]);
+      return editMode == editText ||
+          editMode == editInteger ||
+          editMode == editNumber ||
+          editMode == editBool ||
+          editMode == editDate ||
+          editMode == editFixedList;
+    });
     if (values.length != requiredFields.length){
       return "${values.length} fields were provided but ${requiredFields.length} fields were required";
     }
