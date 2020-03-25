@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/state_and_model/bloc_provider.dart';
 import 'package:tableau_crud_ui/state_and_model/configuration_state.dart';
@@ -74,7 +75,13 @@ class _SelectorCardState extends State<SelectorCard>{
               }
           ),
         ),
-        getEditMode(editMode) == editFixedList ? IconButton(icon: Icon(Icons.tune), onPressed: null) : Container(width: 48),
+        getEditMode(editMode) == editFixedList ?
+          IconButton(icon: Icon(Icons.tune), onPressed: fixedListPress(
+            context: context,
+            selectedField: widget.selectedField,
+            editMode: editMode,
+          )) :
+          Container(width: 48),
         StreamBuilder(
           stream: state.primaryKey,
           builder: (context, AsyncSnapshot<List<String>> pkSnapshot){
@@ -111,6 +118,151 @@ class _SelectorCardState extends State<SelectorCard>{
           onPressed: ()=>state.moveSelectFieldDown(widget.selectedField),
         ),
       ],
+    );
+  }
+}
+
+Function fixedListPress({String selectedField, String editMode, BuildContext context}) {
+  return () async {
+    await showDialog(
+      context: context,
+      child: EditFixedListDialog(
+        selectedField: selectedField,
+        editMode: editMode,
+      ),
+    );
+  };
+}
+
+class EditFixedListDialog extends StatefulWidget {
+  EditFixedListDialog({this.selectedField, this.editMode});
+  final String selectedField;
+  final String editMode;
+
+  State<StatefulWidget> createState() => _EditFixedListDialogState();
+}
+
+class _EditFixedListDialogState extends State<EditFixedListDialog> {
+
+  List<String> items;
+  TextEditingController controller;
+
+  initState() {
+    super.initState();
+    var data = getEditModeData(widget.editMode);
+    if (data == ''){
+      items = [];
+    } else {
+      items = data.split('|');
+    }
+    controller = TextEditingController();
+  }
+
+  void addItem(){
+    setState((){
+      items.add(controller.text);
+      controller.text = "";
+    });
+  }
+
+  Widget build(BuildContext context) {
+    var state = BlocProvider.of<ConfigurationState>(context);
+    return Dialog(
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            child: Card(
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: TextField(
+                            controller: controller,
+                            decoration: InputDecoration(
+                              labelText: "New item",
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.add),
+                          onPressed: addItem,
+                        ),
+                      ],
+                    ),
+                    Container(height: 10),
+                    Expanded(
+                      child: ListView(
+                        children: items.map((item)=> Container(
+                          height: 40,
+                          child: Row(
+                            children: <Widget>[
+                              IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: ()=>setState((){
+                                  items.remove(item);
+                                }),
+                              ),
+                              Expanded(child: Text(item)),
+                              IconButton(
+                                icon: Icon(Icons.arrow_upward),
+                                onPressed: ()=>setState((){
+                                  var index = items.indexOf(item);
+                                  if (index < 1) return;
+                                  index--;
+                                  items.remove(item);
+                                  items.insert(index, item);
+                                }),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.arrow_downward),
+                                onPressed:  ()=>setState((){
+                                  var index = items.indexOf(item);
+                                  if (index >= items.length-1) return;
+                                  index++;
+                                  items.remove(item);
+                                  items.insert(index, item);
+                                }),
+                              ),
+                            ],
+                          ),
+                        )).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Card(
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  FlatButton(
+                    child: Text("Cancel"),
+                    onPressed: ()=>Navigator.of(context).pop(),
+                  ),
+                  RaisedButton(
+                    child: Text("Save"),
+                    onPressed: (){
+                      var editMode = generateFixedList(items);
+                      state.updateSelectFieldEditMode(
+                        widget.selectedField,
+                        editMode,
+                      );
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
