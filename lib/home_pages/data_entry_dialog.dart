@@ -1,216 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:tableau_crud_ui/app_state.dart';
-import 'package:tableau_crud_ui/bloc_provider.dart';
-import 'package:tableau_crud_ui/data_viewer.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
-import 'package:tableau_crud_ui/response_objects.dart';
-import 'package:tableau_crud_ui/settings.dart';
-import 'package:tableau_crud_ui/styling.dart';
-import 'package:tableau_crud_ui/try_cast.dart';
-
-class Home extends StatelessWidget {
-  Widget build(BuildContext context) {
-    var state = BlocProvider.of<AppState>(context);
-
-    Widget configureButton = null;
-    if (state.tableauContext == 'desktop'){
-      configureButton = Tooltip(
-        message: "Configure extension",
-        child: IconButton(
-          icon: Icon(Icons.settings),
-          onPressed: ()=>Navigator.of(context).pushNamed("/configure"),
-        ),
-      );
-    }
-
-    var buttonBar = Row(
-      children: [
-        Tooltip(
-          message: "Add record",
-          child: IconButton(
-            icon: Icon(
-              Icons.add,
-              color: editIconColor,
-            ),
-            onPressed: () async {
-              var editModes = state.settings.selectFields;
-              var initialValues = editModes.keys.map((e)=>null).toList();
-              await showDialog(
-                  context: context,
-                  child: DataEntryDialog(
-                  editModes: editModes,
-                  initialValues: initialValues,
-                  onSubmit: state.insert,
-                ),
-              );
-            },
-          ),
-        ),
-        StreamBuilder(
-          stream: state.selectedRow,
-          builder: (context, AsyncSnapshot<int> snapshot){
-            var onPressed = () async {
-              var editModes = state.settings.selectFields;
-              var initialValues = state.getSelectedRowValues();
-              await showDialog(
-                context: context,
-                child: DataEntryDialog(
-                  editModes: editModes,
-                  initialValues: initialValues,
-                  onSubmit: state.update,
-                ),
-              );
-            };
-            if (!snapshot.hasData || snapshot.data == -1) onPressed = null;
-            return Tooltip(
-              message: "Edit record",
-              child: IconButton(
-                icon: Icon(Icons.edit),
-                color: editIconColor,
-                onPressed: onPressed,
-              ),
-            );
-          },
-        ),
-        StreamBuilder(
-          stream: state.selectedRow,
-          builder: (context, AsyncSnapshot<int> snapshot){
-            var onPressed = ()async{
-              var result = await showDialog(
-                context: context,
-                child: YesNoDialog(
-                  child: Text("Are you sure you want to delete this record?"),
-                ),
-              );
-              if (result != 'Yes'){
-                return;
-              }
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                child: LoadingDialog(message: "Deleting..."),
-              );
-              var err = await state.delete();
-              Navigator.of(context).pop();
-              if (err != ''){
-                await showDialog(
-                  context: null,
-                  child: OkDialog(
-                    msgType: MsgType.Error,
-                    child: Text("Error: $err"),
-                  ),
-                );
-              }
-            };
-            if (!snapshot.hasData || snapshot.data == -1) onPressed = null;
-            return Tooltip(
-              message: "Delete record",
-              child: IconButton(
-                icon: Icon(Icons.delete),
-                color: editIconColor,
-                onPressed: onPressed,
-              ),
-            );
-          },
-        ),
-        Tooltip(
-          message: "Refresh table",
-          child: IconButton(
-            icon: Icon(
-              Icons.refresh,
-              color: Colors.blue,
-            ),
-            onPressed: () async {
-              var error = await state.readTable();
-              if (error != ""){
-                await showDialog(
-                  context: context,
-                  child: OkDialog(
-                    child: Text(error, softWrap: true),
-                    msgType: MsgType.Error),
-                );
-              }
-            },
-          ),
-        ),
-        Expanded(
-          child: Container(),
-        ),
-        PageSelector(),
-        configureButton,
-      ],
-    );
-
-    return Material(
-      color: backgroundColor,
-      child: Column(
-        children: <Widget>[
-          Card(child: buttonBar),
-          Expanded(child: Card(child: Padding(padding: EdgeInsets.all(4.0),child: DataViewer()))),
-        ],
-      ),
-    );
-  }
-}
-
-class PageSelector extends StatelessWidget {
-  Widget build(BuildContext context) {
-    var state = BlocProvider.of<AppState>(context);
-    //return Container();
-    return StreamBuilder(
-      stream: state.data,
-      builder: (context, AsyncSnapshot<QueryResults> snapshot){
-        if (!snapshot.hasData){
-          return Container();
-        }
-        if (snapshot.data.totalRowCount == 0 || snapshot.data.totalRowCount == null){
-          return Container();
-        }
-        var page = state.page;
-        var totalPages = (snapshot.data.totalRowCount / state.pageSize).ceil();
-        return Row(
-          children: <Widget>[
-            IconButton(
-              icon: Icon(Icons.arrow_back_ios),
-              onPressed: page <= 1 ? null : () async {
-                state.page = page-1;
-                var err = await state.readTable();
-                if (err != ''){
-                  await showDialog(
-                    context: context,
-                    child: OkDialog(
-                      child: Text("Error: $err"),
-                      msgType: MsgType.Error,
-                    ),
-                  );
-                }
-              },
-            ),
-            Text("$page of $totalPages"),
-            IconButton(
-              icon: Icon(Icons.arrow_forward_ios),
-              onPressed: page >= totalPages ? null : () async {
-                state.page = page + 1;
-                var err = await state.readTable();
-                if (err != '') {
-                  await showDialog(
-                    context: context,
-                    child: OkDialog(
-                      child: Text("Error: $err"),
-                      msgType: MsgType.Error,
-                    ),
-                  );
-                }
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
+import 'package:tableau_crud_ui/state_and_model/settings.dart';
+import 'package:tableau_crud_ui/state_and_model/try_cast.dart';
 
 typedef Future<String> DataEntryOnSubmit(Map<String,dynamic> values);
 
@@ -241,7 +33,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
         case editInteger:
         case editText:
           _textControllers.add(
-              TextEditingController(text: value == null ? "" : value.toString()),
+            TextEditingController(text: value == null ? "" : value.toString()),
           );
           break;
         default:
@@ -252,7 +44,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
   }
 
   Widget build(BuildContext context) {
-    var rowHeight = 60.0;
+    var rowHeight = 40.0;
     var textBackground = Color.fromARGB(255, 230, 230, 230);
     var keys = widget.editModes.keys.toList();
     var widgets = List<Widget>();
@@ -272,9 +64,9 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
                   child: TextField(
                     controller: _textControllers[index],
                     decoration: InputDecoration.collapsed(
-                        hintText: '',
-                        filled: true,
-                        fillColor: textBackground,
+                      hintText: '',
+                      filled: true,
+                      fillColor: textBackground,
                     ),
                   ),
                 ),
@@ -399,7 +191,12 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
           );
           break;
       }
-      widgets.add(editorWidget);
+      widgets.add(
+        Padding(
+          padding: EdgeInsets.fromLTRB(0, 4, 0, 4),
+          child: editorWidget,
+        ),
+      );
     }
     return Dialog(
       child: Column(

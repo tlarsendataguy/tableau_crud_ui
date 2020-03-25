@@ -1,16 +1,16 @@
-import 'package:tableau_crud_ui/io.dart';
+import 'package:tableau_crud_ui/state_and_model/io.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:tableau_crud_ui/app_state.dart';
-import 'package:tableau_crud_ui/bloc_provider.dart';
-import 'package:tableau_crud_ui/configuration_page.dart';
-import 'package:tableau_crud_ui/configuration_state.dart';
-import 'package:tableau_crud_ui/db_web_io.dart';
-import 'package:tableau_crud_ui/home_page.dart';
-import 'package:tableau_crud_ui/tableau_extension_io.dart';
+import 'package:tableau_crud_ui/state_and_model/app_state.dart';
+import 'package:tableau_crud_ui/state_and_model/bloc_provider.dart';
+import 'package:tableau_crud_ui/configuration_pages/configuration_page.dart';
+import 'package:tableau_crud_ui/state_and_model/configuration_state.dart';
+import 'package:tableau_crud_ui/state_and_model/db_web_io.dart';
+import 'package:tableau_crud_ui/home_pages/home_page.dart';
+import 'package:tableau_crud_ui/state_and_model/tableau_extension_io.dart';
 
 void main() async {
-  var mock = false;
+  var mock = true;
   if (mock) {
     runMock();
   } else {

@@ -1,10 +1,10 @@
 import 'package:rxdart/rxdart.dart';
-import 'package:tableau_crud_ui/bloc_state.dart';
-import 'package:tableau_crud_ui/connection_data.dart';
-import 'package:tableau_crud_ui/io.dart';
-import 'package:tableau_crud_ui/parse_responses.dart';
-import 'package:tableau_crud_ui/response_objects.dart';
-import 'package:tableau_crud_ui/settings.dart';
+import 'package:tableau_crud_ui/state_and_model/bloc_state.dart';
+import 'package:tableau_crud_ui/state_and_model/connection_data.dart';
+import 'package:tableau_crud_ui/state_and_model/io.dart';
+import 'package:tableau_crud_ui/state_and_model/parse_responses.dart';
+import 'package:tableau_crud_ui/state_and_model/response_objects.dart';
+import 'package:tableau_crud_ui/state_and_model/settings.dart';
 
 class AppState extends BlocState {
   AppState({this.tIo, this.dbIo});

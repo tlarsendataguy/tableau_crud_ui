@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tableau_crud_ui/try_cast.dart';
+import 'package:tableau_crud_ui/state_and_model/try_cast.dart';
 
 main(){
   test("cast string",(){

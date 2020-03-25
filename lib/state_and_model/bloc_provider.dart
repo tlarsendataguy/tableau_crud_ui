@@ -1,4 +1,4 @@
-import 'package:tableau_crud_ui/bloc_state.dart';
+import 'package:tableau_crud_ui/state_and_model/bloc_state.dart';
 import 'package:flutter/widgets.dart';
 
 class BlocProvider<T extends BlocState> extends StatefulWidget{

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:tableau_crud_ui/try_cast.dart';
+import 'package:tableau_crud_ui/state_and_model/try_cast.dart';
 
 const _server = "server";
 const _port = "port";
@@ -24,6 +24,8 @@ const editNumber = 'Number';
 const editText = 'Text';
 const editDate = 'Date';
 const editBool = 'Bool';
+const editFixedList = 'Fixed List';
+const editFilterList = 'Filter List';
 
 class Settings {
   Settings(
@@ -171,4 +173,34 @@ class Filter {
     }
     return Filter(worksheet: worksheet, fieldName: fieldName, mapsTo: mapsTo);
   }
+}
+
+List<String> parseFixedList(String fixedList){
+  if (!isFixedList(fixedList)) return [];
+  var itemStr = getEditModeData(fixedList);
+  return itemStr.split('|');
+}
+
+String generateFixedList(List<String> fixedListItems) {
+  return "${editFixedList}:${fixedListItems.join('|')}";
+}
+
+bool isFixedList(String fixedList){
+  var regex = RegExp("^$editFixedList:([^|\r\n]+)?(\\|[^|\r\n]+)*\$");
+  return regex.hasMatch(fixedList);
+}
+
+String getEditMode(String editMode){
+  if ([editNone,editText,editInteger,editNumber,editBool,editDate].contains(editMode)) return editMode;
+  if (isFixedList(editMode)){
+    return editFixedList;
+  }
+  return editNone;
+}
+
+String getEditModeData(String editMode){
+  if (isFixedList(editMode)){
+    return editMode.replaceRange(0, editFixedList.length+1, "");
+  }
+  return "";
 }

@@ -1,8 +1,6 @@
 @JS('tableau')
 library Tableau.js;
 
-import 'dart:js';
-
 import 'package:js/js.dart';
 
 @JS('extensions.environment.context')
