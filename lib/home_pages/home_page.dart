@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:html';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/home_pages/data_entry_dialog.dart';
@@ -12,7 +15,7 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     var state = BlocProvider.of<AppState>(context);
 
-    Widget configureButton = null;
+    Widget configureButton = Container();
     if (state.tableauContext == 'desktop'){
       configureButton = Tooltip(
         message: "Configure extension",
@@ -132,6 +135,33 @@ class Home extends StatelessWidget {
               }
             },
           ),
+        ),
+        IconButton(
+          icon: Icon(Icons.file_upload),
+          onPressed: () async {
+            var filePicker = FileUploadInputElement();
+            filePicker.multiple = false;
+            filePicker.accept = '.txt,.csv';
+            filePicker.onChange.listen((event) {
+              if (filePicker.files.length>0){
+                var file = filePicker.files[0];
+                print(file.name);
+                print(file.type);
+                var reader = FileReader();
+                reader.onLoadEnd.listen((event) {
+                  try{
+                    var textValue = utf8.decode(reader.result, allowMalformed: false);
+                    print(textValue);
+                  } catch (ex) {
+                    print('invalid file type');
+                  }
+                });
+                reader.readAsArrayBuffer(file);
+              }
+
+            });
+            filePicker.click();
+          },
         ),
         Expanded(
           child: Container(),

@@ -47,22 +47,15 @@ void runProd() async {
 
 
 void runMock() async {
-  print('Creating Tableau Extension IO object...');
+  print('Mocking...');
   var tIo = TableauMockIo();
   await tIo.saveSettings(mockSettings.toJson());
-  print('Initializing Tableau Extension IO object...');
   await tIo.initialize();
-  print('Creating DB connector...');
   var dbIo = DbMockSuccessIo();
-  print('Creating application state...');
   var appState = AppState(tIo: tIo, dbIo: dbIo);
-  print('Initializing application state...');
   await appState.initialize();
-  print('Creating configuration state...');
   var configurationState = ConfigurationState(tIo: tIo, dbIo: dbIo);
-  print('Initializing configuration state...');
   await configurationState.initialize();
-  print('Running app');
   runApp(
     BlocProvider<AppState>(
       child: BlocProvider<ConfigurationState>(
