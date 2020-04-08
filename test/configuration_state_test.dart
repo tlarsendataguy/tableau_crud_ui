@@ -221,4 +221,10 @@ main(){
     state.addMappedDataSource('id1');
     state.removeMappedDataSource('id1');
   });
+
+  test("Encrypt password",() async {
+    var state = ConfigurationState(tIo: tIo, dbIo: dbIo);
+    var response = await state.encryptPassword('abc');
+    expect(response.data, equals("I am encrypted!"));
+  });
 }

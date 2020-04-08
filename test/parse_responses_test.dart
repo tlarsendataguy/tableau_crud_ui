@@ -101,4 +101,18 @@ main(){
     expect(results.hasError, isTrue);
     print(results.error);
   });
+
+  test("Parse encrypted password",(){
+    var response = '{"Success":true,"Data":"I am encrypted!"}';
+    var results = parsePassword(response);
+    expect(results.hasError, isFalse);
+    expect(results.data, equals("I am encrypted!"));
+  });
+
+  test("Parse encrypted password invalid JSON",(){
+    var response = 'invalid JSON';
+    var results = parsePassword(response);
+    expect(results.hasError, isTrue);
+    print(results.error);
+  });
 }

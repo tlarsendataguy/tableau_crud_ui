@@ -7,6 +7,7 @@ abstract class DbIo {
   Future<String> update(RequestData request);
   Future<String> delete(RequestData request);
   Future<String> read(RequestData request);
+  Future<String> encryptPassword(String password);
 }
 
 abstract class TableauIo {
@@ -45,19 +46,23 @@ class DbMockSuccessIo extends DbIo {
       '{"Success":true,"Data":1}';
   Future<String> read(RequestData request) async =>
       '{"Success":true,"Data":{"ColumnNames":["id","category","amount","date","comment","is true"],"RowCount":2,"Data":[[1,13],["blah","something"],[123.2,64.02],["2020-01-13T00:00:00Z","2020-02-03T00:00:00Z"],["hello world","You are my sunshine"],[true,false]],"TotalRowCount":20}}';
+  Future<String> encryptPassword(String password) async =>
+      '{"Success":true,"Data":"I am encrypted!"}';
 }
 
 class DbMockFailIo extends DbIo {
   Future<String> testConnection(RequestData request) async =>
-      '{"Success":false,"Data";"test connection failed"}';
+      '{"Success":false,"Data":"test connection failed"}';
   Future<String> insert(RequestData request) async =>
-      '{"Success":false,"Data";"insert failed"}';
+      '{"Success":false,"Data":"insert failed"}';
   Future<String> update(RequestData request) async =>
-      '{"Success":false,"Data";"update failed"}';
+      '{"Success":false,"Data":"update failed"}';
   Future<String> delete(RequestData request) async =>
-      '{"Success":false,"Data";"delete failed"}';
+      '{"Success":false,"Data":"delete failed"}';
   Future<String> read(RequestData request) async =>
-      '{"Success":false,"Data";"read failed"}';
+      '{"Success":false,"Data":"read failed"}';
+  Future<String> encryptPassword(String password) async =>
+      '{"Success":false,"Data":"encryption failed"}';
 }
 
 var mockSettings = Settings(

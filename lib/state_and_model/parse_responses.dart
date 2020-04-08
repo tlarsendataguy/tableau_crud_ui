@@ -63,6 +63,25 @@ ResponseObject<int> parseExec(String execResponse){
   }
 }
 
+ResponseObject<String> parsePassword(String encryptPasswordResponse){
+  try {
+    var decoded = jsonDecode(encryptPasswordResponse);
+    var success = decoded['Success'] as bool;
+    var error = '';
+    if (success == null || !success) {
+      error = decoded['Data'] as String;
+      if (error == null) error = '';
+      return _errorResponse<String>(error, "");
+    }
+
+    var value = decoded['Data'] as String;
+    if (value == null) value = "";
+    return ResponseObject<String>(hasError: false, error: '', data: value);
+  } on Exception catch (ex){
+    return _errorResponse<String>(ex.toString(), "");
+  }
+}
+
 ResponseObject<T> _errorResponse<T>(String error, T defaultData) {
   return ResponseObject<T>(
     hasError: true,

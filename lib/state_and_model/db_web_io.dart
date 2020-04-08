@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:html' as html;
 import 'package:http/http.dart' as http;
 import 'package:tableau_crud_ui/state_and_model/connection_data.dart';
@@ -11,10 +12,14 @@ class DbWebIo extends DbIo {
   Future<String> update(RequestData request) =>_request(request.toJson());
   Future<String> delete(RequestData request) =>_request(request.toJson());
   Future<String> read(RequestData request) =>_request(request.toJson());
+  Future<String> encryptPassword(String password) async {
+    var jsonRequest = jsonEncode({"password": password});
+    return await _request(jsonRequest, path: "/encryptpassword");
+  }
 
-  Future<String> _request(String jsonRequest) async {
+  Future<String> _request(String jsonRequest, {String path=""}) async {
     try{
-      var response = await http.post(_address, headers: {"Content-type":"application/json"}, body: jsonRequest);
+      var response = await http.post("${_address}${path}", headers: {"Content-type":"application/json"}, body: jsonRequest);
       return response.body;
     } catch (ex){
       print('error sending $jsonRequest');

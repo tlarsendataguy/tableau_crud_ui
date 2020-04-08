@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:tableau_crud_ui/state_and_model/bloc_provider.dart';
 import 'package:tableau_crud_ui/state_and_model/configuration_state.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
 
@@ -16,14 +18,17 @@ class _ConnectionPageState extends State<ConnectionPage> {
     _server = TextEditingController(text: widget.configState.server);
     _port = TextEditingController(text: widget.configState.port);
     _username = TextEditingController(text: widget.configState.username);
-    _password = TextEditingController(text: widget.configState.password);
+    if (widget.configState.password.length > 0) {
+      _password = TextEditingController(text: "          ");
+    } else {
+      _password = TextEditingController(text: "");
+    }
     _database = TextEditingController(text: widget.configState.database);
     _schema = TextEditingController(text: widget.configState.schema);
     _table = TextEditingController(text: widget.configState.table);
     _server.addListener(_updateServer);
     _port.addListener(_updatePort);
     _username.addListener(_updateUsername);
-    _password.addListener(_updatePassword);
     _database.addListener(_updateDatabase);
     _schema.addListener(_updateSchema);
     _table.addListener(_updateTable);
@@ -32,7 +37,6 @@ class _ConnectionPageState extends State<ConnectionPage> {
   void _updateServer() => widget.configState.server = _server.text;
   void _updatePort() => widget.configState.port = _port.text;
   void _updateUsername() => widget.configState.username = _username.text;
-  void _updatePassword() => widget.configState.password = _password.text;
   void _updateDatabase() => widget.configState.database = _database.text;
   void _updateSchema() => widget.configState.schema = _schema.text;
   void _updateTable() => widget.configState.table = _table.text;
@@ -41,7 +45,6 @@ class _ConnectionPageState extends State<ConnectionPage> {
     _server.removeListener(_updateServer);
     _port.removeListener(_updatePort);
     _username.removeListener(_updateUsername);
-    _password.removeListener(_updatePassword);
     _database.removeListener(_updateDatabase);
     _schema.removeListener(_updateSchema);
     _table.removeListener(_updateTable);
@@ -71,10 +74,31 @@ class _ConnectionPageState extends State<ConnectionPage> {
           controller: _username,
           decoration: InputDecoration(labelText: "Username"),
         ),
-        TextField(
-          controller: _password,
-          decoration: InputDecoration(labelText: "Password"),
-          obscureText: true,
+        InkWell(
+          onTap: () async {
+            var newPassword = await showDialog(
+              context: context,
+              child: PasswordDialog(),
+            );
+            if (newPassword == null) return;
+            setState((){
+              if (newPassword.length > 0){
+                _password.text = "          ";
+              } else {
+                _password.text = "";
+              }
+              widget.configState.password = newPassword;
+            });
+          },
+          child: IgnorePointer(
+            child: TextField(
+              enabled: false,
+              readOnly: true,
+              controller: _password,
+              decoration: InputDecoration(labelText: "Password"),
+              obscureText: true,
+            ),
+          ),
         ),
         TextField(
           controller: _database,
@@ -120,3 +144,67 @@ class _ConnectionPageState extends State<ConnectionPage> {
     );
   }
 }
+
+class PasswordDialog extends StatelessWidget {
+
+  final TextEditingController _controller = TextEditingController(text: "");
+
+  Widget build(BuildContext context) {
+    var state = BlocProvider.of<ConfigurationState>(context);
+    return Dialog(
+      child: Card(
+        child: Padding(
+          padding: EdgeInsets.all(8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(
+                decoration: InputDecoration(labelText: "Password"),
+                obscureText: true,
+                controller: _controller,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  FlatButton(
+                    child: Text("Cancel"),
+                    onPressed: ()=>Navigator.of(context).pop(),
+                  ),
+                  RaisedButton(
+                    child: Text("Submit"),
+                    onPressed: () async => await onPasswordClick(context, state),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future onPasswordClick(BuildContext context, ConfigurationState state) async {
+    if (_controller.text == "") {
+      Navigator.of(context).pop("");
+      return;
+    }
+    showDialog(
+      context: context,
+      child: LoadingDialog(message: "encrypting password..."),
+    );
+    var response = await state.encryptPassword(_controller.text);
+    Navigator.of(context).pop();
+    if (response.hasError) {
+      await showDialog(
+        context: context,
+        child: OkDialog(
+          child: Text("Error: ${response.error}"),
+          msgType: MsgType.Error,
+        ),
+      );
+      return;
+    }
+    Navigator.of(context).pop(response.data);
+  }
+}
+
