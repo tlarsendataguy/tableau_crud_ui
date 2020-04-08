@@ -14,12 +14,16 @@ class DbWebIo extends DbIo {
   Future<String> read(RequestData request) =>_request(request.toJson());
   Future<String> encryptPassword(String password) async {
     var jsonRequest = jsonEncode({"password": password});
-    return await _request(jsonRequest, path: "/encryptpassword");
+    return await _request(jsonRequest, path: "encryptpassword");
   }
 
   Future<String> _request(String jsonRequest, {String path=""}) async {
     try{
-      var response = await http.post("${_address}${path}", headers: {"Content-type":"application/json"}, body: jsonRequest);
+      var address = _address;
+      if (_address.length > 2 && _address.substring(_address.length-2) == "#/"){
+        address = _address.substring(0, _address.length-2);
+      }
+      var response = await http.post("${address}${path}", headers: {"Content-type":"application/json"}, body: jsonRequest);
       return response.body;
     } catch (ex){
       print('error sending $jsonRequest');
