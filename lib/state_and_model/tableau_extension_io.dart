@@ -40,6 +40,7 @@ class TableauExtensionIo extends TableauIo {
           var max = tFilter.maxValue.value;
           if (min is num && min.isNaN) min = null;
           if (max is num && max.isNaN) max = null;
+          if (min == null && max == null) continue;
 
           filters.add(TableauFilter(
             fieldId: tFilter.fieldId,
