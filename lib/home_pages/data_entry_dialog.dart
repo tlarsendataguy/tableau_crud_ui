@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
+import 'package:tableau_crud_ui/state_and_model/input_formatting.dart';
 import 'package:tableau_crud_ui/state_and_model/settings.dart';
 import 'package:tableau_crud_ui/state_and_model/try_cast.dart';
 
@@ -35,6 +36,11 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
         case editText:
           _textControllers.add(
             TextEditingController(text: value == null ? "" : value.toString()),
+          );
+          break;
+        case editDate:
+          _textControllers.add(
+            TextEditingController(text: value == null ? "" : value.toString().substring(0,10)),
           );
           break;
         default:
@@ -133,6 +139,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
               children: <Widget>[
                 Expanded(child: Text(key)),
                 Checkbox(
+                  tristate: true,
                   value: _values[index],
                   onChanged: (newValue)=>setState(()=>_values[index]=newValue),
                 ),
@@ -146,36 +153,18 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
             child: Row(
               children: <Widget>[
                 Expanded(child: Text(key)),
-                Expanded(child: Text(_values[index].toString(),textAlign: TextAlign.end)),
-                IconButton(
-                  icon: Icon(Icons.calendar_today),
-                  onPressed: () async {
-                    DateTime initialDate;
-                    if (_values[index] == null){
-                      initialDate = today();
-                    } else {
-                      initialDate = DateTime.parse(_values[index]);
-                    }
-                    var newDate = await showDatePicker(
-                      context: context,
-                      initialDate: initialDate,
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime(9999,12,31,59,59,59),
-                    );
-                    if (newDate != null){
-                      setState((){
-                        _values[index] = newDate.toIso8601String();
-                      });
-                    }
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.clear),
-                  onPressed: () {
-                    setState((){
-                      _values[index] = null;
-                    });
-                  },
+                Expanded(
+                  child: TextField(
+                    controller: _textControllers[index],
+                    decoration: InputDecoration.collapsed(
+                      hintText: 'yyyy-mm-dd',
+                      filled: true,
+                      fillColor: textBackground,
+                    ),
+                    inputFormatters: [
+                      DateInputFormatter(),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -301,7 +290,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
           submitValues[key] = value.toString();
           break;
         case editDate:
-          if (value == null)
+          if (value == "")
             submitValues[key] = null;
           else
             submitValues[key] = value.toString();
@@ -326,20 +315,24 @@ class NumberInputFormatter extends WhitelistingTextInputFormatter {
   NumberInputFormatter(this.numberType) : super(r'[0-9.\-]');
   final NumberInputFormatterType numberType;
 
-  final decimalFormat = RegExp(r'^-?[0-9]*\.?[0-9]*$');
-  final integerFormat = RegExp(r'^-?[0-9]*$');
-
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    bool isOk;
     switch (numberType){
       case NumberInputFormatterType.decimal:
-        isOk = decimalFormat.hasMatch(newValue.text) || newValue.text.isEmpty;
-        break;
+        if (isTextDecimal(newValue.text)) return newValue;
+        return oldValue;
       case NumberInputFormatterType.integer:
-        isOk = integerFormat.hasMatch(newValue.text) || newValue.text.isEmpty;
-        break;
+        if (isTextInteger(newValue.text)) return newValue;
+        return oldValue;
     }
-    if (isOk) return newValue;
+    return oldValue;
+  }
+}
+
+class DateInputFormatter extends WhitelistingTextInputFormatter {
+  DateInputFormatter() : super(r'[0-9\-]');
+
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    if (isTextDate(newValue.text)) return newValue;
     return oldValue;
   }
 }
