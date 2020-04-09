@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/state_and_model/app_state.dart';
 import 'package:tableau_crud_ui/state_and_model/bloc_provider.dart';
 import 'package:tableau_crud_ui/state_and_model/response_objects.dart';
+import 'package:tableau_crud_ui/state_and_model/settings.dart';
 import 'package:tableau_crud_ui/styling.dart';
 
 class DataViewer extends StatelessWidget {
@@ -34,6 +35,16 @@ class DataViewer extends StatelessWidget {
             var index = 0;
             for (var column in data.data){
               var headerText = data.columnNames[index];
+              var editModeRaw = state.settings.selectFields[headerText];
+              var editMode = getEditMode(editModeRaw ?? editNone);
+              var valueToString = (value) => value.toString();
+              if (editMode == editDate){
+                valueToString = (value) {
+                  if (value == null || value.toString() == "") return 'null';
+                  return value.toString().substring(0,10);
+                };
+              }
+
               columns.add(
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,7 +65,7 @@ class DataViewer extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            e.toString(),
+                            valueToString(e),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
