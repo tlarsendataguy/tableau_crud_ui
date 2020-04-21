@@ -32,8 +32,14 @@
     window.tableau.isDate = (object) => {
       return Object.prototype.toString.call(object) === '[object Date]';
     }
-    window.tableau.dateToString = (object) => {
-      return object.toISOString();
+    window.tableau.dateToString = (d) => {
+      let toPaddedString = (number) => number.toString().padStart(2,'0');
+      return d.getFullYear().toString() + "-"
+              + toPaddedString(d.getMonth()+1) + "-"
+              + toPaddedString(d.getDate()) + "T"
+              + toPaddedString(d.getHours()) + ":"
+              + toPaddedString(d.getMinutes()) + ":"
+              + toPaddedString(d.getSeconds());
     }
   </script>
   <script src="main.dart.js" type="application/javascript"></script>
