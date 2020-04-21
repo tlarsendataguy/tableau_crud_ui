@@ -30,7 +30,7 @@
     -->
   <script>
     window.tableau.isDate = (object) => {
-      return object instanceof Date;
+      return Object.prototype.toString.call(object) === '[object Date]';
     }
     window.tableau.dateToString = (object) => {
       return object.toISOString();

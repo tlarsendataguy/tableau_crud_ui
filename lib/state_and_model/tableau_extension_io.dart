@@ -30,6 +30,9 @@ class TableauExtensionIo extends TableauIo {
               if (tFilter.fieldName == 'Measure Names') {
                 return e.formattedValue;
               }
+              if (api.isDate(e.value)) {
+                return api.dateToString(e.value);
+              }
               return e.value;
             }).toList(),
           ));
