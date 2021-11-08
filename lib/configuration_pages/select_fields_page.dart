@@ -126,7 +126,7 @@ Function fixedListPress({String selectedField, String editMode, BuildContext con
   return () async {
     await showDialog(
       context: context,
-      child: EditFixedListDialog(
+      builder: (context) => EditFixedListDialog(
         selectedField: selectedField,
         editMode: editMode,
       ),
@@ -242,11 +242,11 @@ class _EditFixedListDialogState extends State<EditFixedListDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  FlatButton(
+                  TextButton(
                     child: Text("Cancel"),
                     onPressed: ()=>Navigator.of(context).pop(),
                   ),
-                  RaisedButton(
+                  ElevatedButton(
                     child: Text("Save"),
                     onPressed: (){
                       var editMode = generateFixedList(items);

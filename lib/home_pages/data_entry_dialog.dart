@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
-import 'package:tableau_crud_ui/state_and_model/input_formatting.dart';
 import 'package:tableau_crud_ui/state_and_model/settings.dart';
 import 'package:tableau_crud_ui/state_and_model/try_cast.dart';
 
@@ -20,8 +19,8 @@ class DataEntryDialog extends StatefulWidget {
 
 class _DataEntryDialogState extends State<DataEntryDialog> {
 
-  var _textControllers = List<TextEditingController>();
-  var _values = List<dynamic>();
+  var _textControllers = <TextEditingController>[];
+  var _values = [];
 
   initState(){
     super.initState();
@@ -52,84 +51,41 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
 
   Widget build(BuildContext context) {
     var rowHeight = 40.0;
-    var textBackground = Color.fromARGB(255, 230, 230, 230);
     var keys = widget.editModes.keys.toList();
-    var widgets = List<Widget>();
+    var widgets = <Widget>[];
     for (var index = 0; index < keys.length; index++) {
       var key = keys[index];
       Widget editorWidget;
       switch (getEditMode(widget.editModes[key])){
         case editText:
-          editorWidget = Container(
-            height: 60,
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Text(key),
-                ),
-                Expanded(
-                  child: TextField(
-                    maxLength: 255,
-                    controller: _textControllers[index],
-                    decoration: InputDecoration.collapsed(
-                      hintText: '',
-                      filled: true,
-                      fillColor: textBackground,
-                    ),
-                  ),
-                ),
-              ],
+          editorWidget = TextField(
+            maxLength: 255,
+            decoration: InputDecoration(
+              labelText: key
             ),
+            controller: _textControllers[index],
           );
           break;
         case editInteger:
-          editorWidget = Container(
-            height: rowHeight,
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Text(key),
-                ),
-                Expanded(
-                  child: TextField(
-                    controller: _textControllers[index],
-                    decoration: InputDecoration.collapsed(
-                      hintText: '',
-                      filled: true,
-                      fillColor: textBackground,
-                    ),
-                    inputFormatters: [
-                      NumberInputFormatter(NumberInputFormatterType.integer),
-                    ],
-                  ),
-                ),
-              ],
+          editorWidget = TextField(
+            controller: _textControllers[index],
+            decoration: InputDecoration(
+              labelText: key,
             ),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9\-]'))
+            ],
           );
           break;
         case editNumber:
-          editorWidget = Container(
-            height: rowHeight,
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Text(key),
-                ),
-                Expanded(
-                  child: TextField(
-                    controller: _textControllers[index],
-                    decoration: InputDecoration.collapsed(
-                      hintText: '',
-                      filled: true,
-                      fillColor: textBackground,
-                    ),
-                    inputFormatters: [
-                      NumberInputFormatter(NumberInputFormatterType.decimal),
-                    ],
-                  ),
-                ),
-              ],
+          editorWidget = TextField(
+            controller: _textControllers[index],
+            decoration: InputDecoration(
+              labelText: key
             ),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9.\-]')),
+            ],
           );
           break;
         case editBool:
@@ -148,57 +104,44 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
           );
           break;
         case editDate:
-          editorWidget = Container(
-            height: rowHeight,
-            child: Row(
-              children: <Widget>[
-                Expanded(child: Text(key)),
-                Expanded(
-                  child: TextField(
-                    controller: _textControllers[index],
-                    decoration: InputDecoration.collapsed(
-                      hintText: 'yyyy-mm-dd',
-                      filled: true,
-                      fillColor: textBackground,
-                    ),
-                    inputFormatters: [
-                      DateInputFormatter(),
-                    ],
-                  ),
-                ),
-              ],
+          editorWidget = TextField(
+            controller: _textControllers[index],
+            decoration: InputDecoration(
+              hintText: 'yyyy-mm-dd',
+              labelText: key
             ),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9\-]')),
+            ],
           );
           break;
         case editFixedList:
           var items = parseFixedList(widget.editModes[key]);
           var value = _values[index].toString();
           if (!items.contains(value)) items.insert(0, value);
-          editorWidget = Row(
-            children: <Widget>[
-              Expanded(child: Text(key)),
-              Expanded(child: Container(
-                color: textBackground,
-                child: DropdownButton(
-                  icon: Container(),
-                  underline: Container(),
-                  value: value,
-                  items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                  onChanged: (value)=>setState(()=>_values[index] = value),
-                ),
-              )),
-            ],
+          editorWidget = InputDecorator(
+            decoration: InputDecoration(
+              isDense: true,
+              labelText: key,
+            ),
+            child: DropdownButton(
+              isDense: true,
+              icon: SizedBox(),
+              underline: SizedBox(),
+              value: value,
+              items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+              onChanged: (value)=>setState(()=>_values[index] = value),
+            ),
           );
           break;
         default:
-          editorWidget = Container(
-            height: rowHeight,
-            child: Row(
-              children: <Widget>[
-                Expanded(child: Text(key)),
-                Expanded(child: Text(_values[index].toString(), textAlign: TextAlign.end)),
-              ],
+          editorWidget = InputDecorator(
+            decoration: InputDecoration(
+              isDense: true,
+              labelText: key,
+              enabledBorder: InputBorder.none,
             ),
+            child: Text(_values[index].toString()),
           );
           break;
       }
@@ -226,25 +169,25 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  FlatButton(
+                  TextButton(
                     child: Text("Cancel"),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
-                  RaisedButton(
+                  ElevatedButton(
                     child: Text("Submit"),
                     onPressed: () async {
                       var values = _generateSubmitValues();
                       showDialog(
                         context: context,
                         barrierDismissible: false,
-                        child: LoadingDialog(message: "Submitting..."),
+                        builder: (context) => LoadingDialog(message: "Submitting..."),
                       );
                       var err = await widget.onSubmit(values);
                       Navigator.of(context).pop();
                       if (err != ''){
                         await showDialog(
                           context: context,
-                          child: OkDialog(
+                          builder: (context) => OkDialog(
                             msgType: MsgType.Error,
                             child: Text("Error: $err"),
                           ),
@@ -309,32 +252,6 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
 enum NumberInputFormatterType {
   integer,
   decimal,
-}
-
-class NumberInputFormatter extends WhitelistingTextInputFormatter {
-  NumberInputFormatter(this.numberType) : super(r'[0-9.\-]');
-  final NumberInputFormatterType numberType;
-
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    switch (numberType){
-      case NumberInputFormatterType.decimal:
-        if (isTextDecimal(newValue.text)) return newValue;
-        return oldValue;
-      case NumberInputFormatterType.integer:
-        if (isTextInteger(newValue.text)) return newValue;
-        return oldValue;
-    }
-    return oldValue;
-  }
-}
-
-class DateInputFormatter extends WhitelistingTextInputFormatter {
-  DateInputFormatter() : super(r'[0-9\-]');
-
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    if (isTextDate(newValue.text)) return newValue;
-    return oldValue;
-  }
 }
 
 DateTime today() {

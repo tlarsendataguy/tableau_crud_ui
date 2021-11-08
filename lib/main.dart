@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' as Foundation;
 import 'package:tableau_crud_ui/state_and_model/io.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,11 +11,10 @@ import 'package:tableau_crud_ui/home_pages/home_page.dart';
 import 'package:tableau_crud_ui/state_and_model/tableau_extension_io.dart';
 
 void main() async {
-  var mock = false;
-  if (mock) {
-    runMock();
-  } else {
+  if (Foundation.kReleaseMode) {
     runProd();
+  } else {
+    runMock();
   }
 }
 

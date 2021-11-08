@@ -74,7 +74,7 @@ class _FiltersPageState extends State<FiltersPage> {
                               IconButton(
                                 icon: Icon(Icons.arrow_forward),
                                 onPressed: () async {
-                                  var mapsTo = await showDialog(context: context, child: ChooseColumnDialog("Filter on [${e.fieldName}] from worksheet [$selectedWorksheet] maps to:"));
+                                  var mapsTo = await showDialog(context: context, builder: (context) => ChooseColumnDialog("Filter on [${e.fieldName}] from worksheet [$selectedWorksheet] maps to:"));
                                   if (mapsTo == '' || mapsTo == null) return;
                                   state.addFilter(
                                     worksheet: selectedWorksheet,

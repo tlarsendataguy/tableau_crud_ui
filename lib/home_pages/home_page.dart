@@ -40,7 +40,7 @@ class Home extends StatelessWidget {
               var initialValues = editModes.keys.map((e)=>null).toList();
               await showDialog(
                   context: context,
-                  child: DataEntryDialog(
+                  builder: (context) => DataEntryDialog(
                   editModes: editModes,
                   initialValues: initialValues,
                   onSubmit: state.insert,
@@ -57,7 +57,7 @@ class Home extends StatelessWidget {
               var initialValues = state.getSelectedRowValues();
               await showDialog(
                 context: context,
-                child: DataEntryDialog(
+                builder: (context) => DataEntryDialog(
                   editModes: editModes,
                   initialValues: initialValues,
                   onSubmit: state.update,
@@ -81,7 +81,7 @@ class Home extends StatelessWidget {
             var onPressed = ()async{
               var result = await showDialog(
                 context: context,
-                child: YesNoDialog(
+                builder: (context) => YesNoDialog(
                   child: Text("Are you sure you want to delete this record?"),
                 ),
               );
@@ -91,14 +91,14 @@ class Home extends StatelessWidget {
               showDialog(
                 context: context,
                 barrierDismissible: false,
-                child: LoadingDialog(message: "Deleting..."),
+                builder: (context) => LoadingDialog(message: "Deleting..."),
               );
               var err = await state.delete();
               Navigator.of(context).pop();
               if (err != ''){
                 await showDialog(
                   context: null,
-                  child: OkDialog(
+                  builder: (context) => OkDialog(
                     msgType: MsgType.Error,
                     child: Text("Error: $err"),
                   ),
@@ -128,7 +128,7 @@ class Home extends StatelessWidget {
               if (error != ""){
                 await showDialog(
                   context: context,
-                  child: OkDialog(
+                  builder: (context) => OkDialog(
                     child: Text(error, softWrap: true),
                     msgType: MsgType.Error),
                 );
@@ -208,7 +208,7 @@ class PageSelector extends StatelessWidget {
                 if (err != ''){
                   await showDialog(
                     context: context,
-                    child: OkDialog(
+                    builder: (context) => OkDialog(
                       child: Text("Error: $err"),
                       msgType: MsgType.Error,
                     ),
@@ -225,7 +225,7 @@ class PageSelector extends StatelessWidget {
                 if (err != '') {
                   await showDialog(
                     context: context,
-                    child: OkDialog(
+                    builder: (context) => OkDialog(
                       child: Text("Error: $err"),
                       msgType: MsgType.Error,
                     ),

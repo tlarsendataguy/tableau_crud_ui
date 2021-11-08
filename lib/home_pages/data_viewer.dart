@@ -67,7 +67,7 @@ class DataViewer extends StatelessWidget {
                           Text(
                             valueToString(e),
                             overflow: TextOverflow.ellipsis,
-                          ),
+                            ),
                         ],
                       ),
                     )

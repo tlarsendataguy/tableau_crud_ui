@@ -1,8 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/state_and_model/app_state.dart';
 import 'package:tableau_crud_ui/state_and_model/bloc_provider.dart';
-import 'package:tableau_crud_ui/state_and_model/configuration_state.dart';
+import 'package:tableau_crud_ui/state_and_model/configuration_state.dart' as state;
 import 'package:tableau_crud_ui/configuration_pages/connection_page.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
 import 'package:tableau_crud_ui/configuration_pages/filters_page.dart';
@@ -13,11 +12,11 @@ import 'package:tableau_crud_ui/styling.dart';
 
 class ConfigurationPage extends StatelessWidget{
   Widget build(BuildContext context) {
-    var configState = BlocProvider.of<ConfigurationState>(context);
+    var configState = BlocProvider.of<state.ConfigurationState>(context);
 
     return StreamBuilder(
       stream: configState.page,
-      builder: (context, AsyncSnapshot<Page> snapshot){
+      builder: (context, AsyncSnapshot<state.Page> snapshot){
         if (!snapshot.hasData){
           return Center(child: Text('Loading...'));
         }
@@ -26,19 +25,19 @@ class ConfigurationPage extends StatelessWidget{
         var page = snapshot.data;
 
         switch (page){
-          case Page.connection:
+          case state.Page.connection:
             content = ConnectionPage(configState: configState);
             break;
-          case Page.selectFields:
+          case state.Page.selectFields:
             content = SelectFieldsPage();
             break;
-          case Page.orderByFields:
+          case state.Page.orderByFields:
             content = OrderByFieldsPage();
             break;
-          case Page.filters:
+          case state.Page.filters:
             content = FiltersPage();
             break;
-          case Page.mappedDataSources:
+          case state.Page.mappedDataSources:
             content = MappedDataSourcesPage();
             break;
           default:
@@ -72,10 +71,10 @@ class ConfigurationPage extends StatelessWidget{
 
 class ConfigurationPageButtons extends StatelessWidget {
   ConfigurationPageButtons({this.page});
-  final Page page;
+  final state.Page page;
 
   Widget build(BuildContext context) {
-    var configState = BlocProvider.of<ConfigurationState>(context);
+    var configState = BlocProvider.of<state.ConfigurationState>(context);
     var appState = BlocProvider.of<AppState>(context);
     return ListView(
       children: [
@@ -90,7 +89,7 @@ class ConfigurationPageButtons extends StatelessWidget {
               if (error != ''){
                 await showDialog(
                   context: context,
-                  child: OkDialog(
+                  builder: (context) => OkDialog(
                     child: Text("WARNING! Settings not saved because of the following error: $error"),
                     msgType: MsgType.Error,
                   ),
@@ -112,11 +111,11 @@ class ConfigurationPageButtons extends StatelessWidget {
           ),
         ),
         Container(height: 40),
-        PageButton(goToPage: Page.connection, currentPage: page),
-        PageButton(goToPage: Page.selectFields, currentPage: page),
-        PageButton(goToPage: Page.orderByFields, currentPage: page),
-        PageButton(goToPage: Page.filters, currentPage: page),
-        PageButton(goToPage: Page.mappedDataSources, currentPage: page),
+        PageButton(goToPage: state.Page.connection, currentPage: page),
+        PageButton(goToPage: state.Page.selectFields, currentPage: page),
+        PageButton(goToPage: state.Page.orderByFields, currentPage: page),
+        PageButton(goToPage: state.Page.filters, currentPage: page),
+        PageButton(goToPage: state.Page.mappedDataSources, currentPage: page),
       ],
     );
   }
@@ -124,33 +123,33 @@ class ConfigurationPageButtons extends StatelessWidget {
 
 class PageButton extends StatelessWidget{
   PageButton({this.goToPage, this.currentPage});
-  final Page goToPage;
-  final Page currentPage;
+  final state.Page goToPage;
+  final state.Page currentPage;
 
   Widget build(BuildContext context) {
-    var configState = BlocProvider.of<ConfigurationState>(context);
+    var configState = BlocProvider.of<state.ConfigurationState>(context);
     String message;
     IconData icon;
     Color color;
 
     switch (goToPage){
-      case Page.connection:
+      case state.Page.connection:
         message = "Connection info";
         icon = Icons.format_list_bulleted;
         break;
-      case Page.selectFields:
+      case state.Page.selectFields:
         message = "Select fields";
         icon = Icons.table_chart;
         break;
-      case Page.orderByFields:
+      case state.Page.orderByFields:
         message = "Order by";
         icon = Icons.sort;
         break;
-      case Page.filters:
+      case state.Page.filters:
         message = "Map filters";
         icon = Icons.filter_list;
         break;
-      case Page.mappedDataSources:
+      case state.Page.mappedDataSources:
         message = "Map data sources";
         icon = Icons.file_download;
         break;

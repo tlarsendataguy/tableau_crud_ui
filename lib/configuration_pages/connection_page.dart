@@ -78,7 +78,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
           onTap: () async {
             var newPassword = await showDialog(
               context: context,
-              child: PasswordDialog(),
+              builder: (context) => PasswordDialog(),
             );
             if (newPassword == null) return;
             setState((){
@@ -112,19 +112,19 @@ class _ConnectionPageState extends State<ConnectionPage> {
           controller: _table,
           decoration: InputDecoration(labelText: "Table"),
         ),
-        RaisedButton(
+        ElevatedButton(
           child: Text("Test connection"),
           onPressed: () async {
             showDialog(
               context: context,
-              child: LoadingDialog(message: "Testing connection..."),
+              builder: (context) => LoadingDialog(message: "Testing connection..."),
             );
             var error = await widget.configState.testConnection();
             Navigator.of(context).pop();
             if (error == ""){
               await showDialog(
                 context: context,
-                child: OkDialog(
+                builder: (context) => OkDialog(
                   child: Text("Connection successful!"),
                   msgType: MsgType.Success,
                 ),
@@ -132,7 +132,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
             } else {
               await showDialog(
                 context: context,
-                child: OkDialog(
+                builder: (context) => OkDialog(
                   child: Text("Error: $error"),
                   msgType: MsgType.Error,
                 ),
@@ -166,11 +166,11 @@ class PasswordDialog extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  FlatButton(
+                  TextButton(
                     child: Text("Cancel"),
                     onPressed: ()=>Navigator.of(context).pop(),
                   ),
-                  RaisedButton(
+                  ElevatedButton(
                     child: Text("Submit"),
                     onPressed: () async => await onPasswordClick(context, state),
                   ),
@@ -190,14 +190,14 @@ class PasswordDialog extends StatelessWidget {
     }
     showDialog(
       context: context,
-      child: LoadingDialog(message: "encrypting password..."),
+      builder: (context) => LoadingDialog(message: "encrypting password..."),
     );
     var response = await state.encryptPassword(_controller.text);
     Navigator.of(context).pop();
     if (response.hasError) {
       await showDialog(
         context: context,
-        child: OkDialog(
+        builder: (context) => OkDialog(
           child: Text("Error: ${response.error}"),
           msgType: MsgType.Error,
         ),
