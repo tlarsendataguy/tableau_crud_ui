@@ -241,6 +241,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
           submitValues[key] = int.tryParse(value);
           break;
         case editText:
+        case editMultiLineText:
           submitValues[key] = value.toString();
           break;
         case editDate:
