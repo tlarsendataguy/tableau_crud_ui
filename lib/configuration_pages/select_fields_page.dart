@@ -61,6 +61,7 @@ class _SelectorCardState extends State<SelectorCard>{
               items: [
                 DropdownMenuItem(value: editNone, child: Text(editNone)),
                 DropdownMenuItem(value: editText, child: Text(editText)),
+                DropdownMenuItem(value: editMultiLineText, child: Text(editMultiLineText)),
                 DropdownMenuItem(value: editDate, child: Text(editDate)),
                 DropdownMenuItem(value: editInteger, child: Text(editInteger)),
                 DropdownMenuItem(value: editNumber, child: Text(editNumber)),

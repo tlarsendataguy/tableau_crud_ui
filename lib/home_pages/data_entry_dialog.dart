@@ -32,6 +32,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
       switch (editMode){
         case editNumber:
         case editInteger:
+        case editMultiLineText:
         case editText:
           _textControllers.add(
             TextEditingController(text: value == null ? "" : value.toString()),
@@ -61,7 +62,17 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
           editorWidget = TextField(
             maxLength: 255,
             decoration: InputDecoration(
-              labelText: key
+                labelText: key
+            ),
+            controller: _textControllers[index],
+          );
+          break;
+        case editMultiLineText:
+          editorWidget = TextField(
+            minLines: 3,
+            maxLines: 5,
+            decoration: InputDecoration(
+                labelText: key
             ),
             controller: _textControllers[index],
           );

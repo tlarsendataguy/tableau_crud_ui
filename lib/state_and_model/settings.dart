@@ -22,6 +22,7 @@ const editNone = 'None';
 const editInteger = 'Integer';
 const editNumber = 'Number';
 const editText = 'Text';
+const editMultiLineText = 'Multi-Line Text';
 const editDate = 'Date';
 const editBool = 'Bool';
 const editFixedList = 'Fixed List';
@@ -125,7 +126,7 @@ class Settings {
     var mappedDataSources = mapped.tryStringList(_mappedDataSources);
 
     var dynamicFilters = mapped.tryDynamicList(_filters);
-    var filters = List<Filter>();
+    var filters = <Filter>[];
     for (var dynamicFilter in dynamicFilters) {
       var mappedFilter = tryCast<Map<String, dynamic>>(dynamicFilter, {});
       var filter = Filter.fromJson(mappedFilter);
@@ -191,7 +192,7 @@ bool isFixedList(String fixedList){
 }
 
 String getEditMode(String editMode){
-  if ([editNone,editText,editInteger,editNumber,editBool,editDate].contains(editMode)) return editMode;
+  if ([editNone,editText,editMultiLineText,editInteger,editNumber,editBool,editDate].contains(editMode)) return editMode;
   if (isFixedList(editMode)){
     return editFixedList;
   }
