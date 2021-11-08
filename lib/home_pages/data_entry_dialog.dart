@@ -50,7 +50,6 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
   }
 
   Widget build(BuildContext context) {
-    var rowHeight = 40.0;
     var keys = widget.editModes.keys.toList();
     var widgets = <Widget>[];
     for (var index = 0; index < keys.length; index++) {
@@ -99,12 +98,10 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
           );
           break;
         case editBool:
-          editorWidget = Container(
-            height: rowHeight,
+          editorWidget = InputDecorator(
+            decoration: InputDecoration(labelText: key, isDense: true, enabledBorder: InputBorder.none),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Expanded(child: Text(key)),
+              children: [
                 Checkbox(
                   tristate: true,
                   value: _values[index],
