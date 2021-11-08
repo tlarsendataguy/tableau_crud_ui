@@ -106,6 +106,7 @@ class AppState extends BlocState {
     var requiredFields = _settings.selectFields.keys.where((key) {
       var editMode = getEditMode(_settings.selectFields[key]);
       return editMode == editText ||
+          editMode == editMultiLineText ||
           editMode == editInteger ||
           editMode == editNumber ||
           editMode == editBool ||

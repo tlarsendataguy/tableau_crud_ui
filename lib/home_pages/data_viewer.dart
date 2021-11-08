@@ -31,7 +31,7 @@ class DataViewer extends StatelessWidget {
             var maxColWidth = 200.0;
             var paddingWidth = 8.0;
 
-            var columns = List<Widget>();
+            var columns = <Widget>[];
             var index = 0;
             for (var column in data.data){
               var headerText = data.columnNames[index];

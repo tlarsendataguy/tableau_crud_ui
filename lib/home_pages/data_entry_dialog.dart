@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
@@ -103,6 +102,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
           editorWidget = Container(
             height: rowHeight,
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Expanded(child: Text(key)),
                 Checkbox(
