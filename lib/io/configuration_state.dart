@@ -1,10 +1,10 @@
 import 'package:rxdart/rxdart.dart';
-import 'package:tableau_crud_ui/state_and_model/bloc_state.dart';
-import 'package:tableau_crud_ui/state_and_model/connection_data.dart';
-import 'package:tableau_crud_ui/state_and_model/io.dart';
-import 'package:tableau_crud_ui/state_and_model/parse_responses.dart';
-import 'package:tableau_crud_ui/state_and_model/response_objects.dart';
-import 'package:tableau_crud_ui/state_and_model/settings.dart';
+import 'package:tableau_crud_ui/io/bloc_state.dart';
+import 'package:tableau_crud_ui/io/connection_data.dart';
+import 'package:tableau_crud_ui/io/io.dart';
+import 'package:tableau_crud_ui/io/parse_responses.dart';
+import 'package:tableau_crud_ui/io/response_objects.dart';
+import 'package:tableau_crud_ui/io/settings.dart';
 
 enum Page {
   connection,

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
-import 'package:tableau_crud_ui/state_and_model/settings.dart';
-import 'package:tableau_crud_ui/state_and_model/try_cast.dart';
+import 'package:tableau_crud_ui/io/settings.dart';
+import 'package:tableau_crud_ui/io/try_cast.dart';
 
 typedef Future<String> DataEntryOnSubmit(Map<String,dynamic> values);
 

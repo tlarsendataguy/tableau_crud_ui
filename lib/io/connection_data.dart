@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:tableau_crud_ui/state_and_model/settings.dart';
+import 'package:tableau_crud_ui/io/settings.dart';
 
 class RequestData {
   RequestData({this.connectionData, this.functionData}) : assert(connectionData != null && functionData != null);

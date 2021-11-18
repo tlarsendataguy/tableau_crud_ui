@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:tableau_crud_ui/state_and_model/try_cast.dart';
+import 'package:tableau_crud_ui/io/try_cast.dart';
 
 const _server = "server";
 const _port = "port";

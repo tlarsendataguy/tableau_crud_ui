@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:tableau_crud_ui/state_and_model/bloc_provider.dart';
+import 'package:tableau_crud_ui/io/bloc_provider.dart';
 import 'package:tableau_crud_ui/configuration_pages/choose_column_dialog.dart';
-import 'package:tableau_crud_ui/state_and_model/configuration_state.dart';
-import 'package:tableau_crud_ui/state_and_model/io.dart';
-import 'package:tableau_crud_ui/state_and_model/settings.dart';
+import 'package:tableau_crud_ui/io/configuration_state.dart';
+import 'package:tableau_crud_ui/io/io.dart';
+import 'package:tableau_crud_ui/io/settings.dart';
 
 class FiltersPage extends StatefulWidget {
   createState()=>_FiltersPageState();

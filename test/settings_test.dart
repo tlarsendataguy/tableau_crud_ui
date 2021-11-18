@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tableau_crud_ui/state_and_model/settings.dart';
+import 'package:tableau_crud_ui/io/settings.dart';
 
 main(){
   test("Test from and to JSON",(){

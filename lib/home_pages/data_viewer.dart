@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:tableau_crud_ui/state_and_model/app_state.dart';
-import 'package:tableau_crud_ui/state_and_model/bloc_provider.dart';
-import 'package:tableau_crud_ui/state_and_model/response_objects.dart';
-import 'package:tableau_crud_ui/state_and_model/settings.dart';
+import 'package:tableau_crud_ui/io/app_state.dart';
+import 'package:tableau_crud_ui/io/bloc_provider.dart';
+import 'package:tableau_crud_ui/io/response_objects.dart';
+import 'package:tableau_crud_ui/io/settings.dart';
 import 'package:tableau_crud_ui/styling.dart';
 
 class DataViewer extends StatelessWidget {

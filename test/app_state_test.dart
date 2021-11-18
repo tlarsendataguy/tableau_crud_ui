@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tableau_crud_ui/state_and_model/app_state.dart';
-import 'package:tableau_crud_ui/state_and_model/io.dart';
+import 'package:tableau_crud_ui/io/app_state.dart';
+import 'package:tableau_crud_ui/io/io.dart';
 
 
 Future<TableauIo> generateTIo() async {

@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:html' as html;
 import 'package:http/http.dart' as http;
-import 'package:tableau_crud_ui/state_and_model/connection_data.dart';
-import 'package:tableau_crud_ui/state_and_model/io.dart';
+import 'package:tableau_crud_ui/io/connection_data.dart';
+import 'package:tableau_crud_ui/io/io.dart';
 
 class DbWebIo extends DbIo {
   var _address = html.window.location.href;

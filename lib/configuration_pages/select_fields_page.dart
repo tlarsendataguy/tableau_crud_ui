@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:tableau_crud_ui/state_and_model/bloc_provider.dart';
-import 'package:tableau_crud_ui/state_and_model/configuration_state.dart';
+import 'package:tableau_crud_ui/io/bloc_provider.dart';
+import 'package:tableau_crud_ui/io/configuration_state.dart';
 import 'package:tableau_crud_ui/configuration_pages/item_selector.dart';
-import 'package:tableau_crud_ui/state_and_model/settings.dart';
+import 'package:tableau_crud_ui/io/settings.dart';
 
 class SelectFieldsPage extends StatelessWidget {
   Widget build(BuildContext context) {

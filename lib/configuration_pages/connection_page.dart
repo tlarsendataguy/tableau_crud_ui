@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:tableau_crud_ui/state_and_model/bloc_provider.dart';
-import 'package:tableau_crud_ui/state_and_model/configuration_state.dart';
+import 'package:tableau_crud_ui/io/bloc_provider.dart';
+import 'package:tableau_crud_ui/io/configuration_state.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
 
 class ConnectionPage extends StatefulWidget {

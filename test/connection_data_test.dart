@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tableau_crud_ui/state_and_model/connection_data.dart';
+import 'package:tableau_crud_ui/io/connection_data.dart';
 
 main(){
   var connectionData = ConnectionData(

@@ -1,8 +1,8 @@
 import 'package:js/js.dart';
 import 'package:js/js_util.dart';
-import 'package:tableau_crud_ui/state_and_model/io.dart';
-import 'package:tableau_crud_ui/state_and_model/settings.dart';
-import 'package:tableau_crud_ui/state_and_model/tableau_extension_api.dart' as api;
+import 'package:tableau_crud_ui/io/io.dart';
+import 'package:tableau_crud_ui/io/settings.dart';
+import 'package:tableau_crud_ui/io/tableau_extension_api.dart' as api;
 
 class TableauExtensionIo extends TableauIo {
   

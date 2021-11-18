@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:tableau_crud_ui/state_and_model/response_objects.dart';
+import 'package:tableau_crud_ui/io/response_objects.dart';
 
 class QueryData {
   QueryData({this.columnNames, this.data}) : assert(columnNames != null && data != null);

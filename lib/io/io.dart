@@ -1,5 +1,5 @@
-import 'package:tableau_crud_ui/state_and_model/connection_data.dart';
-import 'package:tableau_crud_ui/state_and_model/settings.dart';
+import 'package:tableau_crud_ui/io/connection_data.dart';
+import 'package:tableau_crud_ui/io/settings.dart';
 
 abstract class DbIo {
   Future<String> testConnection(RequestData request);

@@ -1,9 +1,9 @@
 
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tableau_crud_ui/state_and_model/configuration_state.dart';
-import 'package:tableau_crud_ui/state_and_model/io.dart';
-import 'package:tableau_crud_ui/state_and_model/settings.dart';
+import 'package:tableau_crud_ui/io/configuration_state.dart';
+import 'package:tableau_crud_ui/io/io.dart';
+import 'package:tableau_crud_ui/io/settings.dart';
 
 var testSettings = Settings(
   server: 'test server',

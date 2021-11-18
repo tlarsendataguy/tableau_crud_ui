@@ -4,11 +4,11 @@ import 'dart:html';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/home_pages/data_entry_dialog.dart';
-import 'package:tableau_crud_ui/state_and_model/app_state.dart';
-import 'package:tableau_crud_ui/state_and_model/bloc_provider.dart';
+import 'package:tableau_crud_ui/io/app_state.dart';
+import 'package:tableau_crud_ui/io/bloc_provider.dart';
 import 'package:tableau_crud_ui/home_pages/data_viewer.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
-import 'package:tableau_crud_ui/state_and_model/response_objects.dart';
+import 'package:tableau_crud_ui/io/response_objects.dart';
 import 'package:tableau_crud_ui/styling.dart';
 
 class Home extends StatelessWidget {

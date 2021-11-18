@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tableau_crud_ui/state_and_model/parse_responses.dart';
+import 'package:tableau_crud_ui/io/parse_responses.dart';
 
 main(){
   test("Parse test connection success", (){
