@@ -15,6 +15,8 @@ abstract class TableauIo {
   Future<String> getContext();
   Future<Settings> getSettings();
   Future saveSettings(String settingsJson);
+  Future<Map<String, String>> getParameters();
+  Future<Parameter> getParameter(String name);
   Future<List<String>> getWorksheets();
   Future<List<TableauFilter>> getFilters(String worksheet);
   Future<Map<String,String>> getAllDataSources();
@@ -76,7 +78,7 @@ var mockSettings = Settings(
   selectFields: {'id': editNone, 'category': "$editFixedList:blah|something", 'amount': editNumber, 'date': editDate, 'comment': editText, 'is true': editBool},
   orderByFields: ['id'],
   primaryKey: ['id'],
-  filters: [Filter(worksheet: 'test worksheet', fieldName: 'test field', mapsTo: 'category')],
+  filters: [Filter(worksheet: 'test worksheet', fieldName: 'test field', mapsTo: 'category'),Filter(parameterName: 'test parameter', mapsTo: 'type of record')],
 );
 
 class TableauMockIo extends TableauIo {
@@ -103,6 +105,23 @@ class TableauMockIo extends TableauIo {
 
   Future saveSettings(String settingsJson) async {
     _settings = Settings.fromJson(settingsJson);
+  }
+
+  Future<Map<String,String>> getParameters() async {
+    return {"Param1": "ParamId1"};
+  }
+
+  Future<Parameter> getParameter(String name) async {
+    if (name != 'Param1') {
+      return null;
+    }
+    return Parameter(
+      name: 'Param1',
+      id: 'ParamId1',
+      value: 12345,
+      formattedValue: '12345',
+      dataType: 'Integer',
+    );
   }
 
   Future<List<String>> getWorksheets() async {
@@ -133,3 +152,11 @@ class TableauMockIo extends TableauIo {
   void unregisterFilterChangedOnAll(){}
 }
 
+class Parameter {
+  Parameter({this.id, this.name, this.value, this.formattedValue, this.dataType});
+  final String id;
+  final String name;
+  final dynamic value;
+  final String formattedValue;
+  final String dataType;
+}

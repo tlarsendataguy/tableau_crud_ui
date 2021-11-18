@@ -12,6 +12,12 @@ external dynamic initializeAsync();
 @JS('extensions.dashboardContent.dashboard.worksheets')
 external List<Worksheet> get worksheets;
 
+@JS('extensions.dashboardContent.dashboard.getParametersAsync')
+external dynamic getParametersAsync();
+
+@JS('extensions.dashboardContent.dashboard.findParameterAsync')
+external dynamic findParameterAsync(String name);
+
 @JS('extensions.settings.saveAsync')
 external dynamic saveSettingsAsync();
 
@@ -66,4 +72,12 @@ class DataValue {
 class TableauSettings {
   external String get settings;
   external bool hasOwnProperty(String property);
+}
+
+@JS()
+class Parameter {
+  external DataValue get currentValue;
+  external String get name;
+  external String get dataType;
+  external String get id;
 }

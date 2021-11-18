@@ -6,17 +6,40 @@ import 'package:tableau_crud_ui/state_and_model/tableau_extension_api.dart' as a
 
 class TableauExtensionIo extends TableauIo {
   
-  var _toUnregister = List<Function>();
+  var _toUnregister = <Function>[];
   
   Future initialize() async => await promiseToFuture(api.initializeAsync());
   Future<String> getContext() async => api.context;
+
+  Future<Map<String, String>> getParameters() async {
+    var tParams = await promiseToFuture<List<api.Parameter>>(api.getParametersAsync());
+    Map<String, String> params;
+    for (var param in tParams) {
+      params[param.name] = param.name;
+    }
+    return params;
+  }
+
+  Future<Parameter> getParameter(String name) async {
+    var tParam = await promiseToFuture<api.Parameter>(api.findParameterAsync(name));
+    if (tParam == null) {
+      return null;
+    }
+    return Parameter(
+      name: tParam.name,
+      id: tParam.id,
+      dataType: tParam.dataType,
+      value: tParam.currentValue.value,
+      formattedValue: tParam.currentValue.formattedValue,
+    );
+  }
 
   Future<List<TableauFilter>> getFilters(String worksheetName) async {
     for (var worksheet in api.worksheets){
       if (worksheet.name != worksheetName) continue;
 
       var tFilters = await promiseToFuture<List<api.Filter>>(worksheet.getFiltersAsync());
-      var filters = List<TableauFilter>();
+      var filters = <TableauFilter>[];
       for (var tFilter in tFilters){
         if (tFilter.filterType == 'categorical'){
           filters.add(TableauFilter(
@@ -74,7 +97,7 @@ class TableauExtensionIo extends TableauIo {
   }
 
   Future<List<String>> getWorksheets() async {
-    var worksheetNames = List<String>();
+    var worksheetNames = <String>[];
     for (var worksheet in api.worksheets){
       worksheetNames.add(worksheet.name);
     }

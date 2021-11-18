@@ -151,10 +151,11 @@ class Settings {
 }
 
 class Filter {
-  Filter({this.worksheet, this.fieldName, this.mapsTo});
+  Filter({this.worksheet, this.fieldName, this.parameterName, this.mapsTo});
 
   final String worksheet;
   final String fieldName;
+  final String parameterName;
   final String mapsTo;
 
   Map<String, dynamic> toJson() {

@@ -13,6 +13,7 @@ class _FiltersPageState extends State<FiltersPage> {
 
   String selectedWorksheet = '';
   List<TableauFilter> worksheetFilters = [];
+  List<Parameter> parameters = [];
 
   Widget build(BuildContext context) {
     var state = BlocProvider.of<ConfigurationState>(context);
@@ -50,6 +51,13 @@ class _FiltersPageState extends State<FiltersPage> {
                         ),
                       ),
                   ).toList(),
+                ),
+              ),
+              SizedBox(height: 8),
+              Center(child: Text('Parameters:')),
+              Expanded(
+                child: ListView(
+                  children: [],
                 ),
               ),
             ],
