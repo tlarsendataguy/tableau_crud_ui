@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tableau_crud_ui/io/app_state.dart';
-import 'package:tableau_crud_ui/io/bloc_provider.dart';
 import 'package:tableau_crud_ui/io/response_objects.dart';
 import 'package:tableau_crud_ui/io/settings.dart';
 import 'package:tableau_crud_ui/styling.dart';
@@ -9,7 +7,6 @@ class DataViewer extends StatelessWidget {
   final ScrollController horizontalScroller = ScrollController();
 
   Widget build(BuildContext context) {
-    var state = BlocProvider.of<AppState>(context);
 
     return StreamBuilder(
       stream: state.readLoaders,

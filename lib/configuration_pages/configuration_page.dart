@@ -1,81 +1,106 @@
 import 'package:flutter/material.dart';
-import 'package:tableau_crud_ui/io/app_state.dart';
-import 'package:tableau_crud_ui/io/bloc_provider.dart';
-import 'package:tableau_crud_ui/io/configuration_state.dart' as state;
 import 'package:tableau_crud_ui/configuration_pages/connection_page.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
 import 'package:tableau_crud_ui/configuration_pages/filters_page.dart';
 import 'package:tableau_crud_ui/configuration_pages/mapped_data_sources_page.dart';
 import 'package:tableau_crud_ui/configuration_pages/order_by_fields_page.dart';
 import 'package:tableau_crud_ui/configuration_pages/select_fields_page.dart';
+import 'package:tableau_crud_ui/io/io.dart';
+import 'package:tableau_crud_ui/io/settings.dart';
 import 'package:tableau_crud_ui/styling.dart';
 
-class ConfigurationPage extends StatelessWidget{
+enum Page {
+  connection,
+  selectFields,
+  orderByFields,
+  filters,
+  mappedDataSources
+}
+class ConfigurationPage extends StatefulWidget{
+  ConfigurationPage(this.io);
+  final IoManager io;
+
+  createState()=>_ConfigurationPageState();
+}
+
+class _ConfigurationPageState extends State<ConfigurationPage> {
+
+  Page currentPage = Page.connection;
+  Settings settings;
+  bool isLoading = true;
+
+  initState(){
+    super.initState();
+    loadSettings();
+  }
+
+  Future loadSettings() async {
+    settings = await widget.io.tableau.getSettings();
+    setState(()=>isLoading = false);
+  }
+
+  void onPageChanged(Page newPage) {
+    setState(()=>currentPage=newPage);
+  }
+
   Widget build(BuildContext context) {
-    var configState = BlocProvider.of<state.ConfigurationState>(context);
+    Widget content;
 
-    return StreamBuilder(
-      stream: configState.page,
-      builder: (context, AsyncSnapshot<state.Page> snapshot){
-        if (!snapshot.hasData){
-          return Center(child: Text('Loading...'));
-        }
+    if (isLoading) {
+      return Center(child: Text("Loading..."));
+    }
 
-        Widget content;
-        var page = snapshot.data;
-
-        switch (page){
-          case state.Page.connection:
-            content = ConnectionPage(configState: configState);
-            break;
-          case state.Page.selectFields:
-            content = SelectFieldsPage();
-            break;
-          case state.Page.orderByFields:
-            content = OrderByFieldsPage();
-            break;
-          case state.Page.filters:
-            content = FiltersPage();
-            break;
-          case state.Page.mappedDataSources:
-            content = MappedDataSourcesPage();
-            break;
-          default:
-            content = Center(child: Text("Invalid page"));
-        }
-        return Container(
-          color: backgroundColor,
-          child: Row(
-            children: [
-              Container(
-                width: 60,
-                child: Card(
-                  child: ConfigurationPageButtons(page: page),
-                ),
-              ),
-              Expanded(
-                child: Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(4.0),
-                    child: content,
-                  ),
-                ),
-              ),
-            ],
+    switch (currentPage){
+      case Page.connection:
+        content = ConnectionPage(io: widget.io, settings: settings);
+        break;
+      case Page.selectFields:
+        content = SelectFieldsPage(settings: settings);
+        break;
+      case Page.orderByFields:
+        content = OrderByFieldsPage(settings: settings);
+        break;
+      case Page.filters:
+        content = FiltersPage(tableauIo: widget.io.tableau, settings: settings);
+        break;
+      case Page.mappedDataSources:
+        content = MappedDataSourcesPage(tableauIo: widget.io.tableau, settings: settings);
+        break;
+      default:
+        content = Center(child: Text("Invalid page"));
+    }
+    return Container(
+      color: backgroundColor,
+      child: Row(
+        children: [
+          Container(
+            width: 60,
+            child: Card(
+              child: ConfigurationPageButtons(page: currentPage, onPageChanged: onPageChanged, io: widget.io, settings: settings),
+            ),
           ),
-        );
-      },
+          Expanded(
+            child: Card(
+              child: Padding(
+                padding: EdgeInsets.all(4.0),
+                child: content,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
 class ConfigurationPageButtons extends StatelessWidget {
-  ConfigurationPageButtons({this.page});
-  final state.Page page;
+  ConfigurationPageButtons({this.page, this.onPageChanged, this.io, this.settings});
+  final Page page;
+  final Function(Page newPage) onPageChanged;
+  final IoManager io;
+  final Settings settings;
 
   Widget build(BuildContext context) {
-    var configState = BlocProvider.of<state.ConfigurationState>(context);
-    var appState = BlocProvider.of<AppState>(context);
     return ListView(
       children: [
         Tooltip(
@@ -84,7 +109,6 @@ class ConfigurationPageButtons extends StatelessWidget {
             focusNode: FocusNode(skipTraversal: true),
             icon: Icon(Icons.save),
             onPressed: () async {
-              var settings = configState.generateSettings();
               var error = settings.validate();
               if (error != ''){
                 await showDialog(
@@ -96,8 +120,7 @@ class ConfigurationPageButtons extends StatelessWidget {
                 );
                 return;
               }
-              await configState.tIo.saveSettings(settings.toJson());
-              appState.updateSettings(settings);
+              await io.tableau.saveSettings(settings.toJson());
               Navigator.of(context).pop();
             },
           ),
@@ -111,45 +134,45 @@ class ConfigurationPageButtons extends StatelessWidget {
           ),
         ),
         Container(height: 40),
-        PageButton(goToPage: state.Page.connection, currentPage: page),
-        PageButton(goToPage: state.Page.selectFields, currentPage: page),
-        PageButton(goToPage: state.Page.orderByFields, currentPage: page),
-        PageButton(goToPage: state.Page.filters, currentPage: page),
-        PageButton(goToPage: state.Page.mappedDataSources, currentPage: page),
+        PageButton(goToPage: Page.connection, currentPage: page, onClick: onPageChanged),
+        PageButton(goToPage: Page.selectFields, currentPage: page, onClick: onPageChanged),
+        PageButton(goToPage: Page.orderByFields, currentPage: page, onClick: onPageChanged),
+        PageButton(goToPage: Page.filters, currentPage: page, onClick: onPageChanged),
+        PageButton(goToPage: Page.mappedDataSources, currentPage: page, onClick: onPageChanged),
       ],
     );
   }
 }
 
 class PageButton extends StatelessWidget{
-  PageButton({this.goToPage, this.currentPage});
-  final state.Page goToPage;
-  final state.Page currentPage;
+  PageButton({this.goToPage, this.currentPage, this.onClick});
+  final Page goToPage;
+  final Page currentPage;
+  final Function(Page newPage) onClick;
 
   Widget build(BuildContext context) {
-    var configState = BlocProvider.of<state.ConfigurationState>(context);
     String message;
     IconData icon;
     Color color;
 
     switch (goToPage){
-      case state.Page.connection:
+      case Page.connection:
         message = "Connection info";
         icon = Icons.format_list_bulleted;
         break;
-      case state.Page.selectFields:
+      case Page.selectFields:
         message = "Select fields";
         icon = Icons.table_chart;
         break;
-      case state.Page.orderByFields:
+      case Page.orderByFields:
         message = "Order by";
         icon = Icons.sort;
         break;
-      case state.Page.filters:
+      case Page.filters:
         message = "Map filters";
         icon = Icons.filter_list;
         break;
-      case state.Page.mappedDataSources:
+      case Page.mappedDataSources:
         message = "Map data sources";
         icon = Icons.file_download;
         break;
@@ -167,7 +190,7 @@ class PageButton extends StatelessWidget{
           color: color,
           icon: Icon(icon),
           onPressed: goToPage == currentPage ? null :
-            () async => await configState.goToPage(goToPage),
+            () => onClick(goToPage),
         ),
       ),
     );

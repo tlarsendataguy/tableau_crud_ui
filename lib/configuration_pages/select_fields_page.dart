@@ -1,63 +1,156 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:tableau_crud_ui/io/bloc_provider.dart';
-import 'package:tableau_crud_ui/io/configuration_state.dart';
-import 'package:tableau_crud_ui/configuration_pages/item_selector.dart';
 import 'package:tableau_crud_ui/io/settings.dart';
 
-class SelectFieldsPage extends StatelessWidget {
+class SelectFieldsPage extends StatefulWidget {
+  SelectFieldsPage({this.settings});
+  final Settings settings;
+
+  createState()=>_SelectFieldsPageState();
+}
+
+class _SelectFieldsPageState extends State<SelectFieldsPage> {
+
+  bool isLoading = true;
+  String error = '';
+  List<String> columns = [];
+
+  initState(){
+    super.initState();
+    widget.settings.tableColumns.forEach((element) => columns.add(element));
+  }
+
+  void addSelectField(String field) {
+    setState(()=>widget.settings.selectFields[field]=editNone);
+  }
+
+  void removeSelectField(String field) {
+    setState(()=>widget.settings.selectFields.remove(field));
+  }
+
+  void moveSelectFieldUp(String field){
+    var oldSelectFields = Map<String,String>.from(widget.settings.selectFields);
+    var fields = oldSelectFields.keys.toList();
+    var index = fields.indexOf(field);
+    if (index < 1) return;
+    index--;
+    fields.remove(field);
+    fields.insert(index, field);
+    var newSelectFields = Map<String,String>();
+    for (var field in fields){
+      newSelectFields[field] = oldSelectFields[field];
+    }
+    setState(()=>widget.settings.selectFields = newSelectFields);
+  }
+
+  void moveSelectFieldDown(String field){
+    var oldSelectFields = Map<String,String>.from(widget.settings.selectFields);
+    var fields = oldSelectFields.keys.toList();
+    var index = fields.indexOf(field);
+    if (index == -1 || index == fields.length-1) return;
+    index++;
+    fields.remove(field);
+    fields.insert(index, field);
+    var newSelectFields = Map<String,String>();
+    for (var field in fields){
+      newSelectFields[field] = oldSelectFields[field];
+    }
+    setState(()=>widget.settings.selectFields = newSelectFields);
+  }
+
   Widget build(BuildContext context) {
-    var state = BlocProvider.of<ConfigurationState>(context);
-    return ItemSelector<String>(
-      leftLabel: "Available fields:",
-      sourceStream: state.columnNames,
-      sourceItemBuilder: (context, sourceField){
-        return Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(sourceField),
-            ),
-            IconButton(
-              icon: Icon(Icons.arrow_forward),
-              onPressed: ()=>state.addSelectField(sourceField),
-            ),
-          ],
-        );
-      },
-      rightFlex: 2,
-      rightLabel: "Selected fields:",
-      selectorStream: state.selectFields,
-      selectorItemBuilder: (context, selectedField)=>SelectorCard(
+    if (isLoading) {
+      return Center(child: Text("Loading..."));
+    }
+    if (error != '') {
+      return Center(child: Text(error));
+    }
+
+    Widget buildSourceColumn(BuildContext context, int index) {
+      return Row(
+        children: <Widget>[
+          Expanded(
+            child: Text(columns[index]),
+          ),
+          IconButton(
+            icon: Icon(Icons.arrow_forward),
+            onPressed: ()=>addSelectField(columns[index]),
+          ),
+        ],
+      );
+    }
+
+    Widget buildSelectedField(BuildContext context, int index) {
+      var selectedFields = widget.settings.selectFields.keys.toList();
+      var selectedField = selectedFields[index];
+      return SelectorCard(
+        settings: widget.settings,
         selectedField: selectedField,
-      ),
+        onMoveFieldUp: moveSelectFieldUp,
+        onMoveFieldDown: moveSelectFieldDown,
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(
+          flex: 1,
+          child: Column(
+            children: [
+              Text("Available fields:"),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: columns.length,
+                  itemBuilder: buildSourceColumn,
+                ),
+              )
+            ],
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Column(
+            children: [
+              Text("Selected fields:"),
+              ListView.builder(
+                itemCount: widget.settings.selectFields.length,
+                itemBuilder: buildSelectedField,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
 
 class SelectorCard extends StatefulWidget {
-  SelectorCard({this.selectedField});
+  SelectorCard({this.settings, this.selectedField, this.onMoveFieldUp, this.onMoveFieldDown, this.onDeleteField});
+  final Settings settings;
   final String selectedField;
+  final Function(String) onMoveFieldUp;
+  final Function(String) onMoveFieldDown;
+  final Function(String) onDeleteField;
   State<StatefulWidget> createState() => _SelectorCardState();
 }
 
 class _SelectorCardState extends State<SelectorCard>{
+
+  String selectedEditMode() {
+    return getEditMode(widget.settings.selectFields[widget.selectedField]);
+  }
+
   Widget build(BuildContext context) {
-    var state = BlocProvider.of<ConfigurationState>(context);
-    var editMode = state.getSelectFieldEditMode(widget.selectedField);
     return Row(
       children: <Widget>[
         IconButton(
           icon: Icon(Icons.delete),
-          onPressed: () {
-            state.removeSelectField(widget.selectedField);
-            state.removePrimaryKeyField(widget.selectedField);
-          },
+          onPressed: ()=>widget.onDeleteField(widget.selectedField),
         ),
         Expanded(child: Text(widget.selectedField)),
         Tooltip(
           message: "The data type to use for inserting and updating values",
           child: DropdownButton(
-              value: getEditMode(editMode),
+              value: selectedEditMode(),
               items: [
                 DropdownMenuItem(value: editNone, child: Text(editNone)),
                 DropdownMenuItem(value: editText, child: Text(editText)),
@@ -72,62 +165,55 @@ class _SelectorCardState extends State<SelectorCard>{
                 if (newValue == editFixedList){
                   newValue = generateFixedList([]);
                 }
-                state.updateSelectFieldEditMode(widget.selectedField, newValue);
+                setState(()=>widget.settings.selectFields[widget.selectedField] = newValue);
               }
           ),
         ),
-        getEditMode(editMode) == editFixedList ?
+        selectedEditMode() == editFixedList ?
           IconButton(icon: Icon(Icons.tune), onPressed: fixedListPress(
+            settings: widget.settings,
             context: context,
             selectedField: widget.selectedField,
-            editMode: editMode,
+            editMode: selectedEditMode(),
           )) :
           Container(width: 48),
-        StreamBuilder(
-          stream: state.primaryKey,
-          builder: (context, AsyncSnapshot<List<String>> pkSnapshot){
-            if (!pkSnapshot.hasData){
-              return Container();
-            }
-            var pk = pkSnapshot.data;
-            return Tooltip(
-              message: "Field is part of the primary key?",
-              child: Row(
-                children: [
-                  Checkbox(
-                    value: pk.contains(widget.selectedField),
-                    onChanged: (newValue){
-                      if (newValue){
-                        state.addPrimaryKeyField(widget.selectedField);
-                      } else {
-                        state.removePrimaryKeyField(widget.selectedField);
-                      }
-                    },
-                  ),
-                  Text("PK"),
-                ],
+        Tooltip(
+          message: "Field is part of the primary key?",
+          child: Row(
+            children: [
+              Checkbox(
+                value: widget.settings.primaryKey.contains(widget.selectedField), // pk.contains(widget.selectedField),
+                onChanged: (newValue){
+                  if (newValue){
+                    setState(() => widget.settings.primaryKey.add(widget.selectedField));
+                  } else {
+                    setState(() => widget.settings.primaryKey.remove(widget.selectedField));
+                  }
+                },
               ),
-            );
-          },
+              Text("PK"),
+            ],
+          ),
         ),
         IconButton(
           icon: Icon(Icons.arrow_upward),
-          onPressed: ()=>state.moveSelectFieldUp(widget.selectedField),
+          onPressed: ()=>widget.onMoveFieldUp(widget.selectedField),
         ),
         IconButton(
           icon: Icon(Icons.arrow_downward),
-          onPressed: ()=>state.moveSelectFieldDown(widget.selectedField),
+          onPressed: ()=>widget.onMoveFieldDown(widget.selectedField),
         ),
       ],
     );
   }
 }
 
-Function fixedListPress({String selectedField, String editMode, BuildContext context}) {
+Function fixedListPress({Settings settings, String selectedField, String editMode, BuildContext context}) {
   return () async {
     await showDialog(
       context: context,
       builder: (context) => EditFixedListDialog(
+        settings: settings,
         selectedField: selectedField,
         editMode: editMode,
       ),
@@ -136,7 +222,8 @@ Function fixedListPress({String selectedField, String editMode, BuildContext con
 }
 
 class EditFixedListDialog extends StatefulWidget {
-  EditFixedListDialog({this.selectedField, this.editMode});
+  EditFixedListDialog({this.settings, this.selectedField, this.editMode});
+  final Settings settings;
   final String selectedField;
   final String editMode;
 
@@ -167,7 +254,6 @@ class _EditFixedListDialogState extends State<EditFixedListDialog> {
   }
 
   Widget build(BuildContext context) {
-    var state = BlocProvider.of<ConfigurationState>(context);
     return Dialog(
       child: Column(
         children: <Widget>[
@@ -251,10 +337,7 @@ class _EditFixedListDialogState extends State<EditFixedListDialog> {
                     child: Text("Save"),
                     onPressed: (){
                       var editMode = generateFixedList(items);
-                      state.updateSelectFieldEditMode(
-                        widget.selectedField,
-                        editMode,
-                      );
+                      widget.settings.selectFields[widget.selectedField] = editMode;
                       Navigator.of(context).pop();
                     },
                   ),

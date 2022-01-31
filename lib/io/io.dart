@@ -1,6 +1,12 @@
 import 'package:tableau_crud_ui/io/connection_data.dart';
 import 'package:tableau_crud_ui/io/settings.dart';
 
+class IoManager {
+  IoManager(this.db, this.tableau);
+  final DbIo db;
+  final TableauIo tableau;
+}
+
 abstract class DbIo {
   Future<String> testConnection(RequestData request);
   Future<String> insert(RequestData request);

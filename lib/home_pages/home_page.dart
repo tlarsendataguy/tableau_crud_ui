@@ -4,19 +4,45 @@ import 'dart:html';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/home_pages/data_entry_dialog.dart';
-import 'package:tableau_crud_ui/io/app_state.dart';
-import 'package:tableau_crud_ui/io/bloc_provider.dart';
 import 'package:tableau_crud_ui/home_pages/data_viewer.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
+import 'package:tableau_crud_ui/io/io.dart';
 import 'package:tableau_crud_ui/io/response_objects.dart';
+import 'package:tableau_crud_ui/io/settings.dart';
 import 'package:tableau_crud_ui/styling.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
+  Home(this.io);
+  final IoManager io;
+
+  createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+
+  bool loaded = false;
+  Settings settings;
+  String tableauContext = '';
+  int selectedRow = -1;
+
+  initState(){
+    super.initState();
+    loadTableau();
+  }
+
+  Future loadTableau() async {
+    tableauContext = await widget.io.tableau.getContext();
+    settings = await widget.io.tableau.getSettings();
+    setState((){});
+  }
+
   Widget build(BuildContext context) {
-    var state = BlocProvider.of<AppState>(context);
+    if (!loaded) {
+      return Center(child: Text("Loading..."));
+    }
 
     Widget configureButton = Container();
-    if (state.tableauContext == 'desktop'){
+    if (tableauContext == 'desktop'){
       configureButton = Tooltip(
         message: "Configure extension",
         child: IconButton(
@@ -36,11 +62,11 @@ class Home extends StatelessWidget {
               color: editIconColor,
             ),
             onPressed: () async {
-              var editModes = state.settings.selectFields;
+              var editModes = settings.selectFields;
               var initialValues = editModes.keys.map((e)=>null).toList();
               await showDialog(
-                  context: context,
-                  builder: (context) => DataEntryDialog(
+                context: context,
+                builder: (context) => DataEntryDialog(
                   editModes: editModes,
                   initialValues: initialValues,
                   onSubmit: state.insert,
@@ -129,8 +155,8 @@ class Home extends StatelessWidget {
                 await showDialog(
                   context: context,
                   builder: (context) => OkDialog(
-                    child: Text(error, softWrap: true),
-                    msgType: MsgType.Error),
+                      child: Text(error, softWrap: true),
+                      msgType: MsgType.Error),
                 );
               }
             },
@@ -185,8 +211,7 @@ class Home extends StatelessWidget {
 
 class PageSelector extends StatelessWidget {
   Widget build(BuildContext context) {
-    var state = BlocProvider.of<AppState>(context);
-    //return Container();
+
     return StreamBuilder(
       stream: state.data,
       builder: (context, AsyncSnapshot<QueryResults> snapshot){

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:tableau_crud_ui/io/bloc_provider.dart';
-import 'package:tableau_crud_ui/io/configuration_state.dart';
+import 'package:tableau_crud_ui/io/settings.dart';
 
 class ChooseColumnDialog extends StatefulWidget{
-  ChooseColumnDialog(this.header);
+  ChooseColumnDialog(this.header, this.settings);
   final String header;
+  final Settings settings;
   State<StatefulWidget> createState() => _ChooseColumnDialogState();
 }
 
@@ -12,7 +12,6 @@ class _ChooseColumnDialogState extends State<ChooseColumnDialog>{
   var selectedColumn = '';
 
   Widget build(BuildContext context) {
-    var state = BlocProvider.of<ConfigurationState>(context);
     return Dialog(
       child: Column(
         children: <Widget>[
@@ -24,21 +23,14 @@ class _ChooseColumnDialogState extends State<ChooseColumnDialog>{
                   children: [
                     Text(widget.header),
                     Expanded(
-                      child: StreamBuilder(
-                        stream: state.columnNames,
-                        builder: (context, AsyncSnapshot<List<String>> snapshot){
-                          if (!snapshot.hasData) {
-                            return Container();
-                          }
-                          return ListView(
-                            children: snapshot.data.map((e) =>
-                                FlatButton(
-                                  color: e == selectedColumn ? Colors.lightBlueAccent : null,
-                                  child: Text(e),
-                                  onPressed: ()=>setState(()=>selectedColumn=e),
-                                )).toList(),
-                          );
-                        },
+                      child: ListView(
+                        children: widget.settings.tableColumns.map((e) =>
+                          TextButton(
+                            style: TextButton.styleFrom(backgroundColor: e == selectedColumn ? Colors.lightBlueAccent : null),
+                            child: Text(e),
+                            onPressed: ()=>setState(()=>selectedColumn=e),
+                          ),
+                        ).toList(),
                       ),
                     ),
                   ],
@@ -51,11 +43,11 @@ class _ChooseColumnDialogState extends State<ChooseColumnDialog>{
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                FlatButton(
+                TextButton(
                   child: Text("Cancel"),
                   onPressed: ()=>Navigator.of(context).pop(""),
                 ),
-                RaisedButton(
+                ElevatedButton(
                   child: Text("Select"),
                   onPressed: selectedColumn == "" ?
                   null :

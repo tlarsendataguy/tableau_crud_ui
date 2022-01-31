@@ -17,6 +17,7 @@ const _fieldName = "fieldName";
 const _mapsTo = "mapsTo";
 const _defaultPageSize = "defaultPageSize";
 const _mappedDataSources = 'mappedDataSources';
+const _tableColumns = "tableColumns";
 
 const editNone = 'None';
 const editInteger = 'Integer';
@@ -44,22 +45,24 @@ class Settings {
         this.filters,
         this.defaultPageSize,
         this.mappedDataSources,
+        this.tableColumns,
       }
   );
 
-  final String server;
-  final String port;
-  final String username;
-  final String password;
-  final String database;
-  final String schema;
-  final String table;
-  final Map<String,String> selectFields;
-  final List<String> orderByFields;
-  final List<String> primaryKey;
-  final List<Filter> filters;
-  final int defaultPageSize;
-  final List<String> mappedDataSources;
+  String server;
+  String port;
+  String username;
+  String password;
+  String database;
+  String schema;
+  String table;
+  Map<String,String> selectFields;
+  List<String> orderByFields;
+  List<String> primaryKey;
+  List<Filter> filters;
+  int defaultPageSize;
+  List<String> mappedDataSources;
+  List<String> tableColumns;
 
   bool isEmpty() {
     return server == '' &&
@@ -105,6 +108,7 @@ class Settings {
       _filters: filters.map((e) => e.toJson()).toList(),
       _defaultPageSize: defaultPageSize,
       _mappedDataSources: mappedDataSources,
+      _tableColumns: tableColumns,
     };
     return jsonEncode(mapped);
   }
@@ -124,6 +128,7 @@ class Settings {
     var defaultPageSize = mapped.tryInt(_defaultPageSize);
     if (defaultPageSize == 0) defaultPageSize = 10;
     var mappedDataSources = mapped.tryStringList(_mappedDataSources);
+    var tableColumns = mapped.tryStringList(_tableColumns);
 
     var dynamicFilters = mapped.tryDynamicList(_filters);
     var filters = <Filter>[];
@@ -146,6 +151,7 @@ class Settings {
       filters: filters,
       defaultPageSize: defaultPageSize,
       mappedDataSources: mappedDataSources,
+      tableColumns: tableColumns,
     );
   }
 }

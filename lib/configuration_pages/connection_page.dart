@@ -1,63 +1,71 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:tableau_crud_ui/io/bloc_provider.dart';
-import 'package:tableau_crud_ui/io/configuration_state.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
+import 'package:tableau_crud_ui/io/get_metadata.dart';
+import 'package:tableau_crud_ui/io/io.dart';
+import 'package:tableau_crud_ui/io/parse_responses.dart';
+import 'package:tableau_crud_ui/io/settings.dart';
 
 class ConnectionPage extends StatefulWidget {
-  ConnectionPage({this.configState});
+  ConnectionPage({this.io, this.settings});
 
-  final ConfigurationState configState;
+  final IoManager io;
+  final Settings settings;
 
   State<StatefulWidget> createState() => _ConnectionPageState();
 }
 
 class _ConnectionPageState extends State<ConnectionPage> {
-  initState(){
-    super.initState();
-    _server = TextEditingController(text: widget.configState.server);
-    _port = TextEditingController(text: widget.configState.port);
-    _username = TextEditingController(text: widget.configState.username);
-    if (widget.configState.password.length > 0) {
-      _password = TextEditingController(text: "          ");
-    } else {
-      _password = TextEditingController(text: "");
-    }
-    _database = TextEditingController(text: widget.configState.database);
-    _schema = TextEditingController(text: widget.configState.schema);
-    _table = TextEditingController(text: widget.configState.table);
-    _server.addListener(_updateServer);
-    _port.addListener(_updatePort);
-    _username.addListener(_updateUsername);
-    _database.addListener(_updateDatabase);
-    _schema.addListener(_updateSchema);
-    _table.addListener(_updateTable);
+
+  void loadSettings() {
+    _server = TextEditingController(text: widget.settings.server);
+    _server.addListener(()=>updateServer);
+    _port = TextEditingController(text: widget.settings.port);
+    _username = TextEditingController(text: widget.settings.username);
+    _database = TextEditingController(text: widget.settings.database);
+    _schema = TextEditingController(text: widget.settings.schema);
+    _table = TextEditingController(text: widget.settings.table);
   }
 
-  void _updateServer() => widget.configState.server = _server.text;
-  void _updatePort() => widget.configState.port = _port.text;
-  void _updateUsername() => widget.configState.username = _username.text;
-  void _updateDatabase() => widget.configState.database = _database.text;
-  void _updateSchema() => widget.configState.schema = _schema.text;
-  void _updateTable() => widget.configState.table = _table.text;
+  void updateServer()=>widget.settings.server = _server.text;
+  void updatePort()=>widget.settings.port = _port.text;
+  void updateUsername()=>widget.settings.username = _username.text;
+  void updateDatabase()=>widget.settings.database = _database.text;
+  void updateSchema()=>widget.settings.schema = _schema.text;
+  void updateTable()=>widget.settings.table = _table.text;
 
-  dispose(){
-    _server.removeListener(_updateServer);
-    _port.removeListener(_updatePort);
-    _username.removeListener(_updateUsername);
-    _database.removeListener(_updateDatabase);
-    _schema.removeListener(_updateSchema);
-    _table.removeListener(_updateTable);
+  initState() {
+    super.initState();
+    loadSettings();
+  }
+
+  dispose() {
+    _server.removeListener(updateServer);
+    _port.removeListener(updatePort);
+    _username.removeListener(updateUsername);
+    _database.removeListener(updateDatabase);
+    _schema.removeListener(updateSchema);
+    _table.removeListener(updateTable);
     super.dispose();
   }
 
   TextEditingController _server;
   TextEditingController _port;
   TextEditingController _username;
-  TextEditingController _password;
+  String _password = '';
   TextEditingController _database;
   TextEditingController _schema;
   TextEditingController _table;
+
+  Future<String> testConnection() async {
+    var queryResult = await getMetadata(widget.io.db, widget.settings);
+    if (queryResult.hasError){
+      print(queryResult.error);
+    } else {
+      widget.settings.tableColumns = queryResult.data.columnNames;
+    }
+    return queryResult.error;
+  }
 
   Widget build(BuildContext context) {
     return ListView(
@@ -78,25 +86,24 @@ class _ConnectionPageState extends State<ConnectionPage> {
           onTap: () async {
             var newPassword = await showDialog(
               context: context,
-              builder: (context) => PasswordDialog(),
+              builder: (context) => PasswordDialog(widget.io.db),
             );
             if (newPassword == null) return;
             setState((){
               if (newPassword.length > 0){
-                _password.text = "          ";
+                _password = "**********";
               } else {
-                _password.text = "";
+                _password = "";
               }
-              widget.configState.password = newPassword;
+              widget.settings.password = newPassword;
             });
           },
           child: IgnorePointer(
-            child: TextField(
-              enabled: false,
-              readOnly: true,
-              controller: _password,
-              decoration: InputDecoration(labelText: "Password"),
-              obscureText: true,
+            child: InputDecorator(
+              child: Text(_password),
+              decoration: InputDecoration(
+                labelText: "Password",
+              ),
             ),
           ),
         ),
@@ -119,7 +126,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
               context: context,
               builder: (context) => LoadingDialog(message: "Testing connection..."),
             );
-            var error = await widget.configState.testConnection();
+            var error = await testConnection();
             Navigator.of(context).pop();
             if (error == ""){
               await showDialog(
@@ -146,11 +153,12 @@ class _ConnectionPageState extends State<ConnectionPage> {
 }
 
 class PasswordDialog extends StatelessWidget {
+  PasswordDialog(this.dbIo);
+  final DbIo dbIo;
 
   final TextEditingController _controller = TextEditingController(text: "");
 
   Widget build(BuildContext context) {
-    var state = BlocProvider.of<ConfigurationState>(context);
     return Dialog(
       child: Card(
         child: Padding(
@@ -172,7 +180,7 @@ class PasswordDialog extends StatelessWidget {
                   ),
                   ElevatedButton(
                     child: Text("Submit"),
-                    onPressed: () async => await onPasswordClick(context, state),
+                    onPressed: () async => await onPasswordClick(context),
                   ),
                 ],
               ),
@@ -183,7 +191,7 @@ class PasswordDialog extends StatelessWidget {
     );
   }
 
-  Future onPasswordClick(BuildContext context, ConfigurationState state) async {
+  Future onPasswordClick(BuildContext context) async {
     if (_controller.text == "") {
       Navigator.of(context).pop("");
       return;
@@ -192,7 +200,7 @@ class PasswordDialog extends StatelessWidget {
       context: context,
       builder: (context) => LoadingDialog(message: "encrypting password..."),
     );
-    var response = await state.encryptPassword(_controller.text);
+    var response = parsePassword(await dbIo.encryptPassword(_controller.text));
     Navigator.of(context).pop();
     if (response.hasError) {
       await showDialog(

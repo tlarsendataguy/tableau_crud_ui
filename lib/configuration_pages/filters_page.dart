@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:tableau_crud_ui/io/bloc_provider.dart';
 import 'package:tableau_crud_ui/configuration_pages/choose_column_dialog.dart';
-import 'package:tableau_crud_ui/io/configuration_state.dart';
 import 'package:tableau_crud_ui/io/io.dart';
 import 'package:tableau_crud_ui/io/settings.dart';
 
 class FiltersPage extends StatefulWidget {
+  FiltersPage({this.tableauIo, this.settings});
+  final Settings settings;
+  final TableauIo tableauIo;
+
   createState()=>_FiltersPageState();
 }
 
@@ -14,9 +16,48 @@ class _FiltersPageState extends State<FiltersPage> {
   String selectedWorksheet = '';
   List<TableauFilter> worksheetFilters = [];
   List<Parameter> parameters = [];
+  List<String> worksheets;
+  bool loaded = false;
+
+  initState(){
+    super.initState();
+    loadWorksheets();
+  }
+
+  Future loadWorksheets() async {
+    worksheets = await widget.tableauIo.getWorksheets();
+    setState(()=>loaded = true);
+  }
+
+  void addFilter({String worksheet, String fieldName, String mapsTo}) {
+    for (var filter in widget.settings.filters) {
+      if (filter.worksheet == worksheet && filter.fieldName == fieldName && filter.mapsTo == mapsTo) {
+        return;
+      }
+    }
+
+    widget.settings.filters.add(Filter(
+      worksheet: worksheet,
+      fieldName: fieldName,
+      mapsTo: mapsTo,
+    ));
+    setState((){});
+  }
+
+  void removeFilter({String worksheet, String fieldName, String mapsTo}) {
+    for (var i = widget.settings.filters.length-1; i > 0; i++) {
+      var filter = widget.settings.filters[i];
+      if (filter.worksheet == worksheet && filter.fieldName == fieldName && filter.mapsTo == mapsTo) {
+        widget.settings.filters.removeAt(i);
+      }
+    }
+    setState((){});
+  }
 
   Widget build(BuildContext context) {
-    var state = BlocProvider.of<ConfigurationState>(context);
+    if (!loaded) {
+      return Center(child: Text("Loading..."));
+    }
 
     return Row(
       children: <Widget>[
@@ -27,7 +68,7 @@ class _FiltersPageState extends State<FiltersPage> {
               Center(child: Text("Worksheets:")),
               Expanded(
                 child: ListView(
-                  children: state.worksheets.map((e) =>
+                  children: worksheets.map((e) =>
                       Card(
                         color: e == selectedWorksheet ? Colors.lightBlueAccent : null,
                         child: Padding(
@@ -40,7 +81,7 @@ class _FiltersPageState extends State<FiltersPage> {
                               IconButton(
                                 icon: Icon(Icons.arrow_forward),
                                 onPressed: () async {
-                                  worksheetFilters = await state.getFilters(e);
+                                  worksheetFilters = await widget.tableauIo.getFilters(e);
                                   setState(() {
                                     selectedWorksheet = e;
                                   });
@@ -82,9 +123,9 @@ class _FiltersPageState extends State<FiltersPage> {
                               IconButton(
                                 icon: Icon(Icons.arrow_forward),
                                 onPressed: () async {
-                                  var mapsTo = await showDialog(context: context, builder: (context) => ChooseColumnDialog("Filter on [${e.fieldName}] from worksheet [$selectedWorksheet] maps to:"));
+                                  var mapsTo = await showDialog(context: context, builder: (context) => ChooseColumnDialog("Filter on [${e.fieldName}] from worksheet [$selectedWorksheet] maps to:", widget.settings));
                                   if (mapsTo == '' || mapsTo == null) return;
-                                  state.addFilter(
+                                  addFilter(
                                     worksheet: selectedWorksheet,
                                     fieldName: e.fieldName,
                                     mapsTo: mapsTo,
@@ -107,40 +148,31 @@ class _FiltersPageState extends State<FiltersPage> {
             children: <Widget>[
               Center(child: Text("Mapped filters:")),
               Expanded(
-                child: StreamBuilder(
-                  stream: state.filters,
-                  builder: (context, AsyncSnapshot<List<Filter>> snapshot){
-                    if (!snapshot.hasData){
-                      return Container();
-                    }
-                    var filters = snapshot.data;
-                    return ListView(
-                      children: filters.map((e) =>
-                          Card(
-                            child: Padding(
-                              padding: EdgeInsets.all(8),
-                              child: Row(
-                                children: <Widget>[
-                                  IconButton(
-                                    icon: Icon(Icons.delete),
-                                    onPressed: (){
-                                      state.removeFilter(
-                                        worksheet: e.worksheet,
-                                        fieldName: e.fieldName,
-                                        mapsTo: e.mapsTo,
-                                      );
-                                    },
-                                  ),
-                                  Expanded(
-                                    child: Text("Filter on [${e.fieldName}] from worksheet [${e.worksheet}] maps to [${e.mapsTo}]"),
-                                  ),
-                                ],
+                child: ListView(
+                  children: widget.settings.filters.map((e) =>
+                      Card(
+                        child: Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Row(
+                            children: <Widget>[
+                              IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: (){
+                                  removeFilter(
+                                    worksheet: e.worksheet,
+                                    fieldName: e.fieldName,
+                                    mapsTo: e.mapsTo,
+                                  );
+                                },
                               ),
-                            ),
+                              Expanded(
+                                child: Text("Filter on [${e.fieldName}] from worksheet [${e.worksheet}] maps to [${e.mapsTo}]"),
+                              ),
+                            ],
                           ),
-                      ).toList(),
-                    );
-                  },
+                        ),
+                      ),
+                  ).toList(),
                 ),
               ),
             ],
