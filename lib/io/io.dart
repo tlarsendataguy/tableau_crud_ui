@@ -85,6 +85,7 @@ var mockSettings = Settings(
   orderByFields: ['id'],
   primaryKey: ['id'],
   filters: [Filter(worksheet: 'test worksheet', fieldName: 'test field', mapsTo: 'category'),Filter(parameterName: 'test parameter', mapsTo: 'type of record')],
+  tableColumns: ['id', 'category', 'amount', 'date', 'comment', 'is true']
 );
 
 class TableauMockIo extends TableauIo {

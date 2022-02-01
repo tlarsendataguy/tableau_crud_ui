@@ -34,7 +34,6 @@ class _HomeState extends State<Home> {
   initState(){
     super.initState();
     loadTableau();
-    setFilterChangeCallbacks();
   }
 
   dispose(){
@@ -45,6 +44,8 @@ class _HomeState extends State<Home> {
   Future loadTableau() async {
     tableauContext = await widget.io.tableau.getContext();
     settings = await widget.io.tableau.getSettings();
+    setFilterChangeCallbacks();
+    loaded = true;
     await readTable();
   }
 

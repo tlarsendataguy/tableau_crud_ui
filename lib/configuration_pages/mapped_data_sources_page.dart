@@ -13,7 +13,7 @@ class MappedDataSourcesPage extends StatefulWidget {
 
 class _MappedDataSourcesPageState extends State<MappedDataSourcesPage> {
 
-  Map<String, String> dataSources;
+  Map<String, String> dataSources = {};
   List<String> availableDataSources;
   bool loaded = false;
 
@@ -35,13 +35,13 @@ class _MappedDataSourcesPageState extends State<MappedDataSourcesPage> {
   }
 
   void removeDataSource(String dataSourceId) {
-    availableDataSources.clear();
-    loadAvailableDataSources();
     widget.settings.mappedDataSources.remove(dataSourceId);
+    loadAvailableDataSources();
     setState((){});
   }
 
   void loadAvailableDataSources() {
+    availableDataSources = [];
     for (var dataSource in dataSources.keys) {
       if (widget.settings.mappedDataSources.contains(dataSource)) {
         continue;
@@ -62,11 +62,11 @@ class _MappedDataSourcesPageState extends State<MappedDataSourcesPage> {
         if (dataSourceName == null) dataSourceName = 'Invalid';
         return Row(
           children: <Widget>[
-            Expanded(child: Text("$dataSourceId: $dataSourceName")),
             IconButton(
-              icon: Icon(Icons.arrow_forward),
+              icon: Icon(Icons.add),
               onPressed: ()=>addDataSource(dataSourceId),
             ),
+            Expanded(child: Text("$dataSourceId: $dataSourceName")),
           ],
         );
       },

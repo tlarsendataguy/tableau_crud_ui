@@ -10,21 +10,37 @@ class SelectFieldsPage extends StatefulWidget {
 
 class _SelectFieldsPageState extends State<SelectFieldsPage> {
 
-  bool isLoading = true;
   String error = '';
   List<String> columns = [];
+  ScrollController leftScroll = ScrollController();
+  ScrollController rightScroll = ScrollController();
 
   initState(){
     super.initState();
-    widget.settings.tableColumns.forEach((element) => columns.add(element));
+    loadAvailableColumns();
+  }
+
+  void loadAvailableColumns() {
+    columns = [];
+    var selectFields = widget.settings.selectFields.keys.toList();
+    for (var column in widget.settings.tableColumns) {
+      if (selectFields.contains(column)) {
+        continue;
+      }
+      columns.add(column);
+    }
   }
 
   void addSelectField(String field) {
-    setState(()=>widget.settings.selectFields[field]=editNone);
+    widget.settings.selectFields[field]=editNone;
+    loadAvailableColumns();
+    setState((){});
   }
 
   void removeSelectField(String field) {
-    setState(()=>widget.settings.selectFields.remove(field));
+    widget.settings.selectFields.remove(field);
+    loadAvailableColumns();
+    setState((){});
   }
 
   void moveSelectFieldUp(String field){
@@ -58,9 +74,6 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
   }
 
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return Center(child: Text("Loading..."));
-    }
     if (error != '') {
       return Center(child: Text(error));
     }
@@ -68,12 +81,12 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
     Widget buildSourceColumn(BuildContext context, int index) {
       return Row(
         children: <Widget>[
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: ()=>addSelectField(columns[index]),
+          ),
           Expanded(
             child: Text(columns[index]),
-          ),
-          IconButton(
-            icon: Icon(Icons.arrow_forward),
-            onPressed: ()=>addSelectField(columns[index]),
           ),
         ],
       );
@@ -87,10 +100,11 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
         selectedField: selectedField,
         onMoveFieldUp: moveSelectFieldUp,
         onMoveFieldDown: moveSelectFieldDown,
+        onDeleteField: removeSelectField,
       );
     }
 
-    return Row(
+    return Column(
       children: [
         Expanded(
           flex: 1,
@@ -99,6 +113,7 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
               Text("Available fields:"),
               Expanded(
                 child: ListView.builder(
+                  controller: leftScroll,
                   itemCount: columns.length,
                   itemBuilder: buildSourceColumn,
                 ),
@@ -107,13 +122,16 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
           ),
         ),
         Expanded(
-          flex: 2,
+          flex: 1,
           child: Column(
             children: [
               Text("Selected fields:"),
-              ListView.builder(
-                itemCount: widget.settings.selectFields.length,
-                itemBuilder: buildSelectedField,
+              Expanded(
+                child: ListView.builder(
+                  controller: rightScroll,
+                  itemCount: widget.settings.selectFields.length,
+                  itemBuilder: buildSelectedField,
+                ),
               ),
             ],
           ),

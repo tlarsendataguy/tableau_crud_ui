@@ -10,7 +10,6 @@ class OrderByFieldsPage extends StatefulWidget {
 }
 
 class _OrderByFieldsPageState extends State<OrderByFieldsPage> {
-
   List<String> availableFields;
 
   initState(){
@@ -19,6 +18,7 @@ class _OrderByFieldsPageState extends State<OrderByFieldsPage> {
   }
 
   void loadAvailableFields() {
+    availableFields = [];
     for (var field in widget.settings.tableColumns) {
       if (widget.settings.orderByFields.contains(field)) {
         continue;
@@ -59,12 +59,12 @@ class _OrderByFieldsPageState extends State<OrderByFieldsPage> {
       sourceItemBuilder: (context, sourceField){
         return Row(
           children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: ()=>setState(()=>addField(sourceField)),
+            ),
             Expanded(
               child: Text(sourceField),
-            ),
-            IconButton(
-              icon: Icon(Icons.arrow_forward),
-              onPressed: ()=>setState(()=>addField(sourceField)),
             ),
           ],
         );

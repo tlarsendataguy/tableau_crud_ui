@@ -12,6 +12,8 @@ class ItemSelector<T> extends StatelessWidget {
   final String rightLabel;
   final int leftFlex;
   final int rightFlex;
+  final ScrollController leftController = ScrollController();
+  final ScrollController rightController = ScrollController();
 
   Widget build(BuildContext context) {
     return Row(
@@ -23,6 +25,7 @@ class ItemSelector<T> extends StatelessWidget {
               Center(child: Text(leftLabel)),
               Expanded(
                 child: ListView(
+                  controller: leftController,
                   children: sourceList.map((sourceItem) =>
                       Card(
                         child: Padding(
@@ -40,6 +43,7 @@ class ItemSelector<T> extends StatelessWidget {
                     Center(child: Text(rightLabel)),
                     Expanded(
                       child: ListView(
+                        controller: rightController,
                         children: selectorList.map((sourceItem) =>
                             Card(
                               child: Padding(

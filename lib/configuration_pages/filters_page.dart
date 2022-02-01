@@ -18,6 +18,10 @@ class _FiltersPageState extends State<FiltersPage> {
   List<Parameter> parameters = [];
   List<String> worksheets;
   bool loaded = false;
+  ScrollController worksheetsScroll = ScrollController();
+  ScrollController parametersScroll = ScrollController();
+  ScrollController worksheetFiltersScroll = ScrollController();
+  ScrollController mappedScroll = ScrollController();
 
   initState(){
     super.initState();
@@ -45,7 +49,7 @@ class _FiltersPageState extends State<FiltersPage> {
   }
 
   void removeFilter({String worksheet, String fieldName, String mapsTo}) {
-    for (var i = widget.settings.filters.length-1; i > 0; i++) {
+    for (var i = widget.settings.filters.length-1; i >= 0; i--) {
       var filter = widget.settings.filters[i];
       if (filter.worksheet == worksheet && filter.fieldName == fieldName && filter.mapsTo == mapsTo) {
         widget.settings.filters.removeAt(i);
@@ -59,46 +63,94 @@ class _FiltersPageState extends State<FiltersPage> {
       return Center(child: Text("Loading..."));
     }
 
-    return Row(
-      children: <Widget>[
+    return Column(
+      children: [
         Expanded(
           flex: 1,
-          child: Column(
+          child: Row(
             children: <Widget>[
-              Center(child: Text("Worksheets:")),
               Expanded(
-                child: ListView(
-                  children: worksheets.map((e) =>
-                      Card(
-                        color: e == selectedWorksheet ? Colors.lightBlueAccent : null,
-                        child: Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: Text(e),
+                flex: 1,
+                child: Column(
+                  children: <Widget>[
+                    Center(child: Text("Worksheets:")),
+                    Expanded(
+                      child: ListView(
+                        controller: worksheetsScroll,
+                        children: worksheets.map((e) =>
+                            Card(
+                              color: e == selectedWorksheet ? Colors.lightBlueAccent : null,
+                              child: Padding(
+                                padding: EdgeInsets.all(8),
+                                child: Row(
+                                  children: <Widget>[
+                                    Expanded(
+                                      child: Text(e),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.arrow_forward),
+                                      onPressed: () async {
+                                        worksheetFilters = await widget.tableauIo.getFilters(e);
+                                        setState(() {
+                                          selectedWorksheet = e;
+                                        });
+                                      },
+                                    )
+                                  ],
+                                ),
                               ),
-                              IconButton(
-                                icon: Icon(Icons.arrow_forward),
-                                onPressed: () async {
-                                  worksheetFilters = await widget.tableauIo.getFilters(e);
-                                  setState(() {
-                                    selectedWorksheet = e;
-                                  });
-                                },
-                              )
-                            ],
-                          ),
-                        ),
+                            ),
+                        ).toList(),
                       ),
-                  ).toList(),
+                    ),
+                    SizedBox(height: 8),
+                    Center(child: Text('Parameters:')),
+                    Expanded(
+                      child: ListView(
+                        controller: parametersScroll,
+                        children: [],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: 8),
-              Center(child: Text('Parameters:')),
               Expanded(
-                child: ListView(
-                  children: [],
+                flex: 1,
+                child: Column(
+                  children: <Widget>[
+                    Center(child: Text("Worksheet filters:")),
+                    Expanded(
+                      child: ListView(
+                        controller: worksheetFiltersScroll,
+                        children: worksheetFilters.map((e) =>
+                            Card(
+                              child: Padding(
+                                padding: EdgeInsets.all(8),
+                                child: Row(
+                                  children: <Widget>[
+                                    IconButton(
+                                      icon: Icon(Icons.add),
+                                      onPressed: () async {
+                                        var mapsTo = await showDialog(context: context, builder: (context) => ChooseColumnDialog("Filter on [${e.fieldName}] from worksheet [$selectedWorksheet] maps to:", widget.settings));
+                                        if (mapsTo == '' || mapsTo == null) return;
+                                        addFilter(
+                                          worksheet: selectedWorksheet,
+                                          fieldName: e.fieldName,
+                                          mapsTo: mapsTo,
+                                        );
+                                      },
+                                    ),
+                                    Expanded(
+                                      child: Text(e.fieldName),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ).toList(),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -106,49 +158,12 @@ class _FiltersPageState extends State<FiltersPage> {
         ),
         Expanded(
           flex: 1,
-          child: Column(
-            children: <Widget>[
-              Center(child: Text("Worksheet filters:")),
-              Expanded(
-                child: ListView(
-                  children: worksheetFilters.map((e) =>
-                      Card(
-                        child: Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: Text(e.fieldName),
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.arrow_forward),
-                                onPressed: () async {
-                                  var mapsTo = await showDialog(context: context, builder: (context) => ChooseColumnDialog("Filter on [${e.fieldName}] from worksheet [$selectedWorksheet] maps to:", widget.settings));
-                                  if (mapsTo == '' || mapsTo == null) return;
-                                  addFilter(
-                                    worksheet: selectedWorksheet,
-                                    fieldName: e.fieldName,
-                                    mapsTo: mapsTo,
-                                  );
-                                },
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                  ).toList(),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          flex: 2,
           child: Column(
             children: <Widget>[
               Center(child: Text("Mapped filters:")),
               Expanded(
                 child: ListView(
+                  controller: mappedScroll,
                   children: widget.settings.filters.map((e) =>
                       Card(
                         child: Padding(
