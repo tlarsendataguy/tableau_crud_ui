@@ -46,7 +46,6 @@ class _HomeState extends State<Home> {
     tableauContext = await widget.io.tableau.getContext();
     settings = await widget.io.tableau.getSettings();
     await readTable();
-    setState((){});
   }
 
   void setFilterChangeCallbacks() {
@@ -228,6 +227,18 @@ class _HomeState extends State<Home> {
     setState(()=>selectedRow = newRow);
   }
 
+  Future updateSettings() async {
+    setState(()=>loaded = false);
+    widget.io.tableau.unregisterFilterChangedOnAll();
+    settings = await widget.io.tableau.getSettings();
+
+    loaded = true;
+    if (!settings.isEmpty()){
+      readTable();
+      setFilterChangeCallbacks();
+    }
+  }
+
   Widget build(BuildContext context) {
     if (!loaded) {
       return Center(child: Text("Loading..."));
@@ -242,7 +253,10 @@ class _HomeState extends State<Home> {
         message: "Configure extension",
         child: IconButton(
           icon: Icon(Icons.settings),
-          onPressed: ()=>Navigator.of(context).pushNamed("/configure"),
+          onPressed: () async {
+            await Navigator.of(context).pushNamed("/configure");
+            await updateSettings();
+          },
         ),
       );
     }
