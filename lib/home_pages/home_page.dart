@@ -242,10 +242,20 @@ class _HomeState extends State<Home> {
 
   Widget build(BuildContext context) {
     if (!loaded) {
-      return Center(child: Text("Loading..."));
+      return Material(
+        color: backgroundColor,
+        child: Center(
+          child: Text("Loading..."),
+        ),
+      );
     }
     if (readingTable) {
-      return Center(child: Text("Reading data..."));
+      return Material(
+        color: backgroundColor,
+        child: Center(
+            child: Text("Reading data..."),
+        ),
+      );
     }
 
     Widget configureButton = Container();

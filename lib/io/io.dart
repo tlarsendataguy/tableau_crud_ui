@@ -53,7 +53,7 @@ class DbMockSuccessIo extends DbIo {
   Future<String> delete(RequestData request) async =>
       '{"Success":true,"Data":1}';
   Future<String> read(RequestData request) async =>
-      '{"Success":true,"Data":{"ColumnNames":["id","category","amount","date","comment","is true"],"RowCount":2,"Data":[[1,13,14],["blah","something",null],[123.2,64.02,null],["2020-01-13T00:00:00Z","2020-02-03T00:00:00Z",null],["hello world","You are my sunshine",null],[true,false,null]],"TotalRowCount":20}}';
+      '{"Success":true,"Data":{"ColumnNames":["id","category","amount","date","comment","is true","long text"],"RowCount":2,"Data":[[1,13,14],["blah","something",null],[123.2,64.02,null],["2020-01-13T00:00:00Z","2020-02-03T00:00:00Z",null],["hello world","You are my sunshine",null],[true,false,null],["The rain in Spain stays mainly on the plain","",""]],"TotalRowCount":20}}';
   Future<String> encryptPassword(String password) async =>
       '{"Success":true,"Data":"I am encrypted!"}';
 }
@@ -85,7 +85,7 @@ var mockSettings = Settings(
   orderByFields: ['id'],
   primaryKey: ['id'],
   filters: [Filter(worksheet: 'test worksheet', fieldName: 'test field', mapsTo: 'category'),Filter(parameterName: 'test parameter', mapsTo: 'type of record')],
-  tableColumns: ['id', 'category', 'amount', 'date', 'comment', 'is true']
+  tableColumns: ['id', 'category', 'amount', 'date', 'comment', 'is true', 'long text']
 );
 
 class TableauMockIo extends TableauIo {

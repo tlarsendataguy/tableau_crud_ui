@@ -11,6 +11,7 @@ class DataViewer extends StatelessWidget {
   final Function(int selectedRow) onSelectRow;
 
   final ScrollController horizontalScroller = ScrollController();
+  final ScrollController verticalScroller = ScrollController();
 
   Widget build(BuildContext context) {
     var headerHeight = 20.0;
@@ -91,22 +92,36 @@ class DataViewer extends StatelessWidget {
     }
 
     return Scrollbar(
-      controller: horizontalScroller,
+      thickness: 10,
+      isAlwaysShown: true,
+      controller: verticalScroller,
       child: SingleChildScrollView(
         scrollDirection: Axis.vertical,
-        child: Stack(
-          children: <Widget>[
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              controller: horizontalScroller,
-              child: Row(
-                children: columns,
+        controller: verticalScroller,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 12, 0),
+          child: Stack(
+            children: <Widget>[
+              Scrollbar(
+                thickness: 10,
+                isAlwaysShown: true,
+                controller: horizontalScroller,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  controller: horizontalScroller,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+                    child: Row(
+                      children: columns,
+                    ),
+                  ),
+                ),
               ),
-            ),
-            Column(
-              children: selectionRows,
-            ),
-          ],
+              Column(
+                children: selectionRows,
+              ),
+            ],
+          ),
         ),
       ),
     );

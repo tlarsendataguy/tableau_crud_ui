@@ -3,7 +3,7 @@ import 'package:tableau_crud_ui/io/settings.dart';
 
 main(){
   test("Test from and to JSON",(){
-    var jsonSettings = '{"server":"127.0.0.1","port":"1433","username":"user","password":"12345","database":"mydb","schema":"dbo","table":"test","selectFields":{"field1":"None","field2":"Text"},"orderByFields":["field1"],"primaryKey":["field1"],"filters":[{"worksheet":"sheet1","fieldName":"SomeField","mapsTo":"field1"}],"defaultPageSize":10,"mappedDataSources":[]}';
+    var jsonSettings = '{"server":"127.0.0.1","port":"1433","username":"user","password":"12345","database":"mydb","schema":"dbo","table":"test","selectFields":{"field1":"None","field2":"Text"},"orderByFields":["field1"],"primaryKey":["field1"],"filters":[{"worksheet":"sheet1","fieldName":"SomeField","mapsTo":"field1"}],"defaultPageSize":10,"mappedDataSources":[],"tableColumns":[]}';
     var settings = Settings.fromJson(jsonSettings);
     expect(settings.toJson(), equals(jsonSettings));
   });
@@ -32,7 +32,7 @@ main(){
     var jsonSettings = '{}';
     var settings = Settings.fromJson(jsonSettings);
     expect(settings.isEmpty(), isTrue);
-    expect(settings.toJson(), equals('{"server":"","port":"","username":"","password":"","database":"","schema":"","table":"","selectFields":{},"orderByFields":[],"primaryKey":[],"filters":[],"defaultPageSize":10,"mappedDataSources":[]}'));
+    expect(settings.toJson(), equals('{"server":"","port":"","username":"","password":"","database":"","schema":"","table":"","selectFields":{},"orderByFields":[],"primaryKey":[],"filters":[],"defaultPageSize":10,"mappedDataSources":[],"tableColumns":[]}'));
     expect(settings.defaultPageSize, equals(10));
   });
 
