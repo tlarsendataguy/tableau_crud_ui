@@ -9,7 +9,7 @@ extension RetrieveCastedValues on Map<String, dynamic> {
   List<dynamic> tryDynamicList(String key) => tryCast(this[key], []);
   List<String> tryStringList(String key){
     var dynamicList = this.tryDynamicList(key);
-    var stringList = List<String>();
+    var stringList = <String>[];
     for (var item in dynamicList){
       if (item is String){
         stringList.add(item);
