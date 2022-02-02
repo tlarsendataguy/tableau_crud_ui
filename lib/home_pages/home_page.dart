@@ -42,6 +42,11 @@ class _HomeState extends State<Home> {
     settings = await widget.io.tableau.getSettings();
     setFilterChangeCallbacks();
     loaded = true;
+    if (settings.isEmpty()) {
+      data = QueryResults(columnNames: [], data: [], totalRowCount: 0);
+      setState((){});
+      return;
+    }
     await readTable();
   }
 

@@ -102,6 +102,26 @@ class Settings {
     return errors.join(", ");
   }
 
+  void copyFrom(Settings other){
+    server = other.server;
+    port = other.port;
+    username = other.username;
+    password = other.password;
+    database = other.database;
+    schema = other.schema;
+    table = other.table;
+    selectFields = other.selectFields;
+    orderByFields = other.orderByFields;
+    primaryKey = other.primaryKey;
+    filters = other.filters;
+    defaultPageSize = other.defaultPageSize;
+    mappedDataSources = other.mappedDataSources;
+    tableColumns = other.tableColumns;
+    enableInsert = other.enableInsert;
+    enableUpdate = other.enableUpdate;
+    enableDelete = other.enableDelete;
+  }
+
   String toJson() {
     var mapped = <String, dynamic>{
       _server: server,

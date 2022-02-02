@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/configuration_pages/connection_page.dart';
 import 'package:tableau_crud_ui/configuration_pages/general_settings_page.dart';
+import 'package:tableau_crud_ui/configuration_pages/import_export_page.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
 import 'package:tableau_crud_ui/configuration_pages/filters_page.dart';
 import 'package:tableau_crud_ui/configuration_pages/mapped_data_sources_page.dart';
@@ -17,6 +18,7 @@ enum Page {
   filters,
   mappedDataSources,
   general,
+  importExport,
 }
 class ConfigurationPage extends StatefulWidget{
   ConfigurationPage(this.io);
@@ -71,6 +73,9 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
       case Page.general:
         content = GeneralSettingsPage(settings: settings);
         break;
+      case Page.importExport:
+        content = ImportExportPage(settings: settings);
+        break;
       default:
         content = Center(child: Text("Invalid page"));
     }
@@ -104,9 +109,11 @@ class ConfigurationPageButtons extends StatelessWidget {
   final Function(Page newPage) onPageChanged;
   final IoManager io;
   final Settings settings;
+  final listScroll = ScrollController();
 
   Widget build(BuildContext context) {
     return ListView(
+      controller: listScroll,
       children: [
         Tooltip(
           message: 'Save settings and go back',
@@ -145,6 +152,8 @@ class ConfigurationPageButtons extends StatelessWidget {
         PageButton(goToPage: Page.orderByFields, currentPage: page, onClick: onPageChanged),
         PageButton(goToPage: Page.filters, currentPage: page, onClick: onPageChanged),
         PageButton(goToPage: Page.mappedDataSources, currentPage: page, onClick: onPageChanged),
+        Container(height: 40),
+        PageButton(goToPage: Page.importExport, currentPage: page, onClick: onPageChanged),
       ],
     );
   }
@@ -186,6 +195,9 @@ class PageButton extends StatelessWidget{
         message = "General settings";
         icon = Icons.settings;
         break;
+      case Page.importExport:
+        message = "Import/export settings";
+        icon = Icons.import_export;
     }
 
     return Tooltip(
