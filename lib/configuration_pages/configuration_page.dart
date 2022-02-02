@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/configuration_pages/connection_page.dart';
+import 'package:tableau_crud_ui/configuration_pages/general_settings_page.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
 import 'package:tableau_crud_ui/configuration_pages/filters_page.dart';
 import 'package:tableau_crud_ui/configuration_pages/mapped_data_sources_page.dart';
@@ -14,7 +15,8 @@ enum Page {
   selectFields,
   orderByFields,
   filters,
-  mappedDataSources
+  mappedDataSources,
+  general,
 }
 class ConfigurationPage extends StatefulWidget{
   ConfigurationPage(this.io);
@@ -25,7 +27,7 @@ class ConfigurationPage extends StatefulWidget{
 
 class _ConfigurationPageState extends State<ConfigurationPage> {
 
-  Page currentPage = Page.connection;
+  Page currentPage = Page.general;
   Settings settings;
   bool isLoading = true;
 
@@ -65,6 +67,9 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
         break;
       case Page.mappedDataSources:
         content = MappedDataSourcesPage(tableauIo: widget.io.tableau, settings: settings);
+        break;
+      case Page.general:
+        content = GeneralSettingsPage(settings: settings);
         break;
       default:
         content = Center(child: Text("Invalid page"));
@@ -134,6 +139,7 @@ class ConfigurationPageButtons extends StatelessWidget {
           ),
         ),
         Container(height: 40),
+        PageButton(goToPage: Page.general, currentPage: page, onClick: onPageChanged),
         PageButton(goToPage: Page.connection, currentPage: page, onClick: onPageChanged),
         PageButton(goToPage: Page.selectFields, currentPage: page, onClick: onPageChanged),
         PageButton(goToPage: Page.orderByFields, currentPage: page, onClick: onPageChanged),
@@ -175,6 +181,10 @@ class PageButton extends StatelessWidget{
       case Page.mappedDataSources:
         message = "Map data sources";
         icon = Icons.file_download;
+        break;
+      case Page.general:
+        message = "General settings";
+        icon = Icons.settings;
         break;
     }
 

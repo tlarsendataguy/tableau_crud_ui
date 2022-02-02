@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/home_pages/data_entry_dialog.dart';
 import 'package:tableau_crud_ui/home_pages/data_viewer.dart';
@@ -26,7 +23,6 @@ class _HomeState extends State<Home> {
   Settings settings;
   String tableauContext = '';
   int selectedRow = -1;
-  int pageSize = 10;
   int page = 1;
   int totalPages = 0;
   QueryResults data;
@@ -148,7 +144,7 @@ class _HomeState extends State<Home> {
     var function = ReadFunction(
       fields: settings.selectFields.keys.toList(),
       orderBy: settings.orderByFields,
-      pageSize: pageSize,
+      pageSize: settings.defaultPageSize,
       page: page,
       whereClauses: await generateWheres(),
     );
@@ -161,7 +157,7 @@ class _HomeState extends State<Home> {
     if (queryResult.error != ''){
       print(queryResult.error);
     }
-    totalPages = (data.totalRowCount / pageSize).ceil();
+    totalPages = (data.totalRowCount / settings.defaultPageSize).ceil();
     setState(()=>readingTable = false);
     return queryResult.error;
   }
@@ -272,8 +268,9 @@ class _HomeState extends State<Home> {
       );
     }
 
-    var buttonBar = Row(
-      children: [
+    var buttonBarChildren = <Widget>[];
+    if (settings.enableInsert) {
+      buttonBarChildren.add(
         Tooltip(
           message: "Add record",
           child: IconButton(
@@ -295,6 +292,11 @@ class _HomeState extends State<Home> {
             },
           ),
         ),
+      );
+    }
+
+    if (settings.enableUpdate) {
+      buttonBarChildren.add(
         Tooltip(
           message: "Edit record",
           child: IconButton(
@@ -314,6 +316,11 @@ class _HomeState extends State<Home> {
             },
           ),
         ),
+      );
+    }
+
+    if (settings.enableDelete) {
+      buttonBarChildren.add(
         Tooltip(
           message: "Delete record",
           child: IconButton(
@@ -348,32 +355,39 @@ class _HomeState extends State<Home> {
             },
           ),
         ),
-        Tooltip(
-          message: "Refresh table",
-          child: IconButton(
-            icon: Icon(
-              Icons.refresh,
-              color: Colors.blue,
-            ),
-            onPressed: () async {
-              var error = await readTable();
-              if (error != ""){
-                await showDialog(
-                  context: context,
-                  builder: (context) => OkDialog(
-                      child: Text(error, softWrap: true),
-                      msgType: MsgType.Error),
-                );
-              }
-            },
+      );
+    }
+
+    buttonBarChildren.addAll([
+      Tooltip(
+        message: "Refresh table",
+        child: IconButton(
+          icon: Icon(
+            Icons.refresh,
+            color: Colors.blue,
           ),
+          onPressed: () async {
+            var error = await readTable();
+            if (error != ""){
+              await showDialog(
+                context: context,
+                builder: (context) => OkDialog(
+                    child: Text(error, softWrap: true),
+                    msgType: MsgType.Error),
+              );
+            }
+          },
         ),
-        Expanded(
-          child: Container(),
-        ),
-        PageSelector(onPageUpdated: pageUpdated, currentPage: page, totalPages: totalPages),
-        configureButton,
-      ],
+      ),
+      Expanded(
+        child: Container(),
+      ),
+      PageSelector(onPageUpdated: pageUpdated, currentPage: page, totalPages: totalPages),
+      configureButton,
+    ]);
+
+    var buttonBar = Row(
+      children: buttonBarChildren,
     );
 
     return Material(
