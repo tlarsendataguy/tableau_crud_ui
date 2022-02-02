@@ -80,4 +80,5 @@ class Parameter {
   external String get name;
   external String get dataType;
   external String get id;
+  external Function addEventListener(String eventType, dynamic handler);
 }

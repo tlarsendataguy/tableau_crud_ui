@@ -14,6 +14,7 @@ const _primaryKey = "primaryKey";
 const _filters = "filters";
 const _worksheet = "worksheet";
 const _fieldName = "fieldName";
+const _parameterName = "parameterName";
 const _mapsTo = "mapsTo";
 const _defaultPageSize = "defaultPageSize";
 const _mappedDataSources = 'mappedDataSources';
@@ -206,6 +207,7 @@ class Filter {
     return <String, dynamic>{
       _worksheet: worksheet,
       _fieldName: fieldName,
+      _parameterName: parameterName,
       _mapsTo: mapsTo,
     };
   }
@@ -213,11 +215,9 @@ class Filter {
   static Filter fromJson(Map<String, dynamic> jsonMap) {
     var worksheet = jsonMap.tryString(_worksheet);
     var fieldName = jsonMap.tryString(_fieldName);
+    var parameterName = jsonMap.tryString(_parameterName);
     var mapsTo = jsonMap.tryString(_mapsTo);
-    if ([worksheet, fieldName, mapsTo].contains("")) {
-      return null;
-    }
-    return Filter(worksheet: worksheet, fieldName: fieldName, mapsTo: mapsTo);
+    return Filter(worksheet: worksheet, fieldName: fieldName, parameterName: parameterName, mapsTo: mapsTo);
   }
 }
 

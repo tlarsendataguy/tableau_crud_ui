@@ -40,7 +40,7 @@ class _HomeState extends State<Home> {
   Future loadTableau() async {
     tableauContext = await widget.io.tableau.getContext();
     settings = await widget.io.tableau.getSettings();
-    setFilterChangeCallbacks();
+    await setFilterChangeCallbacks();
     loaded = true;
     if (settings.isEmpty()) {
       data = QueryResults(columnNames: [], data: [], totalRowCount: 0);
@@ -50,16 +50,28 @@ class _HomeState extends State<Home> {
     await readTable();
   }
 
-  void setFilterChangeCallbacks() {
-    var registerOn = <String>[];
+  Future setFilterChangeCallbacks() async {
+    var registerWorksheets = <String>[];
+    var registerParams = <String>[];
     for (var filter in settings.filters){
-      if (registerOn.contains(filter.worksheet)) continue;
-      registerOn.add(filter.worksheet);
+      if (registerWorksheets.contains(filter.worksheet)) continue;
+      if (registerParams.contains(filter.parameterName)) continue;
+
+      if (filter.parameterName != '') {
+        registerParams.add(filter.parameterName);
+      } else {
+        registerWorksheets.add(filter.worksheet);
+      }
     }
-    widget.io.tableau.registerFilterChangedOn(registerOn, filterChangeCallback);
+    widget.io.tableau.registerFilterChangedOn(registerWorksheets, filterChangeCallback);
+    await widget.io.tableau.registerParameterChangedOn(registerParams, parameterChangeCallback);
   }
 
   void filterChangeCallback(dynamic event){
+    readTable();
+  }
+
+  void parameterChangeCallback(dynamic event){
     readTable();
   }
 
@@ -170,6 +182,15 @@ class _HomeState extends State<Home> {
   Future<List<Where>> generateWheres() async {
     var wheres = <Where>[];
     for (var filter in settings.filters){
+      if (filter.parameterName != '') {
+        var tParam = await widget.io.tableau.getParameter(filter.parameterName);
+        if (tParam == null) {
+          continue;
+        }
+        wheres.add(WhereEqual(filter.mapsTo, tParam.value));
+        continue;
+      }
+
       var tFilters = await widget.io.tableau.getFilters(filter.worksheet);
       for (var tFilter in tFilters){
         if (tFilter.fieldName == filter.fieldName) {
@@ -197,6 +218,7 @@ class _HomeState extends State<Home> {
           }
         }
       }
+
     }
     return wheres;
   }

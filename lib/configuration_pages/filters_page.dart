@@ -15,7 +15,7 @@ class _FiltersPageState extends State<FiltersPage> {
 
   String selectedWorksheet = '';
   List<TableauFilter> worksheetFilters = [];
-  List<Parameter> parameters = [];
+  List<String> parameters = [];
   List<String> worksheets;
   bool loaded = false;
   ScrollController worksheetsScroll = ScrollController();
@@ -30,12 +30,13 @@ class _FiltersPageState extends State<FiltersPage> {
 
   Future loadWorksheets() async {
     worksheets = await widget.tableauIo.getWorksheets();
+    parameters = await widget.tableauIo.getParameters();
     setState(()=>loaded = true);
   }
 
-  void addFilter({String worksheet, String fieldName, String mapsTo}) {
+  void addFilter({String worksheet, String fieldName, String parameter, String mapsTo}) {
     for (var filter in widget.settings.filters) {
-      if (filter.worksheet == worksheet && filter.fieldName == fieldName && filter.mapsTo == mapsTo) {
+      if (filter.worksheet == worksheet && filter.parameterName == parameter && filter.fieldName == fieldName && filter.mapsTo == mapsTo) {
         return;
       }
     }
@@ -43,15 +44,16 @@ class _FiltersPageState extends State<FiltersPage> {
     widget.settings.filters.add(Filter(
       worksheet: worksheet,
       fieldName: fieldName,
+      parameterName: parameter,
       mapsTo: mapsTo,
     ));
     setState((){});
   }
 
-  void removeFilter({String worksheet, String fieldName, String mapsTo}) {
+  void removeFilter({String worksheet, String fieldName, String parameter, String mapsTo}) {
     for (var i = widget.settings.filters.length-1; i >= 0; i--) {
       var filter = widget.settings.filters[i];
-      if (filter.worksheet == worksheet && filter.fieldName == fieldName && filter.mapsTo == mapsTo) {
+      if (filter.worksheet == worksheet && filter.fieldName == fieldName && filter.parameterName == parameter && filter.mapsTo == mapsTo) {
         widget.settings.filters.removeAt(i);
       }
     }
@@ -78,28 +80,28 @@ class _FiltersPageState extends State<FiltersPage> {
                       child: ListView(
                         controller: worksheetsScroll,
                         children: worksheets.map((e) =>
-                            Card(
-                              color: e == selectedWorksheet ? Colors.lightBlueAccent : null,
-                              child: Padding(
-                                padding: EdgeInsets.all(8),
-                                child: Row(
-                                  children: <Widget>[
-                                    Expanded(
-                                      child: Text(e),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.arrow_forward),
-                                      onPressed: () async {
-                                        worksheetFilters = await widget.tableauIo.getFilters(e);
-                                        setState(() {
-                                          selectedWorksheet = e;
-                                        });
-                                      },
-                                    )
-                                  ],
-                                ),
+                          Card(
+                            color: e == selectedWorksheet ? Colors.lightBlueAccent : null,
+                            child: Padding(
+                              padding: EdgeInsets.all(8),
+                              child: Row(
+                                children: <Widget>[
+                                  Expanded(
+                                    child: Text(e),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.arrow_forward),
+                                    onPressed: () async {
+                                      worksheetFilters = await widget.tableauIo.getFilters(e);
+                                      setState(() {
+                                        selectedWorksheet = e;
+                                      });
+                                    },
+                                  )
+                                ],
                               ),
                             ),
+                          ),
                         ).toList(),
                       ),
                     ),
@@ -108,7 +110,33 @@ class _FiltersPageState extends State<FiltersPage> {
                     Expanded(
                       child: ListView(
                         controller: parametersScroll,
-                        children: [],
+                        children: parameters.map((e) =>
+                          Card(
+                            child: Padding(
+                              padding: EdgeInsets.all(8),
+                              child: Row(
+                                children: <Widget>[
+                                  IconButton(
+                                    icon: Icon(Icons.add),
+                                    onPressed: () async {
+                                      var mapsTo = await showDialog(context: context, builder: (context) => ChooseColumnDialog("Parameter [${e}] maps to:", widget.settings));
+                                      if (mapsTo == '' || mapsTo == null) return;
+                                      addFilter(
+                                        worksheet: '',
+                                        fieldName: '',
+                                        parameter: e,
+                                        mapsTo: mapsTo,
+                                      );
+                                    },
+                                  ),
+                                  Expanded(
+                                    child: Text(e),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ).toList(),
                       ),
                     ),
                   ],
@@ -136,6 +164,7 @@ class _FiltersPageState extends State<FiltersPage> {
                                         addFilter(
                                           worksheet: selectedWorksheet,
                                           fieldName: e.fieldName,
+                                          parameter: '',
                                           mapsTo: mapsTo,
                                         );
                                       },
@@ -176,12 +205,15 @@ class _FiltersPageState extends State<FiltersPage> {
                                   removeFilter(
                                     worksheet: e.worksheet,
                                     fieldName: e.fieldName,
+                                    parameter: e.parameterName,
                                     mapsTo: e.mapsTo,
                                   );
                                 },
                               ),
                               Expanded(
-                                child: Text("Filter on [${e.fieldName}] from worksheet [${e.worksheet}] maps to [${e.mapsTo}]"),
+                                child: e.parameterName != ''
+                                    ? Text("Parameter [${e.parameterName}] maps to [${e.mapsTo}]")
+                                    : Text("Filter on [${e.fieldName}] from worksheet [${e.worksheet}] maps to [${e.mapsTo}]"),
                               ),
                             ],
                           ),

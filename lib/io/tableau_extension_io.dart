@@ -11,11 +11,11 @@ class TableauExtensionIo extends TableauIo {
   Future initialize() async => await promiseToFuture(api.initializeAsync());
   Future<String> getContext() async => api.context;
 
-  Future<Map<String, String>> getParameters() async {
+  Future<List<String>> getParameters() async {
     var tParams = await promiseToFuture<List<api.Parameter>>(api.getParametersAsync());
-    Map<String, String> params;
+    List<String> params = [];
     for (var param in tParams) {
-      params[param.name] = param.name;
+      params.add(param.name);
     }
     return params;
   }
@@ -152,5 +152,14 @@ class TableauExtensionIo extends TableauIo {
       unregister();
     }
   }
-}
 
+  Future registerParameterChangedOn(List<String> parameters, Function(dynamic) callback) async {
+    var tParams = await promiseToFuture<List<api.Parameter>>(api.getParametersAsync());
+    for (var tParam in tParams){
+      if (parameters.contains(tParam.name)){
+        var interop = allowInterop((dynamic event){callback(event);});
+        _toUnregister.add(tParam.addEventListener('parameter-changed', interop));
+      }
+    }
+  }
+}

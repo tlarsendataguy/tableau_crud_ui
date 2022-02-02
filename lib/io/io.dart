@@ -21,13 +21,14 @@ abstract class TableauIo {
   Future<String> getContext();
   Future<Settings> getSettings();
   Future saveSettings(String settingsJson);
-  Future<Map<String, String>> getParameters();
+  Future<List<String>> getParameters();
   Future<Parameter> getParameter(String name);
   Future<List<String>> getWorksheets();
   Future<List<TableauFilter>> getFilters(String worksheet);
   Future<Map<String,String>> getAllDataSources();
   Future updateDataSources(List<String> ids);
   void registerFilterChangedOn(List<String> worksheets, Function(dynamic) callback);
+  Future registerParameterChangedOn(List<String> parameters, Function(dynamic) callback);
   void unregisterFilterChangedOnAll();
 }
 
@@ -114,8 +115,8 @@ class TableauMockIo extends TableauIo {
     _settings = Settings.fromJson(settingsJson);
   }
 
-  Future<Map<String,String>> getParameters() async {
-    return {"Param1": "ParamId1"};
+  Future<List<String>> getParameters() async {
+    return ["Param1"];
   }
 
   Future<Parameter> getParameter(String name) async {
@@ -156,6 +157,7 @@ class TableauMockIo extends TableauIo {
   Future updateDataSources(List<String> ids) async {}
 
   void registerFilterChangedOn(List<String> worksheets, Function callback){}
+  Future registerParameterChangedOn(List<String> worksheets, Function callback) async {}
   void unregisterFilterChangedOnAll(){}
 }
 
