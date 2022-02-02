@@ -18,6 +18,9 @@ const _mapsTo = "mapsTo";
 const _defaultPageSize = "defaultPageSize";
 const _mappedDataSources = 'mappedDataSources';
 const _tableColumns = "tableColumns";
+const _enableInsert = "enableInsert";
+const _enableUpdate = "enableUpdate";
+const _enableDelete = "enableDelete";
 
 const editNone = 'None';
 const editInteger = 'Integer';
@@ -46,6 +49,9 @@ class Settings {
         this.defaultPageSize,
         this.mappedDataSources,
         this.tableColumns,
+        this.enableInsert,
+        this.enableUpdate,
+        this.enableDelete,
       }
   );
 
@@ -63,6 +69,9 @@ class Settings {
   int defaultPageSize;
   List<String> mappedDataSources;
   List<String> tableColumns;
+  bool enableInsert;
+  bool enableUpdate;
+  bool enableDelete;
 
   bool isEmpty() {
     return server == '' &&
@@ -109,6 +118,9 @@ class Settings {
       _defaultPageSize: defaultPageSize,
       _mappedDataSources: mappedDataSources,
       _tableColumns: tableColumns,
+      _enableInsert: enableInsert,
+      _enableUpdate: enableUpdate,
+      _enableDelete: enableDelete,
     };
     return jsonEncode(mapped);
   }
@@ -129,6 +141,9 @@ class Settings {
     if (defaultPageSize == 0) defaultPageSize = 10;
     var mappedDataSources = mapped.tryStringList(_mappedDataSources);
     var tableColumns = mapped.tryStringList(_tableColumns);
+    var insertEnabled = mapped.tryBool(_enableInsert);
+    var updateEnabled = mapped.tryBool(_enableUpdate);
+    var deleteEnabled = mapped.tryBool(_enableDelete);
 
     var dynamicFilters = mapped.tryDynamicList(_filters);
     var filters = <Filter>[];
@@ -152,6 +167,9 @@ class Settings {
       defaultPageSize: defaultPageSize,
       mappedDataSources: mappedDataSources,
       tableColumns: tableColumns,
+      enableInsert: insertEnabled,
+      enableUpdate: updateEnabled,
+      enableDelete: deleteEnabled,
     );
   }
 }

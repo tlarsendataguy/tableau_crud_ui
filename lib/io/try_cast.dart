@@ -4,6 +4,7 @@ T tryCast<T>(dynamic value, T defaultValue){
 
 extension RetrieveCastedValues on Map<String, dynamic> {
   String tryString(String key) => tryCast(this[key],"");
+  bool tryBool(String key) => tryCast(this[key], false);
   int tryInt(String key) => tryCast(this[key], 0);
   List<dynamic> tryDynamicList(String key) => tryCast(this[key], []);
   List<String> tryStringList(String key){

@@ -368,33 +368,6 @@ class _HomeState extends State<Home> {
             },
           ),
         ),
-        IconButton(
-          icon: Icon(Icons.file_upload),
-          onPressed: () async {
-            var filePicker = FileUploadInputElement();
-            filePicker.multiple = false;
-            filePicker.accept = '.txt,.csv';
-            filePicker.onChange.listen((event) {
-              if (filePicker.files.length>0){
-                var file = filePicker.files[0];
-                print(file.name);
-                print(file.type);
-                var reader = FileReader();
-                reader.onLoadEnd.listen((event) {
-                  try{
-                    var textValue = utf8.decode(reader.result, allowMalformed: false);
-                    print(textValue);
-                  } catch (ex) {
-                    print('invalid file type');
-                  }
-                });
-                reader.readAsArrayBuffer(file);
-              }
-
-            });
-            filePicker.click();
-          },
-        ),
         Expanded(
           child: Container(),
         ),
