@@ -1,6 +1,4 @@
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:tableau_crud_ui/io/settings.dart';
 
 class ImportExportPage extends StatefulWidget {
@@ -16,26 +14,21 @@ class _ImportExportPageState extends State<ImportExportPage> {
   String importMessage = '';
 
   Widget build(BuildContext context) {
+    var settingsJson = widget.settings.toJson();
+    paste.text = settingsJson;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SizedBox(height: 20),
-        ElevatedButton(
-          child: Text("Copy configuration to clipboard"),
-          onPressed: (){
-            Clipboard.setData(ClipboardData(text: widget.settings.toJson()));
-            setState(()=>importMessage = '');
-          },
-        ),
-        SizedBox(height: 20),
         TextField(
           decoration: InputDecoration(
-              labelText: "Paste configuration"
+              labelText: "Configuration"
           ),
           controller: paste,
         ),
+        SizedBox(height: 20),
         ElevatedButton(
-          child: Text("Load configuration from pasted text"),
+          child: Text("Load configuration from text"),
           onPressed: (){
             var newSettings = Settings.fromJson(paste.text);
             widget.settings.copyFrom(newSettings);
