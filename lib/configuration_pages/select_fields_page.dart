@@ -188,12 +188,15 @@ class _SelectorCardState extends State<SelectorCard>{
           ),
         ),
         selectedEditMode() == editFixedList ?
-          IconButton(icon: Icon(Icons.tune), onPressed: fixedListPress(
-            settings: widget.settings,
-            context: context,
-            selectedField: widget.selectedField,
-            editMode: selectedEditMode(),
-          )) :
+          SizedBox(
+            width: 48,
+            child: IconButton(icon: Icon(Icons.tune), onPressed: fixedListPress(
+              settings: widget.settings,
+              context: context,
+              selectedField: widget.selectedField,
+              editMode: widget.settings.selectFields[widget.selectedField],
+            )),
+          ) :
           Container(width: 48),
         Tooltip(
           message: "Field is part of the primary key?",
