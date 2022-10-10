@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 enum MsgType {
@@ -33,7 +32,7 @@ class OkDialog extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               child,
-              RaisedButton(
+              ElevatedButton(
                 child: Text("Ok"),
                 onPressed: Navigator.of(context).pop,
               ),
@@ -60,11 +59,11 @@ class YesNoDialog extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  FlatButton(
+                  TextButton(
                     child: Text("No"),
                     onPressed: ()=>Navigator.of(context).pop("No"),
                   ),
-                  RaisedButton(
+                  ElevatedButton(
                     child: Text("Yes"),
                     onPressed: ()=>Navigator.of(context).pop("Yes"),
                   ),

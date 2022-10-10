@@ -18,8 +18,8 @@ ResponseObject<QueryResults> parseQuery(String queryResponse) {
       return _errorResponse<QueryResults>(error, null);
     }
 
-    var columnNames = List<String>();
-    var data = List<List<dynamic>>();
+    var columnNames = <String>[];
+    var data = <List<dynamic>>[];
 
     var decodedColumnNames = decoded['Data']['ColumnNames'] as List<dynamic>;
     for (var name in decodedColumnNames){
@@ -27,10 +27,10 @@ ResponseObject<QueryResults> parseQuery(String queryResponse) {
     }
 
     var decodedData = decoded['Data']['Data'] as List<dynamic>;
-    if (decodedData == null) decodedData = List<List<dynamic>>();
+    if (decodedData == null) decodedData = <List<dynamic>>[];
     for (var column in decodedData){
       if (column == null){
-        data.add(List<dynamic>());
+        data.add(<dynamic>[]);
       } else {
         data.add(column as List<dynamic>);
       }

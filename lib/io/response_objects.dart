@@ -41,7 +41,7 @@ class QueryResults {
   }
 
   List<dynamic> getMultiFieldValuesFromRow(List<String> fieldNames, int row){
-    var returnValues = List<dynamic>(fieldNames.length);
+    var returnValues = List<dynamic>.filled(fieldNames.length, null);
     var index = 0;
     for (var fieldName in fieldNames){
       returnValues[index] = getFieldValueFromRow(fieldName, row);

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
 import 'package:tableau_crud_ui/io/get_metadata.dart';

@@ -51,7 +51,7 @@ main(){
   test("Fixed list to string",(){
     var fixedListItems = <String>['Item 1','Item 2','Item 3'];
     var setting = generateFixedList(fixedListItems);
-    expect(setting, equals("${editFixedList}:Item 1|Item 2|Item 3"));
+    expect(setting, equals("$editFixedList:Item 1|Item 2|Item 3"));
   });
 
   test("Is fixed list",(){

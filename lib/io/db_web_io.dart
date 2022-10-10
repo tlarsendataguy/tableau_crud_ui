@@ -23,7 +23,7 @@ class DbWebIo extends DbIo {
       if (_address.length > 2 && _address.substring(_address.length-2) == "#/"){
         address = _address.substring(0, _address.length-2);
       }
-      var response = await http.post("${address}${path}", headers: {"Content-type":"application/json"}, body: jsonRequest);
+      var response = await http.post("$address$path", headers: {"Content-type":"application/json"}, body: jsonRequest);
       return response.body;
     } catch (ex){
       print('error sending $jsonRequest');

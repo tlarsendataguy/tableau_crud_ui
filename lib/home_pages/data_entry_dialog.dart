@@ -226,7 +226,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
         value = _values[index];
       } else {
         value = controller.text;
-      };
+      }
       switch (getEditMode(editMode)){
         case editBool:
           submitValues[key] = tryCast<bool>(value, null);

@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart' as Foundation;
 import 'package:tableau_crud_ui/io/io.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/configuration_pages/configuration_page.dart';
 import 'package:tableau_crud_ui/io/db_web_io.dart';

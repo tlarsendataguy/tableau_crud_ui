@@ -93,7 +93,7 @@ class DataViewer extends StatelessWidget {
 
     return Scrollbar(
       thickness: 10,
-      isAlwaysShown: true,
+      thumbVisibility: true,
       controller: verticalScroller,
       child: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -104,7 +104,7 @@ class DataViewer extends StatelessWidget {
             children: <Widget>[
               Scrollbar(
                 thickness: 10,
-                isAlwaysShown: true,
+                thumbVisibility: true,
                 controller: horizontalScroller,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,

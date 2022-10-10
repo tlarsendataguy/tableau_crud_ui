@@ -119,7 +119,7 @@ class _FiltersPageState extends State<FiltersPage> {
                                   IconButton(
                                     icon: Icon(Icons.add),
                                     onPressed: () async {
-                                      var mapsTo = await showDialog(context: context, builder: (context) => ChooseColumnDialog("Parameter [${e}] maps to:", widget.settings));
+                                      var mapsTo = await showDialog(context: context, builder: (context) => ChooseColumnDialog("Parameter [$e] maps to:", widget.settings));
                                       if (mapsTo == '' || mapsTo == null) return;
                                       addFilter(
                                         worksheet: '',

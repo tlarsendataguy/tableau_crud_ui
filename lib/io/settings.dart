@@ -228,7 +228,7 @@ List<String> parseFixedList(String fixedList){
 }
 
 String generateFixedList(List<String> fixedListItems) {
-  return "${editFixedList}:${fixedListItems.join('|')}";
+  return "$editFixedList:${fixedListItems.join('|')}";
 }
 
 bool isFixedList(String fixedList){
