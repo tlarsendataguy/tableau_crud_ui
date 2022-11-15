@@ -179,6 +179,7 @@ class _SelectorCardState extends State<SelectorCard>{
                 DropdownMenuItem(value: editBool, child: Text(editBool)),
                 DropdownMenuItem(value: editFixedList, child: Text(editFixedList)),
                 DropdownMenuItem(value: editTimestamp, child: Text(editTimestamp)),
+                DropdownMenuItem(value: editUser, child: Text(editUser)),
               ],
               onChanged: (newValue) {
                 if (newValue == editFixedList){

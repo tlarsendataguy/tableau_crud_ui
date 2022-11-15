@@ -7,11 +7,12 @@ import 'package:tableau_crud_ui/io/try_cast.dart';
 typedef Future<String> DataEntryOnSubmit(Map<String,dynamic> values);
 
 class DataEntryDialog extends StatefulWidget {
-  DataEntryDialog({this.editModes, this.initialValues, this.onSubmit})
+  DataEntryDialog({this.editModes, this.initialValues, this.onSubmit, this.user})
       : assert(editModes.length == initialValues.length);
   final List<dynamic> initialValues;
   final Map<String,String> editModes;
   final DataEntryOnSubmit onSubmit;
+  final String user;
 
   State<StatefulWidget> createState() => _DataEntryDialogState();
 }
@@ -252,6 +253,9 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
           break;
         case editTimestamp:
           submitValues[key] = DateTime.now().toIso8601String();
+          break;
+        case editUser:
+          submitValues[key] = widget.user;
           break;
         default:
           continue;

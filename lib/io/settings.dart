@@ -33,6 +33,7 @@ const editBool = 'Bool';
 const editFixedList = 'Fixed List';
 const editFilterList = 'Filter List';
 const editTimestamp = 'Timestamp';
+const editUser = 'User';
 
 class Settings {
   Settings(
@@ -238,7 +239,7 @@ bool isFixedList(String fixedList){
 }
 
 String getEditMode(String editMode){
-  if ([editNone,editText,editMultiLineText,editInteger,editNumber,editBool,editDate,editTimestamp].contains(editMode)) return editMode;
+  if ([editNone,editText,editMultiLineText,editInteger,editNumber,editBool,editDate,editTimestamp,editUser].contains(editMode)) return editMode;
   if (isFixedList(editMode)){
     return editFixedList;
   }

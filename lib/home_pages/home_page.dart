@@ -26,6 +26,7 @@ class _HomeState extends State<Home> {
   int page = 1;
   int totalPages = 0;
   QueryResults data;
+  String user;
 
   initState(){
     super.initState();
@@ -41,6 +42,10 @@ class _HomeState extends State<Home> {
     tableauContext = await widget.io.tableau.getContext();
     settings = await widget.io.tableau.getSettings();
     await setFilterChangeCallbacks();
+    var userParam = await widget.io.tableau.getParameter(editUser);
+    if (userParam != null) {
+      user = userParam.value;
+    }
     loaded = true;
     if (settings.isEmpty()) {
       data = QueryResults(columnNames: [], data: [], totalRowCount: 0);
@@ -85,7 +90,8 @@ class _HomeState extends State<Home> {
           editMode == editBool ||
           editMode == editDate ||
           editMode == editFixedList ||
-          editMode == editTimestamp;
+          editMode == editTimestamp ||
+          editMode == editUser;
     });
     if (values.length != requiredFields.length){
       return "${values.length} fields were provided but ${requiredFields.length} fields were required";
@@ -315,6 +321,7 @@ class _HomeState extends State<Home> {
                   editModes: editModes,
                   initialValues: initialValues,
                   onSubmit: insert,
+                  user: user,
                 ),
               );
             },
@@ -339,6 +346,7 @@ class _HomeState extends State<Home> {
                   editModes: editModes,
                   initialValues: initialValues,
                   onSubmit: update,
+                  user: user,
                 ),
               );
             },
