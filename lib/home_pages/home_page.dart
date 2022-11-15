@@ -84,7 +84,8 @@ class _HomeState extends State<Home> {
           editMode == editNumber ||
           editMode == editBool ||
           editMode == editDate ||
-          editMode == editFixedList;
+          editMode == editFixedList ||
+          editMode == editTimestamp;
     });
     if (values.length != requiredFields.length){
       return "${values.length} fields were provided but ${requiredFields.length} fields were required";

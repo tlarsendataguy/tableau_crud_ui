@@ -250,6 +250,9 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
         case editFixedList:
           submitValues[key] = value.toString();
           break;
+        case editTimestamp:
+          submitValues[key] = DateTime.now().toIso8601String();
+          break;
         default:
           continue;
       }
