@@ -18,20 +18,26 @@ class _ConnectionPageState extends State<ConnectionPage> {
 
   void loadSettings() {
     _server = TextEditingController(text: widget.settings.server);
-    _server.addListener(()=>updateServer);
+    _server.addListener(saveServer);
     _port = TextEditingController(text: widget.settings.port);
+    _port.addListener(savePort);
     _username = TextEditingController(text: widget.settings.username);
+    _username.addListener(saveUsername);
     _database = TextEditingController(text: widget.settings.database);
+    _database.addListener(saveDatabase);
     _schema = TextEditingController(text: widget.settings.schema);
+    _schema.addListener(saveSchema);
     _table = TextEditingController(text: widget.settings.table);
+    _table.addListener(saveTable);
   }
 
-  void updateServer()=>widget.settings.server = _server.text;
-  void updatePort()=>widget.settings.port = _port.text;
-  void updateUsername()=>widget.settings.username = _username.text;
-  void updateDatabase()=>widget.settings.database = _database.text;
-  void updateSchema()=>widget.settings.schema = _schema.text;
-  void updateTable()=>widget.settings.table = _table.text;
+  saveServer()=>widget.settings.server = _server.text;
+  savePort()=>widget.settings.port = _port.text;
+  saveUsername()=>widget.settings.username = _username.text;
+  saveDatabase()=>widget.settings.database = _database.text;
+  saveSchema()=>widget.settings.schema = _schema.text;
+  saveTable()=>widget.settings.table = _table.text;
+
 
   initState() {
     super.initState();
@@ -39,12 +45,12 @@ class _ConnectionPageState extends State<ConnectionPage> {
   }
 
   dispose() {
-    _server.removeListener(updateServer);
-    _port.removeListener(updatePort);
-    _username.removeListener(updateUsername);
-    _database.removeListener(updateDatabase);
-    _schema.removeListener(updateSchema);
-    _table.removeListener(updateTable);
+    _server.removeListener(saveServer);
+    _port.removeListener(savePort);
+    _username.removeListener(saveUsername);
+    _database.removeListener(saveDatabase);
+    _schema.removeListener(saveSchema);
+    _table.removeListener(saveTable);
     super.dispose();
   }
 
@@ -57,6 +63,14 @@ class _ConnectionPageState extends State<ConnectionPage> {
   TextEditingController _table;
 
   Future<String> testConnection() async {
+    widget.settings.server = _server.text;
+    widget.settings.port = _port.text;
+    widget.settings.username = _username.text;
+    widget.settings.database = _database.text;
+    widget.settings.schema = _schema.text;
+    widget.settings.table = _table.text;
+
+
     var queryResult = await getMetadata(widget.io.db, widget.settings);
     if (queryResult.hasError){
       print(queryResult.error);
