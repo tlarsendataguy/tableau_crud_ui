@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 typedef Widget ItemSelectorBuilder<T>(BuildContext context, T item);
 
 class ItemSelector<T> extends StatelessWidget {
-  ItemSelector({this.sourceList, this.sourceItemBuilder, this.selectorList, this.selectorItemBuilder,this.leftLabel,this.rightLabel, this.leftFlex=1, this.rightFlex=1});
+  ItemSelector({required this.sourceList, required this.sourceItemBuilder, required this.selectorList, required this.selectorItemBuilder, required this.leftLabel, required this.rightLabel, this.leftFlex=1, this.rightFlex=1});
   final List<T> sourceList;
   final List<T> selectorList;
   final ItemSelectorBuilder<T> sourceItemBuilder;

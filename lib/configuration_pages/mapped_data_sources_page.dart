@@ -4,7 +4,7 @@ import 'package:tableau_crud_ui/io/io.dart';
 import 'package:tableau_crud_ui/io/settings.dart';
 
 class MappedDataSourcesPage extends StatefulWidget {
-  MappedDataSourcesPage({this.tableauIo, this.settings});
+  MappedDataSourcesPage({required this.tableauIo, required this.settings});
   final TableauIo tableauIo;
   final Settings settings;
 
@@ -14,7 +14,7 @@ class MappedDataSourcesPage extends StatefulWidget {
 class _MappedDataSourcesPageState extends State<MappedDataSourcesPage> {
 
   Map<String, String> dataSources = {};
-  List<String> availableDataSources;
+  late List<String> availableDataSources;
   bool loaded = false;
 
   initState(){
@@ -64,7 +64,11 @@ class _MappedDataSourcesPageState extends State<MappedDataSourcesPage> {
           children: <Widget>[
             IconButton(
               icon: Icon(Icons.add),
-              onPressed: ()=>addDataSource(dataSourceId),
+              onPressed: () {
+                if (dataSourceId != null) {
+                  addDataSource(dataSourceId.toString());
+                }
+              },
             ),
             Expanded(child: Text("$dataSourceId: $dataSourceName")),
           ],
@@ -78,7 +82,11 @@ class _MappedDataSourcesPageState extends State<MappedDataSourcesPage> {
           children: <Widget>[
             IconButton(
               icon: Icon(Icons.delete),
-              onPressed: ()=>removeDataSource(dataSourceId),
+              onPressed: (){
+                if (dataSourceId != null) {
+                  removeDataSource(dataSourceId.toString());
+                }
+              },
             ),
             Expanded(child: Text("$dataSourceId: $dataSourceName")),
           ],

@@ -2,20 +2,20 @@ import 'dart:convert';
 import 'package:tableau_crud_ui/io/response_objects.dart';
 
 class QueryData {
-  QueryData({this.columnNames, this.data}) : assert(columnNames != null && data != null);
+  QueryData({required this.columnNames, required this.data});
   final List<String> columnNames;
   final List<List<dynamic>> data;
 }
 
-ResponseObject<QueryResults> parseQuery(String queryResponse) {
+ResponseObject<QueryResults?> parseQuery(String queryResponse) {
   try {
     var decoded = jsonDecode(queryResponse);
-    var success = decoded['Success'] as bool;
-    var error = '';
+    var success = decoded['Success'] as bool?;
+    String? error = '';
     if (success == null || !success) {
-      error = decoded['Data'] as String;
+      error = decoded['Data'] as String?;
       if (error == null) error = '';
-      return _errorResponse<QueryResults>(error, null);
+      return _errorResponse<QueryResults?>(error, null);
     }
 
     var columnNames = <String>[];
@@ -26,7 +26,7 @@ ResponseObject<QueryResults> parseQuery(String queryResponse) {
       columnNames.add(name as String);
     }
 
-    var decodedData = decoded['Data']['Data'] as List<dynamic>;
+    var decodedData = decoded['Data']['Data'] as List<dynamic>?;
     if (decodedData == null) decodedData = <List<dynamic>>[];
     for (var column in decodedData){
       if (column == null){
@@ -40,22 +40,22 @@ ResponseObject<QueryResults> parseQuery(String queryResponse) {
     return ResponseObject<QueryResults>(hasError: false, error: '', data: queryResults);
 
   } on Exception catch (ex) {
-    return _errorResponse<QueryResults>(ex.toString(), null);
+    return _errorResponse<QueryResults?>(ex.toString(), null);
   }
 }
 
 ResponseObject<int> parseExec(String execResponse){
   try{
     var decoded = jsonDecode(execResponse);
-    var success = decoded['Success'] as bool;
-    var error = '';
+    var success = decoded['Success'] as bool?;
+    String? error = '';
     if (success == null || !success) {
-      error = decoded['Data'] as String;
+      error = decoded['Data'] as String?;
       if (error == null) error = '';
       return _errorResponse<int>(error, 0);
     }
 
-    var value = decoded['Data'] as int;
+    var value = decoded['Data'] as int?;
     if (value == null) value = 0;
     return ResponseObject<int>(hasError: false, error: '', data: value);
   } on Exception catch (ex){
@@ -66,15 +66,15 @@ ResponseObject<int> parseExec(String execResponse){
 ResponseObject<String> parsePassword(String encryptPasswordResponse){
   try {
     var decoded = jsonDecode(encryptPasswordResponse);
-    var success = decoded['Success'] as bool;
-    var error = '';
+    var success = decoded['Success'] as bool?;
+    String? error = '';
     if (success == null || !success) {
-      error = decoded['Data'] as String;
+      error = decoded['Data'] as String?;
       if (error == null) error = '';
       return _errorResponse<String>(error, "");
     }
 
-    var value = decoded['Data'] as String;
+    var value = decoded['Data'] as String?;
     if (value == null) value = "";
     return ResponseObject<String>(hasError: false, error: '', data: value);
   } on Exception catch (ex){

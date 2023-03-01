@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:tableau_crud_ui/io/settings.dart';
 
 class GeneralSettingsPage extends StatefulWidget {
-  GeneralSettingsPage({this.settings});
+  GeneralSettingsPage({required this.settings});
   final Settings settings;
 
   createState()=>_GeneralSettingsPageState();
@@ -14,7 +14,7 @@ const _inputWidth = 60.0;
 
 class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
 
-  TextEditingController pageSizeController;
+  late TextEditingController pageSizeController;
 
   initState(){
     super.initState();
@@ -58,7 +58,9 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
               child: Checkbox(
                 value: widget.settings.enableInsert,
                 onChanged: (newValue) {
-                  setState(()=>widget.settings.enableInsert = newValue);
+                  if (newValue != null){
+                    setState(()=>widget.settings.enableInsert = newValue);
+                  }
                 },
               ),
             ),
@@ -74,7 +76,9 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
               child: Checkbox(
                 value: widget.settings.enableUpdate,
                 onChanged: (newValue) {
-                  setState(()=>widget.settings.enableUpdate = newValue);
+                  if (newValue != null) {
+                    setState(()=>widget.settings.enableUpdate = newValue);
+                  }
                 },
               ),
             ),
@@ -90,7 +94,9 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
               child: Checkbox(
                 value: widget.settings.enableDelete,
                 onChanged: (newValue) {
-                  setState(()=>widget.settings.enableDelete = newValue);
+                  if (newValue != null) {
+                    setState(()=>widget.settings.enableDelete = newValue);
+                  }
                 },
               ),
             ),

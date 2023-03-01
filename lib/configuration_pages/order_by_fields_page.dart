@@ -3,14 +3,14 @@ import 'package:tableau_crud_ui/configuration_pages/item_selector.dart';
 import 'package:tableau_crud_ui/io/settings.dart';
 
 class OrderByFieldsPage extends StatefulWidget {
-  OrderByFieldsPage({this.settings});
+  OrderByFieldsPage({required this.settings});
   final Settings settings;
 
   createState() => _OrderByFieldsPageState();
 }
 
 class _OrderByFieldsPageState extends State<OrderByFieldsPage> {
-  List<String> availableFields;
+  late List<String> availableFields;
 
   initState(){
     super.initState();

@@ -22,7 +22,7 @@ abstract class TableauIo {
   Future<Settings> getSettings();
   Future saveSettings(String settingsJson);
   Future<List<String>> getParameters();
-  Future<Parameter> getParameter(String name);
+  Future<Parameter?> getParameter(String name);
   Future<List<String>> getWorksheets();
   Future<List<TableauFilter>> getFilters(String worksheet);
   Future<Map<String,String>> getAllDataSources();
@@ -33,7 +33,7 @@ abstract class TableauIo {
 }
 
 class TableauFilter{
-  TableauFilter({this.fieldId,this.fieldName,this.filterType,this.isAllSelected,this.includeNullValues,this.exclude,this.values});
+  TableauFilter({required this.fieldId, required this.fieldName, required this.filterType, required this.isAllSelected, required this.includeNullValues, required this.exclude, required this.values});
 
   final String fieldId;
   final String fieldName;
@@ -85,8 +85,13 @@ var mockSettings = Settings(
   selectFields: {'id': editNone, 'category': "$editFixedList:blah|something", 'amount': editNumber, 'date': editDate, 'comment': editText, 'is true': editBool},
   orderByFields: ['id'],
   primaryKey: ['id'],
-  filters: [Filter(worksheet: 'test worksheet', fieldName: 'test field', mapsTo: 'category'),Filter(parameterName: 'test parameter', mapsTo: 'type of record')],
-  tableColumns: ['id', 'category', 'amount', 'date', 'comment', 'is true', 'long text']
+  filters: [Filter(worksheet: 'test worksheet', fieldName: 'test field', mapsTo: 'category', parameterName: ''),Filter(worksheet: '', fieldName: '', parameterName: 'test parameter', mapsTo: 'type of record')],
+  tableColumns: ['id', 'category', 'amount', 'date', 'comment', 'is true', 'long text'],
+  defaultPageSize: 25,
+  enableUpdate: false,
+  enableInsert: false,
+  enableDelete: false,
+  mappedDataSources: [],
 );
 
 class TableauMockIo extends TableauIo {
@@ -102,7 +107,12 @@ class TableauMockIo extends TableauIo {
     orderByFields: [],
     primaryKey: [],
     filters: [],
-  );
+    tableColumns: [],
+    defaultPageSize: 25,
+    enableUpdate: false,
+    enableInsert: false,
+    enableDelete: false,
+    mappedDataSources: [],  );
 
   Future initialize() async {}
   Future<String> getContext() async => 'desktop';
@@ -119,7 +129,7 @@ class TableauMockIo extends TableauIo {
     return ["Param1"];
   }
 
-  Future<Parameter> getParameter(String name) async {
+  Future<Parameter?> getParameter(String name) async {
     if (name != 'Param1') {
       return null;
     }
@@ -162,7 +172,7 @@ class TableauMockIo extends TableauIo {
 }
 
 class Parameter {
-  Parameter({this.id, this.name, this.value, this.formattedValue, this.dataType});
+  Parameter({required this.id, required this.name, required this.value, required this.formattedValue, required this.dataType});
   final String id;
   final String name;
   final dynamic value;

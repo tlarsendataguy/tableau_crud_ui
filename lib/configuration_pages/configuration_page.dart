@@ -30,7 +30,7 @@ class ConfigurationPage extends StatefulWidget{
 class _ConfigurationPageState extends State<ConfigurationPage> {
 
   Page currentPage = Page.general;
-  Settings settings;
+  late Settings settings;
   bool isLoading = true;
 
   initState(){
@@ -104,7 +104,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
 }
 
 class ConfigurationPageButtons extends StatelessWidget {
-  ConfigurationPageButtons({this.page, this.onPageChanged, this.io, this.settings});
+  ConfigurationPageButtons({required this.page, required this.onPageChanged, required this.io, required this.settings});
   final Page page;
   final Function(Page newPage) onPageChanged;
   final IoManager io;
@@ -160,7 +160,7 @@ class ConfigurationPageButtons extends StatelessWidget {
 }
 
 class PageButton extends StatelessWidget{
-  PageButton({this.goToPage, this.currentPage, this.onClick});
+  PageButton({required this.goToPage, required this.currentPage, required this.onClick});
   final Page goToPage;
   final Page currentPage;
   final Function(Page newPage) onClick;
@@ -168,7 +168,7 @@ class PageButton extends StatelessWidget{
   Widget build(BuildContext context) {
     String message;
     IconData icon;
-    Color color;
+    Color? color;
 
     switch (goToPage){
       case Page.connection:

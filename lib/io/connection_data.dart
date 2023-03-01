@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:tableau_crud_ui/io/settings.dart';
 
 class RequestData {
-  RequestData({this.connectionData, this.functionData}) : assert(connectionData != null && functionData != null);
+  RequestData({required this.connectionData, required this.functionData});
   final ConnectionData connectionData;
   final FunctionData functionData;
 
@@ -24,7 +24,7 @@ class RequestData {
 }
 
 class ConnectionData {
-  ConnectionData({this.server, this.port, this.username, this.password, this.database, this.schema, this.table});
+  ConnectionData({required this.server, required this.port, required this.username, required this.password, required this.database, required this.schema, required this.table});
   final String server;
   final String port;
   final String username;
@@ -91,7 +91,7 @@ class WhereEqual extends Where {
     _value = value;
   }
 
-  String _field;
+  late String _field;
   dynamic _value;
 
   String get field => _field;
@@ -108,9 +108,9 @@ class WhereIn extends Where {
     _exclude = exclude;
   }
 
-  String _field;
-  bool   _exclude;
-  List<dynamic> _values;
+  late String _field;
+  late bool   _exclude;
+  late List<dynamic> _values;
 
   String get field => _field;
   String get operator => 'in';
@@ -127,10 +127,10 @@ class WhereRange extends Where {
     _includeNulls = includeNulls;
   }
 
-  String _field;
+  late String _field;
   dynamic _min;
   dynamic _max;
-  bool    _includeNulls;
+  late bool    _includeNulls;
 
   String get field => _field;
   String get operator => 'range';
@@ -140,7 +140,7 @@ class WhereRange extends Where {
 }
 
 class DeleteFunction extends FunctionData {
-  DeleteFunction({this.whereClauses});
+  DeleteFunction({required this.whereClauses});
   final List<Where> whereClauses;
 
   String function() => 'Delete';
@@ -153,7 +153,7 @@ class DeleteFunction extends FunctionData {
 }
 
 class UpdateFunction extends FunctionData {
-  UpdateFunction({this.whereClauses,this.updates});
+  UpdateFunction({required this.whereClauses, required this.updates});
   final List<Where> whereClauses;
   final Map<String,dynamic> updates;
 
@@ -168,7 +168,7 @@ class UpdateFunction extends FunctionData {
 }
 
 class ReadFunction extends FunctionData {
-  ReadFunction({this.fields, this.whereClauses, this.orderBy, this.pageSize, this.page});
+  ReadFunction({required this.fields, required this.whereClauses, required this.orderBy, required this.pageSize, required this.page});
   final List<String> fields;
   final List<Where> whereClauses;
   final List<String> orderBy;

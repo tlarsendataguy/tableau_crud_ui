@@ -4,7 +4,7 @@ import 'package:tableau_crud_ui/io/io.dart';
 import 'package:tableau_crud_ui/io/settings.dart';
 
 class FiltersPage extends StatefulWidget {
-  FiltersPage({this.tableauIo, this.settings});
+  FiltersPage({required this.tableauIo, required this.settings});
   final Settings settings;
   final TableauIo tableauIo;
 
@@ -16,7 +16,7 @@ class _FiltersPageState extends State<FiltersPage> {
   String selectedWorksheet = '';
   List<TableauFilter> worksheetFilters = [];
   List<String> parameters = [];
-  List<String> worksheets;
+  late List<String> worksheets;
   bool loaded = false;
   ScrollController worksheetsScroll = ScrollController();
   ScrollController parametersScroll = ScrollController();
@@ -34,7 +34,7 @@ class _FiltersPageState extends State<FiltersPage> {
     setState(()=>loaded = true);
   }
 
-  void addFilter({String worksheet, String fieldName, String parameter, String mapsTo}) {
+  void addFilter({required String worksheet, fieldName, parameter, mapsTo}) {
     for (var filter in widget.settings.filters) {
       if (filter.worksheet == worksheet && filter.parameterName == parameter && filter.fieldName == fieldName && filter.mapsTo == mapsTo) {
         return;
@@ -50,7 +50,7 @@ class _FiltersPageState extends State<FiltersPage> {
     setState((){});
   }
 
-  void removeFilter({String worksheet, String fieldName, String parameter, String mapsTo}) {
+  void removeFilter({required String worksheet, fieldName, parameter, mapsTo}) {
     for (var i = widget.settings.filters.length-1; i >= 0; i--) {
       var filter = widget.settings.filters[i];
       if (filter.worksheet == worksheet && filter.fieldName == fieldName && filter.parameterName == parameter && filter.mapsTo == mapsTo) {

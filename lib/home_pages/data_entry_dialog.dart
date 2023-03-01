@@ -7,7 +7,7 @@ import 'package:tableau_crud_ui/io/try_cast.dart';
 typedef Future<String> DataEntryOnSubmit(Map<String,dynamic> values);
 
 class DataEntryDialog extends StatefulWidget {
-  DataEntryDialog({this.editModes, this.initialValues, this.onSubmit, this.user})
+  DataEntryDialog({required this.editModes, required this.initialValues, required this.onSubmit, required this.user})
       : assert(editModes.length == initialValues.length);
   final List<dynamic> initialValues;
   final Map<String,String> editModes;
@@ -19,7 +19,7 @@ class DataEntryDialog extends StatefulWidget {
 
 class _DataEntryDialogState extends State<DataEntryDialog> {
 
-  var _textControllers = <TextEditingController>[];
+  var _textControllers = <TextEditingController?>[];
   var _values = [];
 
   initState(){
@@ -56,7 +56,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
     for (var index = 0; index < keys.length; index++) {
       var key = keys[index];
       Widget editorWidget;
-      switch (getEditMode(widget.editModes[key])){
+      switch (getEditMode(widget.editModes[key] ?? editNone)){
         case editText:
           editorWidget = TextField(
             maxLength: 255,
@@ -125,7 +125,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
           );
           break;
         case editFixedList:
-          var items = parseFixedList(widget.editModes[key]);
+          var items = parseFixedList(widget.editModes[key] ?? editNone);
           var value = _values[index].toString();
           if (!items.contains(value)) items.insert(0, value);
           editorWidget = InputDecorator(
@@ -220,7 +220,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
     var keys = widget.editModes.keys.toList();
     for (var index = 0; index < _textControllers.length; index++){
       var key = keys[index];
-      var editMode = widget.editModes[key];
+      var editMode = widget.editModes[key] ?? editNone;
       var controller = _textControllers[index];
       dynamic value;
       if (controller == null){
@@ -230,7 +230,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
       }
       switch (getEditMode(editMode)){
         case editBool:
-          submitValues[key] = tryCast<bool>(value, null);
+          submitValues[key] = tryCast<bool>(value, false);
           break;
         case editNumber:
           submitValues[key] = double.tryParse(value);

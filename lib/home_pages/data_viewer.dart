@@ -4,8 +4,8 @@ import 'package:tableau_crud_ui/io/settings.dart';
 import 'package:tableau_crud_ui/styling.dart';
 
 class DataViewer extends StatelessWidget {
-  DataViewer({this.data, this.selectedRow, this.settings, this.onSelectRow});
-  final QueryResults data;
+  DataViewer({this.data, required this.selectedRow, required this.settings, required this.onSelectRow});
+  final QueryResults? data;
   final int selectedRow;
   final Settings settings;
   final Function(int selectedRow) onSelectRow;
@@ -21,8 +21,8 @@ class DataViewer extends StatelessWidget {
 
     var columns = <Widget>[];
     var index = 0;
-    for (var column in data.data){
-      var headerText = data.columnNames[index];
+    for (var column in data?.data ?? []){
+      var headerText = data?.columnNames[index] ?? '';
       var editModeRaw = settings.selectFields[headerText];
       var editMode = getEditMode(editModeRaw ?? editNone);
       var valueToString = (value) => value.toString();
@@ -72,7 +72,7 @@ class DataViewer extends StatelessWidget {
         color: tableHeaderBackgroundColor,
       ),
     ];
-    for (var index = 0; index < data.rowCount(); index++){
+    for (var index = 0; index < (data?.rowCount() ?? 0); index++){
       selectionRows.add(
         Container(
           height: dataHeight,

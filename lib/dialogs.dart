@@ -7,12 +7,12 @@ enum MsgType {
 }
 
 class OkDialog extends StatelessWidget {
-  OkDialog({this.child, this.msgType});
+  OkDialog({required this.child, required this.msgType});
   final Widget child;
   final MsgType msgType;
 
   Widget build(BuildContext context) {
-    Color color;
+    Color? color;
     switch (msgType){
       case MsgType.Error:
         color = Color.fromARGB(255, 255, 200, 200);
@@ -44,7 +44,7 @@ class OkDialog extends StatelessWidget {
   }
 }
 class YesNoDialog extends StatelessWidget {
-  YesNoDialog({this.child});
+  YesNoDialog({required this.child});
   final Widget child;
 
   Widget build(BuildContext context) {
@@ -78,7 +78,7 @@ class YesNoDialog extends StatelessWidget {
 }
 
 class LoadingDialog extends StatelessWidget {
-  LoadingDialog({this.message});
+  LoadingDialog({required this.message});
   final String message;
 
   Widget build(BuildContext context) {

@@ -1,8 +1,5 @@
 class ResponseObject<T> {
-  ResponseObject({this.hasError, this.error, this.data})
-      : assert(hasError != null &&
-            error != null &&
-            ((!hasError && data != null) || hasError));
+  ResponseObject({required this.hasError, required this.error, required this.data});
 
   final bool hasError;
   final String error;
@@ -10,8 +7,7 @@ class ResponseObject<T> {
 }
 
 class QueryResults {
-  QueryResults({this.columnNames, this.data, this.totalRowCount})
-      : assert(columnNames != null && data != null && totalRowCount != null);
+  QueryResults({required this.columnNames, required this.data, required this.totalRowCount});
   final List<String> columnNames;
   final List<List<dynamic>> data;
   final int totalRowCount;

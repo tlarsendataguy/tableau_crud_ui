@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/io/settings.dart';
 
 class SelectFieldsPage extends StatefulWidget {
-  SelectFieldsPage({this.settings});
+  SelectFieldsPage({required this.settings});
   final Settings settings;
 
   createState()=>_SelectFieldsPageState();
@@ -53,7 +53,10 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
     fields.insert(index, field);
     var newSelectFields = Map<String,String>();
     for (var field in fields){
-      newSelectFields[field] = oldSelectFields[field];
+      var oldSelectField = oldSelectFields[field];
+      if (oldSelectField != null) {
+        newSelectFields[field] = oldSelectField;
+      }
     }
     setState(()=>widget.settings.selectFields = newSelectFields);
   }
@@ -68,7 +71,10 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
     fields.insert(index, field);
     var newSelectFields = Map<String,String>();
     for (var field in fields){
-      newSelectFields[field] = oldSelectFields[field];
+      var oldSelectField = oldSelectFields[field];
+      if (oldSelectField != null) {
+        newSelectFields[field] = oldSelectField;
+      }
     }
     setState(()=>widget.settings.selectFields = newSelectFields);
   }
@@ -142,7 +148,7 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
 }
 
 class SelectorCard extends StatefulWidget {
-  SelectorCard({this.settings, this.selectedField, this.onMoveFieldUp, this.onMoveFieldDown, this.onDeleteField});
+  SelectorCard({required this.settings, required this.selectedField, required this.onMoveFieldUp, required this.onMoveFieldDown, required this.onDeleteField});
   final Settings settings;
   final String selectedField;
   final Function(String) onMoveFieldUp;
@@ -154,7 +160,8 @@ class SelectorCard extends StatefulWidget {
 class _SelectorCardState extends State<SelectorCard>{
 
   String selectedEditMode() {
-    return getEditMode(widget.settings.selectFields[widget.selectedField]);
+    var editMode = widget.settings.selectFields[widget.selectedField] ?? editNone;
+    return getEditMode(editMode);
   }
 
   Widget build(BuildContext context) {
@@ -182,10 +189,14 @@ class _SelectorCardState extends State<SelectorCard>{
                 DropdownMenuItem(value: editUser, child: Text(editUser)),
               ],
               onChanged: (newValue) {
-                if (newValue == editFixedList){
-                  newValue = generateFixedList([]);
+                var value = editNone;
+                if (newValue != null) {
+                  value = newValue.toString();
                 }
-                setState(()=>widget.settings.selectFields[widget.selectedField] = newValue);
+                if (newValue == editFixedList){
+                  value = generateFixedList([]);
+                }
+                setState(()=>widget.settings.selectFields[widget.selectedField] = value);
               }
           ),
         ),
@@ -196,7 +207,7 @@ class _SelectorCardState extends State<SelectorCard>{
               settings: widget.settings,
               context: context,
               selectedField: widget.selectedField,
-              editMode: widget.settings.selectFields[widget.selectedField],
+              editMode: widget.settings.selectFields[widget.selectedField] ?? editNone,
             )),
           ) :
           Container(width: 48),
@@ -207,6 +218,9 @@ class _SelectorCardState extends State<SelectorCard>{
               Checkbox(
                 value: widget.settings.primaryKey.contains(widget.selectedField), // pk.contains(widget.selectedField),
                 onChanged: (newValue){
+                  if (newValue == null) {
+                    return;
+                  }
                   if (newValue){
                     setState(() => widget.settings.primaryKey.add(widget.selectedField));
                   } else {
@@ -231,7 +245,7 @@ class _SelectorCardState extends State<SelectorCard>{
   }
 }
 
-Function fixedListPress({Settings settings, String selectedField, String editMode, BuildContext context}) {
+VoidCallback fixedListPress({required Settings settings, required String selectedField, required String editMode, required BuildContext context}) {
   return () async {
     await showDialog(
       context: context,
@@ -245,7 +259,7 @@ Function fixedListPress({Settings settings, String selectedField, String editMod
 }
 
 class EditFixedListDialog extends StatefulWidget {
-  EditFixedListDialog({this.settings, this.selectedField, this.editMode});
+  EditFixedListDialog({required this.settings, required this.selectedField, required this.editMode});
   final Settings settings;
   final String selectedField;
   final String editMode;
@@ -255,8 +269,8 @@ class EditFixedListDialog extends StatefulWidget {
 
 class _EditFixedListDialogState extends State<EditFixedListDialog> {
 
-  List<String> items;
-  TextEditingController controller;
+  late List<String> items;
+  late TextEditingController controller;
 
   initState() {
     super.initState();

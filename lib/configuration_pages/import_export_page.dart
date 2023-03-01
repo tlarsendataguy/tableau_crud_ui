@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tableau_crud_ui/io/settings.dart';
 
 class ImportExportPage extends StatefulWidget {
-  ImportExportPage({this.settings});
+  ImportExportPage({required this.settings});
   final Settings settings;
 
   State<StatefulWidget> createState() => _ImportExportPageState();

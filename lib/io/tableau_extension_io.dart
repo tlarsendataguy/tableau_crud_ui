@@ -20,8 +20,8 @@ class TableauExtensionIo extends TableauIo {
     return params;
   }
 
-  Future<Parameter> getParameter(String name) async {
-    var tParam = await promiseToFuture<api.Parameter>(api.findParameterAsync(name));
+  Future<Parameter?> getParameter(String name) async {
+    var tParam = await promiseToFuture<api.Parameter?>(api.findParameterAsync(name));
     if (tParam == null) {
       return null;
     }

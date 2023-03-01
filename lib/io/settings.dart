@@ -38,23 +38,23 @@ const editUser = 'User';
 class Settings {
   Settings(
       {
-        this.server,
-        this.port,
-        this.username,
-        this.password,
-        this.database,
-        this.schema,
-        this.table,
-        this.selectFields,
-        this.orderByFields,
-        this.primaryKey,
-        this.filters,
-        this.defaultPageSize,
-        this.mappedDataSources,
-        this.tableColumns,
-        this.enableInsert,
-        this.enableUpdate,
-        this.enableDelete,
+        required this.server,
+        required this.port,
+        required this.username,
+        required this.password,
+        required this.database,
+        required this.schema,
+        required this.table,
+        required this.selectFields,
+        required this.orderByFields,
+        required this.primaryKey,
+        required this.filters,
+        required this.defaultPageSize,
+        required this.mappedDataSources,
+        required this.tableColumns,
+        required this.enableInsert,
+        required this.enableUpdate,
+        required this.enableDelete,
       }
   );
 
@@ -173,7 +173,7 @@ class Settings {
     for (var dynamicFilter in dynamicFilters) {
       var mappedFilter = tryCast<Map<String, dynamic>>(dynamicFilter, {});
       var filter = Filter.fromJson(mappedFilter);
-      if (filter != null) filters.add(filter);
+      filters.add(filter);
     }
     return Settings(
       server: server,
@@ -198,7 +198,7 @@ class Settings {
 }
 
 class Filter {
-  Filter({this.worksheet, this.fieldName, this.parameterName, this.mapsTo});
+  Filter({required this.worksheet, required this.fieldName, required this.parameterName, required this.mapsTo});
 
   final String worksheet;
   final String fieldName;

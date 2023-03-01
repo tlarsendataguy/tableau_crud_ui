@@ -20,13 +20,13 @@ class _HomeState extends State<Home> {
 
   bool loaded = false;
   bool readingTable = false;
-  Settings settings;
+  late Settings settings;
   String tableauContext = '';
   int selectedRow = -1;
   int page = 1;
   int totalPages = 0;
-  QueryResults data;
-  String user;
+  QueryResults? data;
+  String? user;
 
   initState(){
     super.initState();
@@ -82,7 +82,7 @@ class _HomeState extends State<Home> {
 
   Future<String> insert(Map<String,dynamic> values) async {
     var requiredFields = settings.selectFields.keys.where((key) {
-      var editMode = getEditMode(settings.selectFields[key]);
+      var editMode = getEditMode(settings.selectFields[key] ?? editNone);
       return editMode == editText ||
           editMode == editMultiLineText ||
           editMode == editInteger ||
@@ -181,7 +181,7 @@ class _HomeState extends State<Home> {
     if (queryResult.error != ''){
       print(queryResult.error);
     }
-    totalPages = (data.totalRowCount / settings.defaultPageSize).ceil();
+    totalPages = (data?.totalRowCount ?? 0 / settings.defaultPageSize).ceil();
     setState(()=>readingTable = false);
     return queryResult.error;
   }
@@ -236,7 +236,7 @@ class _HomeState extends State<Home> {
       throw new Exception("no row was selected");
     }
     var pk = settings.primaryKey;
-    var pkValues = data.getMultiFieldValuesFromRow(pk, selected);
+    var pkValues = data?.getMultiFieldValuesFromRow(pk, selected) ?? [];
     var wheres = <Where>[];
     for (var index = 0; index < pk.length; index++){
       wheres.add(WhereEqual(pk[index], pkValues[index]));
@@ -245,8 +245,7 @@ class _HomeState extends State<Home> {
   }
 
   List<dynamic> getSelectedRowValues(){
-    if (data == null) return [];
-    return data.getMultiFieldValuesFromRow(settings.selectFields.keys.toList(), selectedRow);
+    return data?.getMultiFieldValuesFromRow(settings.selectFields.keys.toList(), selectedRow) ?? [];
   }
 
   Future pageUpdated(int newPage) async {
@@ -321,7 +320,7 @@ class _HomeState extends State<Home> {
                   editModes: editModes,
                   initialValues: initialValues,
                   onSubmit: insert,
-                  user: user,
+                  user: user ?? "",
                 ),
               );
             },
@@ -346,7 +345,7 @@ class _HomeState extends State<Home> {
                   editModes: editModes,
                   initialValues: initialValues,
                   onSubmit: update,
-                  user: user,
+                  user: user ?? "",
                 ),
               );
             },
@@ -381,7 +380,7 @@ class _HomeState extends State<Home> {
               Navigator.of(context).pop();
               if (err != ''){
                 await showDialog(
-                  context: null,
+                  context: context,
                   builder: (context) => OkDialog(
                     msgType: MsgType.Error,
                     child: Text("Error: $err"),
@@ -451,7 +450,7 @@ class _HomeState extends State<Home> {
 }
 
 class PageSelector extends StatelessWidget {
-  PageSelector({this.onPageUpdated, this.currentPage, this.totalPages});
+  PageSelector({required this.onPageUpdated, required this.currentPage, required this.totalPages});
   final Function(int newPage) onPageUpdated;
   final int currentPage;
   final int totalPages;

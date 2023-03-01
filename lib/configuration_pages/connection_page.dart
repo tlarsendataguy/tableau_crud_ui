@@ -6,7 +6,7 @@ import 'package:tableau_crud_ui/io/parse_responses.dart';
 import 'package:tableau_crud_ui/io/settings.dart';
 
 class ConnectionPage extends StatefulWidget {
-  ConnectionPage({this.io, this.settings});
+  ConnectionPage({required this.io, required this.settings});
 
   final IoManager io;
   final Settings settings;
@@ -54,13 +54,13 @@ class _ConnectionPageState extends State<ConnectionPage> {
     super.dispose();
   }
 
-  TextEditingController _server;
-  TextEditingController _port;
-  TextEditingController _username;
+  late TextEditingController _server;
+  late TextEditingController _port;
+  late TextEditingController _username;
   String _password = '';
-  TextEditingController _database;
-  TextEditingController _schema;
-  TextEditingController _table;
+  late TextEditingController _database;
+  late TextEditingController _schema;
+  late TextEditingController _table;
 
   Future<String> testConnection() async {
     widget.settings.server = _server.text;
@@ -75,7 +75,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
     if (queryResult.hasError){
       print(queryResult.error);
     } else {
-      widget.settings.tableColumns = queryResult.data.columnNames;
+      widget.settings.tableColumns = queryResult.data?.columnNames ?? [];
     }
     return queryResult.error;
   }
