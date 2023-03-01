@@ -10,7 +10,7 @@ class DbWebIo extends DbIo {
   Future<http.Response> insert(RequestData request) =>_request(request.toJson(), path:"api/insert");
   Future<http.Response> update(RequestData request) =>_request(request.toJson(), path:"api/update");
   Future<http.Response> delete(RequestData request) =>_request(request.toJson(), path:"api/delete");
-  Future<http.Response> read(RequestData request) =>_request(request.toJson(), path:"api/read");
+  Future<http.Response> read(RequestData request) =>_request(request.toJson(), path:"api/select");
 
 
   Future<http.Response> _request(String jsonRequest, {String path=""}) async {
