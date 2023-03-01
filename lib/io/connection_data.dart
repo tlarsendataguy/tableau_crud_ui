@@ -8,29 +8,20 @@ class RequestData {
   final FunctionData functionData;
 
   String toJson(){
-    var request = {
-      "Server": connectionData.server,
-      "Port": connectionData.port,
-      "Username": connectionData.username,
-      "Password": connectionData.password,
-      "Database": connectionData.database,
-      "Schema": connectionData.schema,
+    var request = <String, dynamic>{
+      "ApiKey": connectionData.apiKey,
+      "Connection": connectionData.connection,
       "Table": connectionData.table,
-      "Function": functionData.function(),
-      "Parameters": functionData.parameters(),
     };
+    request.addAll(functionData.parameters());
     return jsonEncode(request);
   }
 }
 
 class ConnectionData {
-  ConnectionData({required this.server, required this.port, required this.username, required this.password, required this.database, required this.schema, required this.table});
-  final String server;
-  final String port;
-  final String username;
-  final String password;
-  final String database;
-  final String schema;
+  ConnectionData({required this.apiKey, required this.connection, required this.table});
+  final String apiKey;
+  final String connection;
   final String table;
 
   RequestData generateRequest(FunctionData functionData){
@@ -39,32 +30,25 @@ class ConnectionData {
 
   static ConnectionData fromSettings(Settings settings){
     return ConnectionData(
-      server: settings.server,
-      port: settings.port,
-      username: settings.username,
-      password: settings.password,
-      database: settings.database,
-      schema: settings.schema,
+      apiKey: settings.apiKey,
+      connection: settings.connection,
       table: settings.table,
     );
   }
 }
 
 abstract class FunctionData {
-  String function();
   Map<String, dynamic> parameters();
 }
 
 class TestConnectionFunction extends FunctionData {
-  String function() => 'TestConnection';
   parameters() => {};
 }
 
 class InsertFunction extends FunctionData {
   InsertFunction(this.insertValues);
   final Map<String, dynamic> insertValues;
-  String function() => 'Insert';
-  Map<String, dynamic> parameters() => {"values": insertValues};
+  Map<String, dynamic> parameters() => {"Values": insertValues};
 }
 
 abstract class Where {
@@ -143,11 +127,10 @@ class DeleteFunction extends FunctionData {
   DeleteFunction({required this.whereClauses});
   final List<Where> whereClauses;
 
-  String function() => 'Delete';
   Map<String, dynamic> parameters() {
     List<Map<String,dynamic>> whereMap = whereClauses.map((v)=>v.toMap()).toList();
     return {
-      "where": whereMap,
+      "Where": whereMap,
     };
   }
 }
@@ -157,12 +140,11 @@ class UpdateFunction extends FunctionData {
   final List<Where> whereClauses;
   final Map<String,dynamic> updates;
 
-  String function() => 'Update';
   Map<String, dynamic> parameters() {
     List<Map<String,dynamic>> whereMap = whereClauses.map((v)=>v.toMap()).toList();
     return {
-      "where": whereMap,
-      "updates": updates,
+      "Where": whereMap,
+      "Updates": updates,
     };
   }
 }
@@ -175,15 +157,14 @@ class ReadFunction extends FunctionData {
   final int pageSize;
   final int page;
 
-  String function() => 'Read';
   Map<String, dynamic> parameters() {
     List<Map<String,dynamic>> whereMap = whereClauses.map((v)=>v.toMap()).toList();
     return {
-      "fields": fields,
-      "where": whereMap,
-      "orderBy": orderBy,
-      "pageSize": pageSize,
-      "page": page,
+      "Fields": fields,
+      "Where": whereMap,
+      "OrderBy": orderBy,
+      "PageSize": pageSize,
+      "Page": page,
     };
   }
 }

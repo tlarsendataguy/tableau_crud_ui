@@ -1,12 +1,8 @@
 import 'dart:convert';
 import 'package:tableau_crud_ui/io/try_cast.dart';
 
-const _server = "server";
-const _port = "port";
-const _username = "username";
-const _password = "password";
-const _database = "database";
-const _schema = "schema";
+const _apiKey = "apiKey";
+const _connection = "connection";
 const _table = "table";
 const _selectFields = "selectFields";
 const _orderByFields = "orderByFields";
@@ -38,12 +34,8 @@ const editUser = 'User';
 class Settings {
   Settings(
       {
-        required this.server,
-        required this.port,
-        required this.username,
-        required this.password,
-        required this.database,
-        required this.schema,
+        required this.apiKey,
+        required this.connection,
         required this.table,
         required this.selectFields,
         required this.orderByFields,
@@ -58,12 +50,8 @@ class Settings {
       }
   );
 
-  String server;
-  String port;
-  String username;
-  String password;
-  String database;
-  String schema;
+  String apiKey;
+  String connection;
   String table;
   Map<String,String> selectFields;
   List<String> orderByFields;
@@ -77,12 +65,8 @@ class Settings {
   bool enableDelete;
 
   bool isEmpty() {
-    return server == '' &&
-      port == '' &&
-      username == '' &&
-      password == '' &&
-      database == '' &&
-      schema == '' &&
+    return apiKey == '' &&
+      connection == '' &&
       table == '' &&
       selectFields.isEmpty &&
       orderByFields.isEmpty &&
@@ -106,12 +90,8 @@ class Settings {
   }
 
   void copyFrom(Settings other){
-    server = other.server;
-    port = other.port;
-    username = other.username;
-    password = other.password;
-    database = other.database;
-    schema = other.schema;
+    apiKey = other.apiKey;
+    connection = other.connection;
     table = other.table;
     selectFields = other.selectFields;
     orderByFields = other.orderByFields;
@@ -127,12 +107,8 @@ class Settings {
 
   String toJson() {
     var mapped = <String, dynamic>{
-      _server: server,
-      _port: port,
-      _username: username,
-      _password: password,
-      _database: database,
-      _schema: schema,
+      _apiKey: apiKey,
+      _connection: connection,
       _table: table,
       _selectFields: selectFields,
       _orderByFields: orderByFields,
@@ -150,12 +126,8 @@ class Settings {
 
   static Settings fromJson(String jsonSettings) {
     var mapped = tryCast<Map<String, dynamic>>(jsonDecode(jsonSettings), {});
-    var server = mapped.tryString(_server);
-    var port = mapped.tryString(_port);
-    var username = mapped.tryString(_username);
-    var password = mapped.tryString(_password);
-    var database = mapped.tryString(_database);
-    var schema = mapped.tryString(_schema);
+    var apiKey = mapped.tryString(_apiKey);
+    var connection = mapped.tryString(_connection);
     var table = mapped.tryString(_table);
     var selectFields = mapped.tryStringStringMap(_selectFields);
     var orderByFields = mapped.tryStringList(_orderByFields);
@@ -176,12 +148,8 @@ class Settings {
       filters.add(filter);
     }
     return Settings(
-      server: server,
-      port: port,
-      username: username,
-      password: password,
-      database: database,
-      schema: schema,
+      apiKey: apiKey,
+      connection: connection,
       table: table,
       selectFields: selectFields,
       orderByFields: orderByFields,

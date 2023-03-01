@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tableau_crud_ui/configuration_pages/connection_page.dart';
 import 'package:tableau_crud_ui/configuration_pages/general_settings_page.dart';
 import 'package:tableau_crud_ui/configuration_pages/import_export_page.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
@@ -12,7 +11,6 @@ import 'package:tableau_crud_ui/io/settings.dart';
 import 'package:tableau_crud_ui/styling.dart';
 
 enum Page {
-  connection,
   selectFields,
   orderByFields,
   filters,
@@ -55,9 +53,6 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
     }
 
     switch (currentPage){
-      case Page.connection:
-        content = ConnectionPage(io: widget.io, settings: settings);
-        break;
       case Page.selectFields:
         content = SelectFieldsPage(settings: settings);
         break;
@@ -71,7 +66,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
         content = MappedDataSourcesPage(tableauIo: widget.io.tableau, settings: settings);
         break;
       case Page.general:
-        content = GeneralSettingsPage(settings: settings);
+        content = GeneralSettingsPage(settings: settings, io: widget.io);
         break;
       case Page.importExport:
         content = ImportExportPage(settings: settings);
@@ -147,7 +142,6 @@ class ConfigurationPageButtons extends StatelessWidget {
         ),
         Container(height: 40),
         PageButton(goToPage: Page.general, currentPage: page, onClick: onPageChanged),
-        PageButton(goToPage: Page.connection, currentPage: page, onClick: onPageChanged),
         PageButton(goToPage: Page.selectFields, currentPage: page, onClick: onPageChanged),
         PageButton(goToPage: Page.orderByFields, currentPage: page, onClick: onPageChanged),
         PageButton(goToPage: Page.filters, currentPage: page, onClick: onPageChanged),
@@ -171,10 +165,6 @@ class PageButton extends StatelessWidget{
     Color? color;
 
     switch (goToPage){
-      case Page.connection:
-        message = "Connection info";
-        icon = Icons.format_list_bulleted;
-        break;
       case Page.selectFields:
         message = "Select fields";
         icon = Icons.table_chart;

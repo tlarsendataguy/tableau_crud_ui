@@ -1,5 +1,6 @@
 import 'package:tableau_crud_ui/io/connection_data.dart';
 import 'package:tableau_crud_ui/io/settings.dart';
+import 'package:http/http.dart';
 
 class IoManager {
   IoManager(this.db, this.tableau);
@@ -8,12 +9,11 @@ class IoManager {
 }
 
 abstract class DbIo {
-  Future<String> testConnection(RequestData request);
-  Future<String> insert(RequestData request);
-  Future<String> update(RequestData request);
-  Future<String> delete(RequestData request);
-  Future<String> read(RequestData request);
-  Future<String> encryptPassword(String password);
+  Future<Response> testConnection(RequestData request);
+  Future<Response> insert(RequestData request);
+  Future<Response> update(RequestData request);
+  Future<Response> delete(RequestData request);
+  Future<Response> read(RequestData request);
 }
 
 abstract class TableauIo {
@@ -45,42 +45,34 @@ class TableauFilter{
 }
 
 class DbMockSuccessIo extends DbIo {
-  Future<String> testConnection(RequestData request) async =>
-      '{"Success":true,"Data":{"ColumnNames":["id","category","amount","date","comment","is true"],"RowCount":0,"Data":[[],[],[],[],[],[]],"TotalRowCount":0}}';
-  Future<String> insert(RequestData request) async =>
-      '{"Success":true,"Data":1}';
-  Future<String> update(RequestData request) async =>
-      '{"Success":true,"Data":1}';
-  Future<String> delete(RequestData request) async =>
-      '{"Success":true,"Data":1}';
-  Future<String> read(RequestData request) async =>
-      '{"Success":true,"Data":{"ColumnNames":["id","category","amount","date","comment","is true","long text"],"RowCount":2,"Data":[[1,13,14],["blah","something",null],[123.2,64.02,null],["2020-01-13T00:00:00Z","2020-02-03T00:00:00Z",null],["hello world","You are my sunshine",null],[true,false,null],["The rain in Spain stays mainly on the plain","",""]],"TotalRowCount":20}}';
-  Future<String> encryptPassword(String password) async =>
-      '{"Success":true,"Data":"I am encrypted!"}';
+  Future<Response> testConnection(RequestData request) async =>
+      Response('{"ColumnNames":["id","category","amount","date","comment","is true"],"RowCount":0,"Data":[[],[],[],[],[],[]],"TotalRowCount":0}', 200);
+  Future<Response> insert(RequestData request) async =>
+      Response('1', 200);
+  Future<Response> update(RequestData request) async =>
+      Response('1', 200);
+  Future<Response> delete(RequestData request) async =>
+      Response('1', 200);
+  Future<Response> read(RequestData request) async =>
+      Response('{"ColumnNames":["id","category","amount","date","comment","is true","long text"],"RowCount":2,"Data":[[1,13,14],["blah","something",null],[123.2,64.02,null],["2020-01-13T00:00:00Z","2020-02-03T00:00:00Z",null],["hello world","You are my sunshine",null],[true,false,null],["The rain in Spain stays mainly on the plain","",""]],"TotalRowCount":20}', 200);
 }
 
 class DbMockFailIo extends DbIo {
-  Future<String> testConnection(RequestData request) async =>
-      '{"Success":false,"Data":"test connection failed"}';
-  Future<String> insert(RequestData request) async =>
-      '{"Success":false,"Data":"insert failed"}';
-  Future<String> update(RequestData request) async =>
-      '{"Success":false,"Data":"update failed"}';
-  Future<String> delete(RequestData request) async =>
-      '{"Success":false,"Data":"delete failed"}';
-  Future<String> read(RequestData request) async =>
-      '{"Success":false,"Data":"read failed"}';
-  Future<String> encryptPassword(String password) async =>
-      '{"Success":false,"Data":"encryption failed"}';
+  Future<Response> testConnection(RequestData request) async =>
+      Response("test connection failed", 500);
+  Future<Response> insert(RequestData request) async =>
+      Response("insert failed", 500);
+  Future<Response> update(RequestData request) async =>
+      Response("update failed", 500);
+  Future<Response> delete(RequestData request) async =>
+      Response("delete failed", 500);
+  Future<Response> read(RequestData request) async =>
+      Response("read failed", 500);
 }
 
 var mockSettings = Settings(
-  server: 'test server',
-  port: 'test port',
-  username: 'test username',
-  password: 'test password',
-  database: 'test database',
-  schema: 'test schema',
+  apiKey: 'api key',
+  connection: 'test connection',
   table: 'test table',
   selectFields: {'id': editNone, 'category': "$editFixedList:blah|something", 'amount': editNumber, 'date': editDate, 'comment': editText, 'is true': editBool},
   orderByFields: ['id'],
@@ -96,12 +88,8 @@ var mockSettings = Settings(
 
 class TableauMockIo extends TableauIo {
   var _settings = Settings(
-    server: '',
-    port: '',
-    username: '',
-    password: '',
-    database: '',
-    schema: '',
+    apiKey: '',
+    connection: '',
     table: '',
     selectFields: {},
     orderByFields: [],

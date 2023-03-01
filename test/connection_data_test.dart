@@ -3,26 +3,22 @@ import 'package:tableau_crud_ui/io/connection_data.dart';
 
 main(){
   var connectionData = ConnectionData(
-    server: 'server',
-    port: 'port',
-    username: 'username',
-    password: 'password',
-    database: 'test',
-    schema: 'dbo',
+    apiKey: 'apiKey',
+    connection: 'connection',
     table: 'some_table',
   );
 
   test("Test json generated to test connection",(){
     var request = connectionData.generateRequest(TestConnectionFunction());
     var requestJson = request.toJson();
-    expect(requestJson, equals('{"Server":"server","Port":"port","Username":"username","Password":"password","Database":"test","Schema":"dbo","Table":"some_table","Function":"TestConnection","Parameters":{}}'));
+    expect(requestJson, equals('{"ApiKey":"apiKey","Connection":"connection","Table":"some_table"}'));
     print(requestJson);
   });
 
   test("Test json generated to insert record",(){
     var request = connectionData.generateRequest(InsertFunction({"Field1":"test", "Field2": 123}));
     var requestJson = request.toJson();
-    expect(requestJson, equals('{"Server":"server","Port":"port","Username":"username","Password":"password","Database":"test","Schema":"dbo","Table":"some_table","Function":"Insert","Parameters":{"values":{"Field1":"test","Field2":123}}}'));
+    expect(requestJson, equals('{"ApiKey":"apiKey","Connection":"connection","Table":"some_table","Values":{"Field1":"test","Field2":123}}'));
     print(requestJson);
   });
 
@@ -35,7 +31,7 @@ main(){
       ],
     ));
     var requestJson = request.toJson();
-    expect(requestJson, equals('{"Server":"server","Port":"port","Username":"username","Password":"password","Database":"test","Schema":"dbo","Table":"some_table","Function":"Delete","Parameters":{"where":[{"field":"field1","operator":"equals","values":[10],"includeNulls":false,"exclude":false},{"field":"field2","operator":"in","values":["A","B","C"],"includeNulls":false,"exclude":false},{"field":"field3","operator":"range","values":[0,10],"includeNulls":false,"exclude":false}]}}'));
+    expect(requestJson, equals('{"ApiKey":"apiKey","Connection":"connection","Table":"some_table","Where":[{"field":"field1","operator":"equals","values":[10],"includeNulls":false,"exclude":false},{"field":"field2","operator":"in","values":["A","B","C"],"includeNulls":false,"exclude":false},{"field":"field3","operator":"range","values":[0,10],"includeNulls":false,"exclude":false}]}'));
     print(requestJson);
   });
 
@@ -50,7 +46,7 @@ main(){
       },
     ));
     var requestJson = request.toJson();
-    expect(requestJson, equals('{"Server":"server","Port":"port","Username":"username","Password":"password","Database":"test","Schema":"dbo","Table":"some_table","Function":"Update","Parameters":{"where":[{"field":"field1","operator":"equals","values":[10],"includeNulls":false,"exclude":false}],"updates":{"field1":"A","field2":123}}}'));
+    expect(requestJson, equals('{"ApiKey":"apiKey","Connection":"connection","Table":"some_table","Where":[{"field":"field1","operator":"equals","values":[10],"includeNulls":false,"exclude":false}],"Updates":{"field1":"A","field2":123}}'));
     print(requestJson);
   });
 
@@ -65,7 +61,7 @@ main(){
       page: 1,
     ));
     var requestJson = request.toJson();
-    expect(requestJson, equals('{"Server":"server","Port":"port","Username":"username","Password":"password","Database":"test","Schema":"dbo","Table":"some_table","Function":"Read","Parameters":{"fields":["field1","field2"],"where":[{"field":"field1","operator":"equals","values":[10],"includeNulls":false,"exclude":false}],"orderBy":["field1"],"pageSize":10,"page":1}}'));
+    expect(requestJson, equals('{"ApiKey":"apiKey","Connection":"connection","Table":"some_table","Fields":["field1","field2"],"Where":[{"field":"field1","operator":"equals","values":[10],"includeNulls":false,"exclude":false}],"OrderBy":["field1"],"PageSize":10,"Page":1}'));
     print(requestJson);
   });
 }
