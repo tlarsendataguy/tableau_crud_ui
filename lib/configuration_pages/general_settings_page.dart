@@ -157,11 +157,11 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
           child: ElevatedButton(
-            child: Text("Test connection"),
+            child: Text("Get metadata"),
             onPressed: () async {
               showDialog(
                 context: context,
-                builder: (context) => LoadingDialog(message: "Get metadata..."),
+                builder: (context) => LoadingDialog(message: "Getting metadata..."),
               );
               var error = await testConnection();
               Navigator.of(context).pop();
