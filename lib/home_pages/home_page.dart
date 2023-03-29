@@ -26,7 +26,7 @@ class _HomeState extends State<Home> {
   int page = 1;
   int totalPages = 0;
   QueryResults? data;
-  String? user;
+  String error = '';
 
   initState(){
     super.initState();
@@ -42,17 +42,14 @@ class _HomeState extends State<Home> {
     tableauContext = await widget.io.tableau.getContext();
     settings = await widget.io.tableau.getSettings();
     await setFilterChangeCallbacks();
-    var userParam = await widget.io.tableau.getParameter(editUser);
-    if (userParam != null) {
-      user = userParam.value;
-    }
     loaded = true;
     if (settings.isEmpty()) {
       data = QueryResults(columnNames: [], data: [], totalRowCount: 0);
       setState((){});
       return;
     }
-    await readTable();
+    this.error = await readTable();
+    setState((){});
   }
 
   Future setFilterChangeCallbacks() async {
@@ -72,12 +69,14 @@ class _HomeState extends State<Home> {
     await widget.io.tableau.registerParameterChangedOn(registerParams, parameterChangeCallback);
   }
 
-  void filterChangeCallback(dynamic event){
-    readTable();
+  Future filterChangeCallback(dynamic event) async {
+    this.error = await readTable();
+    setState((){});
   }
 
-  void parameterChangeCallback(dynamic event){
-    readTable();
+  Future parameterChangeCallback(dynamic event) async{
+    this.error = await readTable();
+    setState((){});
   }
 
   Future<String> insert(Map<String,dynamic> values) async {
@@ -250,7 +249,7 @@ class _HomeState extends State<Home> {
 
   Future pageUpdated(int newPage) async {
     page = newPage;
-    await readTable();
+    this.error = await readTable();
   }
 
   void rowSelected(int newRow) {
@@ -264,7 +263,7 @@ class _HomeState extends State<Home> {
 
     loaded = true;
     if (!settings.isEmpty()){
-      readTable();
+      this.error = await readTable();
       setFilterChangeCallbacks();
     }
   }
@@ -320,7 +319,7 @@ class _HomeState extends State<Home> {
                   editModes: editModes,
                   initialValues: initialValues,
                   onSubmit: insert,
-                  user: user ?? "",
+                  io: widget.io,
                 ),
               );
             },
@@ -345,7 +344,7 @@ class _HomeState extends State<Home> {
                   editModes: editModes,
                   initialValues: initialValues,
                   onSubmit: update,
-                  user: user ?? "",
+                  io: widget.io,
                 ),
               );
             },
@@ -402,15 +401,8 @@ class _HomeState extends State<Home> {
             color: Colors.blue,
           ),
           onPressed: () async {
-            var error = await readTable();
-            if (error != ""){
-              await showDialog(
-                context: context,
-                builder: (context) => OkDialog(
-                    child: Text(error, softWrap: true),
-                    msgType: MsgType.Error),
-              );
-            }
+            this.error = await readTable();
+            setState((){});
           },
         ),
       ),
@@ -425,6 +417,18 @@ class _HomeState extends State<Home> {
       children: buttonBarChildren,
     );
 
+    Widget dataWidget;
+    if (this.error != '') {
+      dataWidget = Center(child: Text(this.error));
+    } else {
+      dataWidget = DataViewer(
+        onSelectRow: rowSelected,
+        data: data,
+        settings: settings,
+        selectedRow: selectedRow,
+      );
+    }
+
     return Material(
       color: backgroundColor,
       child: Column(
@@ -434,12 +438,7 @@ class _HomeState extends State<Home> {
             child: Card(
               child: Padding(
                 padding: EdgeInsets.all(4.0),
-                child: DataViewer(
-                  onSelectRow: rowSelected,
-                  data: data,
-                  settings: settings,
-                  selectedRow: selectedRow,
-                ),
+                child: dataWidget,
               ),
             ),
           ),

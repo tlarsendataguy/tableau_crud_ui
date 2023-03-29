@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tableau_crud_ui/dialogs.dart';
+import 'package:tableau_crud_ui/io/io.dart';
 import 'package:tableau_crud_ui/io/settings.dart';
 import 'package:tableau_crud_ui/io/try_cast.dart';
 
 typedef Future<String> DataEntryOnSubmit(Map<String,dynamic> values);
 
 class DataEntryDialog extends StatefulWidget {
-  DataEntryDialog({required this.editModes, required this.initialValues, required this.onSubmit, required this.user})
+  DataEntryDialog({required this.editModes, required this.initialValues, required this.onSubmit, required this.io})
       : assert(editModes.length == initialValues.length);
   final List<dynamic> initialValues;
   final Map<String,String> editModes;
   final DataEntryOnSubmit onSubmit;
-  final String user;
+  final IoManager io;
 
   State<StatefulWidget> createState() => _DataEntryDialogState();
 }
@@ -255,7 +256,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
           submitValues[key] = DateTime.now().toIso8601String();
           break;
         case editUser:
-          submitValues[key] = widget.user;
+          submitValues[key] = widget.io.tableau.getParameter(editUser);
           break;
         default:
           continue;
