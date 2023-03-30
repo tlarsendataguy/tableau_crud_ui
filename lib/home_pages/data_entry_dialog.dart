@@ -186,7 +186,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
                   ElevatedButton(
                     child: Text("Submit"),
                     onPressed: () async {
-                      var values = _generateSubmitValues();
+                      var values = await _generateSubmitValues();
                       showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -216,7 +216,7 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
     );
   }
 
-  Map<String,dynamic> _generateSubmitValues(){
+  Future<Map<String,dynamic>> _generateSubmitValues() async{
     var submitValues = Map<String,dynamic>();
     var keys = widget.editModes.keys.toList();
     for (var index = 0; index < _textControllers.length; index++){
@@ -256,7 +256,12 @@ class _DataEntryDialogState extends State<DataEntryDialog> {
           submitValues[key] = DateTime.now().toIso8601String();
           break;
         case editUser:
-          submitValues[key] = widget.io.tableau.getParameter(editUser);
+          var user = await widget.io.tableau.getParameter(editUser);
+          if (user == null) {
+            submitValues[key] = null;
+          } else {
+            submitValues[key] = user.value;
+          }
           break;
         default:
           continue;
