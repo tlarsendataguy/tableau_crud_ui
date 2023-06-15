@@ -180,7 +180,7 @@ class _HomeState extends State<Home> {
     if (queryResult.error != ''){
       print(queryResult.error);
     }
-    totalPages = (data?.totalRowCount ?? 0 / settings.defaultPageSize).ceil();
+    totalPages = ((data?.totalRowCount ?? 0) / settings.defaultPageSize).ceil();
     setState(()=>readingTable = false);
     return queryResult.error;
   }
